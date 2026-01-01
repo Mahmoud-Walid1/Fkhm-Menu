@@ -197,7 +197,7 @@ export const ChatBot: React.FC<{ isCartOpen?: boolean }> = ({ isCartOpen = false
                       ))}
                     </div>
                   )}
-                </motion.div>
+                </div>
               ))}
               {isLoading && (
                 <div className="flex justify-start">

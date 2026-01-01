@@ -73,7 +73,9 @@ const DEFAULT_SETTINGS: SiteSettings = {
   // GitHub Integration defaults
   githubOwner: 'Mahmoud-Walid1',
   githubRepo: 'Fkhm-Menu',
-  githubBranch: 'main'
+  githubBranch: 'main',
+  // Default theme
+  theme: 'light'
 };
 
 interface AppContextType {

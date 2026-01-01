@@ -43,6 +43,8 @@ export interface SiteSettings {
   githubBranch?: string;
   // Gemini AI (for ChatBot)
   geminiApiKey?: string;
+  // Theme
+  theme: 'light' | 'dark';
 }
 
 export interface MessageAction {
