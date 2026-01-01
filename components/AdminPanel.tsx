@@ -6,7 +6,7 @@ import { Settings, Plus, Edit, Trash, X, Save, Palette, Image as ImageIcon, Link
 import { uploadImageToGitHub } from '../utils/githubUpload';
 
 export const AdminPanel: React.FC<{ onClose: () => void }> = ({ onClose }) => {
-    const { products, categories, settings, addProduct, updateProduct, deleteProduct, addCategory, updateSettings } = useAppStore();
+    const { products, categories, settings, addProduct, updateProduct, deleteProduct, addCategory, updateCategory, deleteCategory, updateSettings } = useAppStore();
     const [activeTab, setActiveTab] = useState<'products' | 'categories' | 'settings' | 'images'>('products');
 
     // Product Form State
@@ -16,10 +16,18 @@ export const AdminPanel: React.FC<{ onClose: () => void }> = ({ onClose }) => {
     const [newHeroImage, setNewHeroImage] = useState('');
     const [newOfferImage, setNewOfferImage] = useState('');
 
+    // Category Edit State
+    const [editingCategory, setEditingCategory] = useState<{ id: string; name: string } | null>(null);
+
     // GitHub Upload State
     const [selectedImageFile, setSelectedImageFile] = useState<File | null>(null);
     const [imagePreview, setImagePreview] = useState<string>('');
     const [uploadingImage, setUploadingImage] = useState(false);
+
+    // Offer Image Upload State
+    const [selectedOfferFile, setSelectedOfferFile] = useState<File | null>(null);
+    const [offerPreview, setOfferPreview] = useState<string>('');
+    const [uploadingOffer, setUploadingOffer] = useState(false);
 
     // Handlers
     const handleProductSubmit = async (e: React.FormEvent) => {
@@ -97,10 +105,43 @@ export const AdminPanel: React.FC<{ onClose: () => void }> = ({ onClose }) => {
         updateSettings({ ...settings, heroImages: updated });
     };
 
-    const addOfferImage = () => {
-        if (newOfferImage) {
+    const addOfferImage = async () => {
+        if (selectedOfferFile && settings.githubToken) {
+            setUploadingOffer(true);
+            const result = await uploadImageToGitHub(
+                selectedOfferFile,
+                {
+                    token: settings.githubToken,
+                    owner: settings.githubOwner || 'Mahmoud-Walid1',
+                    repo: settings.githubRepo || 'Fkhm-Menu',
+                    branch: settings.githubBranch || 'main'
+                },
+                'images/offers'
+            );
+            setUploadingOffer(false);
+
+            if (result.success && result.url) {
+                updateSettings({ ...settings, offerImages: [...(settings.offerImages || []), result.url] });
+                setSelectedOfferFile(null);
+                setOfferPreview('');
+            } else {
+                alert(`فشل رفع الصورة: ${result.error}`);
+            }
+        } else if (newOfferImage) {
             updateSettings({ ...settings, offerImages: [...(settings.offerImages || []), newOfferImage] });
             setNewOfferImage('');
+        }
+    };
+
+    const handleOfferImageFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        if (file) {
+            setSelectedOfferFile(file);
+            const reader = new FileReader();
+            reader.onload = () => {
+                setOfferPreview(reader.result as string);
+            };
+            reader.readAsDataURL(file);
         }
     };
 
