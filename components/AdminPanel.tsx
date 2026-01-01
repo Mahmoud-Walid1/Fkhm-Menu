@@ -29,6 +29,23 @@ export const AdminPanel: React.FC<{ onClose: () => void }> = ({ onClose }) => {
     const [offerPreview, setOfferPreview] = useState<string>('');
     const [uploadingOffer, setUploadingOffer] = useState(false);
 
+    // Local Settings State (to avoid auto-save race conditions)
+    const [tempSettings, setTempSettings] = useState(settings);
+    const [settingsModified, setSettingsModified] = useState(false);
+
+    // Sync tempSettings when global settings load (only if not modified yet to allow external updates)
+    React.useEffect(() => {
+        if (!settingsModified) {
+            setTempSettings(settings);
+        }
+    }, [settings, settingsModified]);
+
+    const handleSaveSettings = () => {
+        updateSettings(tempSettings);
+        setSettingsModified(false);
+        alert('تم حفظ الإعدادات بنجاح ✅');
+    };
+
     // Handlers
     const handleProductSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -529,24 +546,24 @@ export const AdminPanel: React.FC<{ onClose: () => void }> = ({ onClose }) => {
                                 <div>
                                     <label className="block text-sm font-bold mb-1">اسم المتجر</label>
                                     <input
-                                        value={settings.shopName}
-                                        onChange={(e) => updateSettings({ ...settings, shopName: e.target.value })}
+                                        value={tempSettings.shopName}
+                                        onChange={(e) => { setTempSettings({ ...tempSettings, shopName: e.target.value }); setSettingsModified(true); }}
                                         className="w-full border p-2 rounded-md"
                                     />
                                 </div>
                                 <div>
                                     <label className="block text-sm font-bold mb-1">جملة الترحيب</label>
                                     <input
-                                        value={settings.heroHeadline}
-                                        onChange={(e) => updateSettings({ ...settings, heroHeadline: e.target.value })}
+                                        value={tempSettings.heroHeadline}
+                                        onChange={(e) => { setTempSettings({ ...tempSettings, heroHeadline: e.target.value }); setSettingsModified(true); }}
                                         className="w-full border p-2 rounded-md"
                                     />
                                 </div>
                                 <div>
                                     <label className="block text-sm font-bold mb-1">رقم الواتساب (للتواصل والطلبات)</label>
                                     <input
-                                        value={settings.whatsappNumber}
-                                        onChange={(e) => updateSettings({ ...settings, whatsappNumber: e.target.value })}
+                                        value={tempSettings.whatsappNumber}
+                                        onChange={(e) => { setTempSettings({ ...tempSettings, whatsappNumber: e.target.value }); setSettingsModified(true); }}
                                         className="w-full border p-2 rounded-md"
                                     />
                                 </div>
@@ -555,11 +572,11 @@ export const AdminPanel: React.FC<{ onClose: () => void }> = ({ onClose }) => {
                                     <div className="flex gap-2 items-center">
                                         <input
                                             type="color"
-                                            value={settings.primaryColor}
-                                            onChange={(e) => updateSettings({ ...settings, primaryColor: e.target.value })}
+                                            value={tempSettings.primaryColor}
+                                            onChange={(e) => { setTempSettings({ ...tempSettings, primaryColor: e.target.value }); setSettingsModified(true); }}
                                             className="h-10 w-20 rounded cursor-pointer"
                                         />
-                                        <span className="text-sm text-gray-500">{settings.primaryColor}</span>
+                                        <span className="text-sm text-gray-500">{tempSettings.primaryColor}</span>
                                     </div>
                                 </div>
                             </div>
@@ -569,8 +586,8 @@ export const AdminPanel: React.FC<{ onClose: () => void }> = ({ onClose }) => {
                                 <div>
                                     <label className="block text-sm font-bold mb-1">رابط انستقرام</label>
                                     <input
-                                        value={settings.instagramUrl || ''}
-                                        onChange={(e) => updateSettings({ ...settings, instagramUrl: e.target.value })}
+                                        value={tempSettings.instagramUrl || ''}
+                                        onChange={(e) => { setTempSettings({ ...tempSettings, instagramUrl: e.target.value }); setSettingsModified(true); }}
                                         placeholder="https://instagram.com/..."
                                         className="w-full border p-2 rounded-md"
                                     />
@@ -578,8 +595,8 @@ export const AdminPanel: React.FC<{ onClose: () => void }> = ({ onClose }) => {
                                 <div>
                                     <label className="block text-sm font-bold mb-1">رابط سناب شات</label>
                                     <input
-                                        value={settings.snapchatUrl || ''}
-                                        onChange={(e) => updateSettings({ ...settings, snapchatUrl: e.target.value })}
+                                        value={tempSettings.snapchatUrl || ''}
+                                        onChange={(e) => { setTempSettings({ ...tempSettings, snapchatUrl: e.target.value }); setSettingsModified(true); }}
                                         placeholder="https://snapchat.com/..."
                                         className="w-full border p-2 rounded-md"
                                     />
@@ -587,8 +604,8 @@ export const AdminPanel: React.FC<{ onClose: () => void }> = ({ onClose }) => {
                                 <div>
                                     <label className="block text-sm font-bold mb-1">رابط تيك توك</label>
                                     <input
-                                        value={settings.tiktokUrl || ''}
-                                        onChange={(e) => updateSettings({ ...settings, tiktokUrl: e.target.value })}
+                                        value={tempSettings.tiktokUrl || ''}
+                                        onChange={(e) => { setTempSettings({ ...tempSettings, tiktokUrl: e.target.value }); setSettingsModified(true); }}
                                         placeholder="https://tiktok.com/..."
                                         className="w-full border p-2 rounded-md"
                                     />
@@ -610,8 +627,8 @@ export const AdminPanel: React.FC<{ onClose: () => void }> = ({ onClose }) => {
                                             <label className="block text-sm font-bold mb-1">رمز GitHub (Token)</label>
                                             <input
                                                 type="password"
-                                                value={settings.githubToken || ''}
-                                                onChange={(e) => updateSettings({ ...settings, githubToken: e.target.value })}
+                                                value={tempSettings.githubToken || ''}
+                                                onChange={(e) => { setTempSettings({ ...tempSettings, githubToken: e.target.value }); setSettingsModified(true); }}
                                                 placeholder="ghp_xxxxxxxxxxxxx"
                                                 className="w-full border p-2 rounded-md font-mono text-sm"
                                             />
@@ -620,24 +637,24 @@ export const AdminPanel: React.FC<{ onClose: () => void }> = ({ onClose }) => {
                                             <div>
                                                 <label className="block text-sm font-bold mb-1">Owner</label>
                                                 <input
-                                                    value={settings.githubOwner || 'Mahmoud-Walid1'}
-                                                    onChange={(e) => updateSettings({ ...settings, githubOwner: e.target.value })}
+                                                    value={tempSettings.githubOwner || 'Mahmoud-Walid1'}
+                                                    onChange={(e) => { setTempSettings({ ...tempSettings, githubOwner: e.target.value }); setSettingsModified(true); }}
                                                     className="w-full border p-2 rounded-md text-sm"
                                                 />
                                             </div>
                                             <div>
                                                 <label className="block text-sm font-bold mb-1">Repository</label>
                                                 <input
-                                                    value={settings.githubRepo || 'Fkhm-Menu'}
-                                                    onChange={(e) => updateSettings({ ...settings, githubRepo: e.target.value })}
+                                                    value={tempSettings.githubRepo || 'Fkhm-Menu'}
+                                                    onChange={(e) => { setTempSettings({ ...tempSettings, githubRepo: e.target.value }); setSettingsModified(true); }}
                                                     className="w-full border p-2 rounded-md text-sm"
                                                 />
                                             </div>
                                             <div>
                                                 <label className="block text-sm font-bold mb-1">Branch</label>
                                                 <input
-                                                    value={settings.githubBranch || 'main'}
-                                                    onChange={(e) => updateSettings({ ...settings, githubBranch: e.target.value })}
+                                                    value={tempSettings.githubBranch || 'main'}
+                                                    onChange={(e) => { setTempSettings({ ...tempSettings, githubBranch: e.target.value }); setSettingsModified(true); }}
                                                     className="w-full border p-2 rounded-md text-sm"
                                                 />
                                             </div>
@@ -648,6 +665,14 @@ export const AdminPanel: React.FC<{ onClose: () => void }> = ({ onClose }) => {
                                             </div>
                                         )}
                                     </div>
+                                </div>
+                                <div className="col-span-2 mt-6 pt-4 border-t flex justify-end">
+                                    <button
+                                        onClick={handleSaveSettings}
+                                        className="bg-green-600 text-white px-8 py-3 rounded-lg font-bold hover:bg-green-700 flex items-center gap-2 shadow-lg transform hover:scale-105 transition-all"
+                                    >
+                                        <Save size={20} /> حفظ الإعدادات
+                                    </button>
                                 </div>
                             </div>
 
