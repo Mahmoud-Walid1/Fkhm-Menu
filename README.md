@@ -10,16 +10,16 @@ Digital menu website for **Fkhm Al-Bun Coffee Shop** in **Tayma, Saudi Arabia** 
 
 ---
 
-## 📋 About This Project
+## 🔮 Vibe Coding Project
 
-This is a **5-Coding Project** - a modern, feature-rich digital menu system designed specifically for coffee shops and restaurants. Built with cutting-edge web technologies to deliver a premium user experience.
+This project is a testament to **Vibe Coding** - intuitively built, aesthetically pleasing, and functionally robust. It bridges the gap between modern technology and traditional hospitality.
 
 ### 🎯 Project Highlights
 
 - 🏪 **Client:** Fkhm Al-Bun Coffee Shop
 - 📍 **Location:** Tayma, Saudi Arabia
 - 🌐 **Status:** ✅ Live & Production Ready
-- 🛠️ **Development:** Custom-built by 5-Coding Team
+- 👨‍💻 **Developer:** **Mahmoud Walid**
 
 ---
 
@@ -117,7 +117,7 @@ Access the admin panel using either method:
 
 **Method 2:** Triple-click the footer copyright text
 
-**Password:** Contact the development team
+**Password:** Contact the developer
 
 ---
 
@@ -156,19 +156,17 @@ The project is deployed on **Vercel** with automatic deployments from the `main`
 
 ---
 
-## 🤝 Contributing
+## 🤝 Contact
 
-This is a commercial project for Fkhm Al-Bun Coffee Shop. For inquiries or collaboration:
-
-- **5-Coding Team**
-- **Location:** Saudi Arabia
-- **Specialization:** Custom Web Solutions
+**Mahmoud Walid**
+- **Role:** Full Stack Developer
+- **Specialization:** Vibe Coding & Custom Web Solutions
 
 ---
 
 ## 📄 License
 
-© 2026 Fkhm Al-Bun & 5-Coding. All rights reserved.
+© 2026 Fkhm Al-Bun & Mahmoud Walid. All rights reserved.
 
 ---
 
@@ -183,8 +181,6 @@ This is a commercial project for Fkhm Al-Bun Coffee Shop. For inquiries or colla
 
 <div align="center">
   
-**Built with ❤️ by 5-Coding Team**
-
-*Empowering local businesses with modern digital solutions*
+**Built with Vibe by Mahmoud Walid**
 
 </div>
