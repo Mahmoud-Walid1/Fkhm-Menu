@@ -30,6 +30,15 @@ const AppContent: React.FC = () => {
   }, []);
 
 
+  // Apply theme to html element
+  React.useEffect(() => {
+    if (settings.theme === 'dark') {
+      document.documentElement.classList.add('dark');
+    } else {
+      document.documentElement.classList.remove('dark');
+    }
+  }, [settings.theme]);
+
   // Secret Admin Trigger (Triple Click on Footer Text)
   const handleSecretAdminTrigger = () => {
     const newCount = adminClickCount + 1;
@@ -51,7 +60,7 @@ const AppContent: React.FC = () => {
   };
 
   return (
-    <div className={`${settings.theme === 'dark' ? 'dark' : ''}`}>
+    <div>
       <div className="min-h-screen bg-gray-50 dark:bg-gray-900 pb-20 transition-colors">
         {/* Navbar */}
         <nav className="sticky top-0 z-40 bg-white/95 dark:bg-gray-800/95 backdrop-blur-sm border-b border-gray-100 dark:border-gray-700 shadow-sm transition-all">
