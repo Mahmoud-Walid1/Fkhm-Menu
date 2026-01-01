@@ -249,53 +249,51 @@ export const ChatBot: React.FC<{ isCartOpen?: boolean }> = ({ isCartOpen = false
         )}
       </AnimatePresence>
 
-      {!isCartOpen && (
-        <>
-          <AnimatePresence>
-            {showAutoPopup && !isChatOpen && (
-              <motion.div
-                initial={{ opacity: 0, scale: 0.8, y: 10 }}
-                animate={{ opacity: 1, scale: 1, y: 0 }}
-                exit={{ opacity: 0, scale: 0.8, y: 10 }}
-                className="fixed bottom-24 right-6 bg-white dark:bg-gray-800 text-gray-800 dark:text-white px-4 py-3 rounded-lg shadow-xl border border-gray-200 dark:border-gray-700 z-[9998] max-w-[200px]"
-              >
-                <p className="text-sm font-bold">👋 ممكن أساعدك؟</p>
-                <p className="text-xs text-gray-600 dark:text-gray-300 mt-1">اضغط للتحدث معي!</p>
-              </motion.div>
-            )}
-          </AnimatePresence>
-
-          <motion.button
-            whileHover={{ scale: 1.1 }}
-            whileTap={{ scale: 0.9 }}
-            animate={{
-              scale: [1, 1.05, 1],
-              boxShadow: [
-                '0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)',
-                '0 20px 25px -5px rgba(139, 92, 246, 0.3), 0 10px 10px -5px rgba(139, 92, 246, 0.2)',
-                '0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)'
-              ]
-            }}
-            transition={{
-              duration: 2,
-              repeat: Infinity,
-              ease: "easeInOut"
-            }}
-            onClick={toggleChat}
-            className="fixed bottom-10 right-4 md:bottom-12 md:right-6 p-4 rounded-full shadow-2xl text-white z-[9999] flex items-center justify-center group relative"
-            style={{ backgroundColor: settings.primaryColor }}
+      {/* Auto-popup tooltip */}
+      <AnimatePresence>
+        {showAutoPopup && !isChatOpen && !isCartOpen && (
+          <motion.div
+            initial={{ opacity: 0, scale: 0.8, y: 10 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            exit={{ opacity: 0, scale: 0.8, y: 10 }}
+            className="fixed bottom-24 right-6 bg-white dark:bg-gray-800 text-gray-800 dark:text-white px-4 py-3 rounded-lg shadow-xl border border-gray-200 dark:border-gray-700 z-[9998] max-w-[200px]"
           >
-            {isChatOpen ? <X size={24} /> : (
-              <>
-                <MessageCircle size={28} />
-                <span className="absolute right-full mr-3 bg-white text-gray-800 px-2 py-1 rounded-md text-xs font-bold shadow-md opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none">
-                  محادثة
-                </span>
-              </>
-            )}
-          </motion.button>
-        </>
-      )}
+            <p className="text-sm font-bold">👋 ممكن أساعدك؟</p>
+            <p className="text-xs text-gray-600 dark:text-gray-300 mt-1">اضغط للتحدث معي!</p>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      <motion.button
+        whileHover={{ scale: 1.1 }}
+        whileTap={{ scale: 0.9 }}
+        animate={{
+          scale: [1, 1.05, 1],
+          boxShadow: [
+            '0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)',
+            '0 20px 25px -5px rgba(139, 92, 246, 0.3), 0 10px 10px -5px rgba(139, 92, 246, 0.2)',
+            '0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)'
+          ]
+        }}
+        transition={{
+          duration: 2,
+          repeat: Infinity,
+          ease: "easeInOut"
+        }}
+        onClick={toggleChat}
+        className="fixed bottom-10 right-4 md:bottom-12 md:right-6 p-4 rounded-full shadow-2xl text-white z-[9999] flex items-center justify-center group relative"
+        style={{ backgroundColor: settings.primaryColor }}
+      >
+        {isChatOpen ? <X size={24} /> : (
+          <>
+            <MessageCircle size={28} />
+            <span className="absolute right-full mr-3 bg-white text-gray-800 px-2 py-1 rounded-md text-xs font-bold shadow-md opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none">
+              محادثة
+            </span>
+          </>
+        )}
+      </motion.button>
+
     </>,
     document.body
   );
