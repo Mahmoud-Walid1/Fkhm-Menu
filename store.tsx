@@ -1,7 +1,18 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { AppContextType, Product, Category, SiteSettings, CartItem, Message, Size } from './types';
+import { db } from './firebase';
+import {
+  collection,
+  onSnapshot,
+  addDoc,
+  updateDoc,
+  deleteDoc,
+  doc,
+  setDoc,
+  writeBatch
+} from 'firebase/firestore';
 
-// Default Data
+// Default Data (Used for Seeding)
 const DEFAULT_CATEGORIES: Category[] = [
   { id: '1', name: 'مشروبات فاخرة' },
   { id: '2', name: 'حلويات' },
@@ -55,7 +66,7 @@ const DEFAULT_SETTINGS: SiteSettings = {
   primaryColor: '#5b21b6', // Deep Royal Purple
   shopName: 'فخم البن',
   heroHeadline: 'القهوة كما يجب أن تكون.. فخامة وتعديل مزاج',
-  whatsappNumber: '966504312478', // Delivery Number as default for cart
+  whatsappNumber: '966504312478',
   deliveryNumber: '966504312478',
   adminNumber: '966538371230',
   heroImages: [
@@ -70,13 +81,10 @@ const DEFAULT_SETTINGS: SiteSettings = {
   instagramUrl: 'https://instagram.com',
   snapchatUrl: 'https://snapchat.com',
   tiktokUrl: 'https://tiktok.com',
-  // GitHub Integration defaults
   githubOwner: 'Mahmoud-Walid1',
   githubRepo: 'Fkhm-Menu',
   githubBranch: 'main',
-  // Default theme
   theme: 'light',
-  // Promo Popup Defaults
   popupTitle: 'عرض مميز 🔥',
   popupImage: '',
   popupMessage: 'استمتع بأفضل المشروبات والحلويات لدينا. اطلب الآن!',
@@ -86,39 +94,94 @@ const DEFAULT_SETTINGS: SiteSettings = {
 const AppContext = createContext<AppContextType | undefined>(undefined);
 
 export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  // Load from local storage or use defaults
-  const [products, setProducts] = useState<Product[]>(() => {
-    const saved = localStorage.getItem('mood_products');
-    return saved ? JSON.parse(saved) : DEFAULT_PRODUCTS;
+  const [products, setProducts] = useState<Product[]>([]);
+  const [categories, setCategories] = useState<Category[]>([]);
+  const [settings, setSettings] = useState<SiteSettings>(DEFAULT_SETTINGS);
+
+  // Cart remains local
+  const [cart, setCart] = useState<CartItem[]>(() => {
+    const saved = localStorage.getItem('local_cart');
+    return saved ? JSON.parse(saved) : [];
   });
 
-  const [categories, setCategories] = useState<Category[]>(() => {
-    const saved = localStorage.getItem('mood_categories');
-    return saved ? JSON.parse(saved) : DEFAULT_CATEGORIES;
-  });
-
-  const [settings, setSettings] = useState<SiteSettings>(() => {
-    const saved = localStorage.getItem('mood_settings');
-    // Merge with defaults to ensure new fields (like heroImages) exist for old users
-    return saved ? { ...DEFAULT_SETTINGS, ...JSON.parse(saved) } : DEFAULT_SETTINGS;
-  });
-
-  const [cart, setCart] = useState<CartItem[]>([]);
   const [isChatOpen, setIsChatOpen] = useState(false);
 
-  // Persist Data
+  // Cart Persistence
   useEffect(() => {
-    localStorage.setItem('mood_products', JSON.stringify(products));
-  }, [products]);
+    localStorage.setItem('local_cart', JSON.stringify(cart));
+  }, [cart]);
 
+  // Firestore Subscriptions
   useEffect(() => {
-    localStorage.setItem('mood_categories', JSON.stringify(categories));
-  }, [categories]);
+    const unsubProducts = onSnapshot(collection(db, 'products'), (snap) => {
+      const items = snap.docs.map(doc => ({ id: doc.id, ...doc.data() } as Product));
+      setProducts(items);
+    });
 
+    const unsubCategories = onSnapshot(collection(db, 'categories'), (snap) => {
+      const items = snap.docs.map(doc => ({ id: doc.id, ...doc.data() } as Category));
+      setCategories(items);
+    });
+
+    const unsubSettings = onSnapshot(doc(db, 'settings', 'config'), (docSnap) => {
+      if (docSnap.exists()) {
+        const data = docSnap.data() as SiteSettings;
+        setSettings({ ...DEFAULT_SETTINGS, ...data }); // Merge to ensure new fields
+      } else {
+        // If settings doc doesn't exist, create it with defaults
+        setDoc(doc(db, 'settings', 'config'), DEFAULT_SETTINGS);
+      }
+    });
+
+    return () => {
+      unsubProducts();
+      unsubCategories();
+      unsubSettings();
+    };
+  }, []);
+
+  // One-time Seeding Logic
   useEffect(() => {
-    localStorage.setItem('mood_settings', JSON.stringify(settings));
-  }, [settings]);
+    const seed = async () => {
+      const isSeeded = localStorage.getItem('firebase_seeded_v1');
+      if (isSeeded) return;
 
+      // Check if DB is actually empty to avoid overwriting existing data if local flag is missing
+      const productsRef = collection(db, 'products');
+      // We can't synchronously check empty here easily in useEffect without async
+      // But we can trust our logic: if UI is empty, User can run manual seed? 
+      // Better: Just write defaults if they don't exist? No, that's heavy.
+      // Let's commit to the "First Run" logic.
+
+      try {
+        const batch = writeBatch(db);
+
+        // Seed Categories
+        DEFAULT_CATEGORIES.forEach(cat => {
+          const ref = doc(db, 'categories', cat.id);
+          batch.set(ref, cat);
+        });
+
+        // Seed Products
+        DEFAULT_PRODUCTS.forEach(prod => {
+          const ref = doc(db, 'products', prod.id);
+          batch.set(ref, prod);
+        });
+
+        // Seed Settings
+        const settingsRef = doc(db, 'settings', 'config');
+        batch.set(settingsRef, DEFAULT_SETTINGS);
+
+        await batch.commit();
+        localStorage.setItem('firebase_seeded_v1', 'true');
+        console.log("Firebase Seeded Successfully");
+      } catch (err) {
+        console.error("Seeding Error:", err);
+      }
+    };
+
+    seed();
+  }, []);
 
   // Cart Logic
   const addToCart = (product: Product, size?: Size) => {
@@ -151,35 +214,45 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
   const clearCart = () => setCart([]);
 
-  // Admin Logic
-  const addProduct = (product: Product) => setProducts([...products, product]);
-
-  const updateProduct = (updated: Product) => {
-    setProducts(products.map(p => p.id === updated.id ? updated : p));
+  // Admin Logic (Firestore)
+  const addProduct = async (product: Product) => {
+    // We let Firestore generate ID or use the one provided if we want specific IDs.
+    // For new products, we ignore the local ID and let Firestore generate one, 
+    // OR we generate one here.
+    const { id, ...data } = product; // Remove potentially temporary ID
+    await addDoc(collection(db, 'products'), data);
   };
 
-  const deleteProduct = (id: string) => {
-    setProducts(products.filter(p => p.id !== id));
+  const updateProduct = async (updated: Product) => {
+    if (!updated.id) return;
+    const { id, ...data } = updated;
+    await updateDoc(doc(db, 'products', id), data as any);
   };
 
-  const updateSettings = (newSettings: SiteSettings) => setSettings(newSettings);
-
-  const addCategory = (name: string) => {
-    setCategories([...categories, { id: Math.random().toString(36).substr(2, 9), name }]);
+  const deleteProduct = async (id: string) => {
+    await deleteDoc(doc(db, 'products', id));
   };
 
-  const updateCategory = (id: string, name: string) => {
-    setCategories(categories.map(c => c.id === id ? { ...c, name } : c));
+  const updateSettings = async (newSettings: SiteSettings) => {
+    await setDoc(doc(db, 'settings', 'config'), newSettings, { merge: true });
   };
 
-  const deleteCategory = (id: string) => {
-    // Only delete if no products are using this category
+  const addCategory = async (name: string) => {
+    await addDoc(collection(db, 'categories'), { name });
+  };
+
+  const updateCategory = async (id: string, name: string) => {
+    await updateDoc(doc(db, 'categories', id), { name });
+  };
+
+  const deleteCategory = async (id: string) => {
+    // Check local state for products (fast check)
     const productsInCategory = products.filter(p => p.category === id);
     if (productsInCategory.length > 0) {
       alert(`لا يمكن حذف القسم.يوجد ${productsInCategory.length} منتج في هذا القسم.`);
       return;
     }
-    setCategories(categories.filter(c => c.id !== id));
+    await deleteDoc(doc(db, 'categories', id));
   };
 
   const toggleChat = () => setIsChatOpen(prev => !prev);
