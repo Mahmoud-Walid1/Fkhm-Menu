@@ -163,15 +163,16 @@ const AppContent: React.FC = () => {
         {isAdminOpen && <AdminPanel onClose={() => setIsAdminOpen(false)} />}
 
       </div>
-      );
+    </div>
+  );
 };
 
 const App: React.FC = () => {
   return (
-      <AppProvider>
-        <AppContent />
-      </AppProvider>
-      );
+    <AppProvider>
+      <AppContent />
+    </AppProvider>
+  );
 };
 
-      export default App;
+export default App;
