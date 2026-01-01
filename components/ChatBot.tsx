@@ -44,15 +44,15 @@ export const ChatBot: React.FC = () => {
   const handleSend = async () => {
     if (!input.trim()) return;
 
-    if (!process.env.API_KEY) {
-        const errorMsg: Message = {
-            id: Date.now().toString(),
-            text: 'عذراً، لم يتم إعداد مفتاح الربط (API Key). يرجى التأكد من الإعدادات.',
-            sender: 'bot',
-            timestamp: new Date()
-        };
-        setMessages(prev => [...prev, errorMsg]);
-        return;
+    if (!settings.geminiApiKey) {
+      const errorMsg: Message = {
+        id: Date.now().toString(),
+        text: 'عذراً، لم يتم إعداد مفتاح Gemini API. يرجى إضافته من صفحة الأدمن → الإعدادات.',
+        sender: 'bot',
+        timestamp: new Date()
+      };
+      setMessages(prev => [...prev, errorMsg]);
+      return;
     }
 
     const userMsg: Message = {
@@ -67,9 +67,9 @@ export const ChatBot: React.FC = () => {
     setIsLoading(true);
 
     try {
-      const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
-      
-      const menuContext = products.map(p => 
+      const ai = new GoogleGenAI({ apiKey: settings.geminiApiKey });
+
+      const menuContext = products.map(p =>
         `- ${p.name}: ${p.price} SAR (${p.description || ''})`
       ).join('\n');
 
@@ -99,28 +99,28 @@ export const ChatBot: React.FC = () => {
       });
 
       const functionCalls = response.functionCalls;
-      
+
       if (functionCalls && functionCalls.length > 0) {
-         const botMsg: Message = {
-            id: (Date.now() + 1).toString(),
-            text: 'تفضل، يمكنك التواصل مباشرة عبر الأزرار التالية:',
-            sender: 'bot',
-            timestamp: new Date(),
-            actions: [
-                { label: 'تواصل مع مندوب التوصيل', url: `https://wa.me/${settings.deliveryNumber}`, type: 'primary' },
-                { label: 'تواصل مع الإدارة', url: `https://wa.me/${settings.adminNumber}`, type: 'secondary' }
-            ]
-         };
-         setMessages(prev => [...prev, botMsg]);
+        const botMsg: Message = {
+          id: (Date.now() + 1).toString(),
+          text: 'تفضل، يمكنك التواصل مباشرة عبر الأزرار التالية:',
+          sender: 'bot',
+          timestamp: new Date(),
+          actions: [
+            { label: 'تواصل مع مندوب التوصيل', url: `https://wa.me/${settings.deliveryNumber}`, type: 'primary' },
+            { label: 'تواصل مع الإدارة', url: `https://wa.me/${settings.adminNumber}`, type: 'secondary' }
+          ]
+        };
+        setMessages(prev => [...prev, botMsg]);
       } else {
-         const text = response.text || 'عذراً، لم أفهم طلبك.';
-         const botMsg: Message = {
-            id: (Date.now() + 1).toString(),
-            text: text,
-            sender: 'bot',
-            timestamp: new Date()
-         };
-         setMessages(prev => [...prev, botMsg]);
+        const text = response.text || 'عذراً، لم أفهم طلبك.';
+        const botMsg: Message = {
+          id: (Date.now() + 1).toString(),
+          text: text,
+          sender: 'bot',
+          timestamp: new Date()
+        };
+        setMessages(prev => [...prev, botMsg]);
       }
 
     } catch (error) {
@@ -148,7 +148,7 @@ export const ChatBot: React.FC = () => {
             className="fixed bottom-24 right-4 w-80 md:w-96 bg-white rounded-lg shadow-xl border border-gray-200 z-[100] overflow-hidden flex flex-col max-h-[500px]"
           >
             {/* Header */}
-            <div 
+            <div
               className="p-4 text-white flex justify-between items-center shadow-md"
               style={{ backgroundColor: settings.primaryColor }}
             >
@@ -164,49 +164,47 @@ export const ChatBot: React.FC = () => {
             {/* Messages */}
             <div className="flex-1 overflow-y-auto p-4 space-y-3 bg-gray-50 h-80">
               {messages.map((msg) => (
-                <div 
-                  key={msg.id} 
+                <div
+                  key={msg.id}
                   className={`flex flex-col ${msg.sender === 'user' ? 'items-end' : 'items-start'}`}
                 >
-                  <div 
-                    className={`max-w-[85%] p-3 rounded-lg text-sm whitespace-pre-wrap ${
-                      msg.sender === 'user' 
-                        ? 'bg-gray-800 text-white rounded-tl-none' 
+                  <div
+                    className={`max-w-[85%] p-3 rounded-lg text-sm whitespace-pre-wrap ${msg.sender === 'user'
+                        ? 'bg-gray-800 text-white rounded-tl-none'
                         : 'bg-white text-gray-800 border border-gray-200 shadow-sm rounded-tr-none'
-                    }`}
+                      }`}
                   >
                     {msg.text}
                   </div>
-                  
+
                   {msg.actions && (
-                      <div className="flex flex-col gap-2 mt-2 w-full max-w-[85%]">
-                          {msg.actions.map((action, idx) => (
-                              <a
-                                key={idx}
-                                href={action.url}
-                                target="_blank"
-                                rel="noreferrer"
-                                className={`flex items-center justify-center gap-2 py-2 px-4 rounded-md text-sm font-bold transition-all shadow-sm ${
-                                    action.type === 'primary' 
-                                    ? 'text-white hover:opacity-90' 
-                                    : 'bg-white border text-gray-700 hover:bg-gray-50'
-                                }`}
-                                style={action.type === 'primary' ? { backgroundColor: settings.primaryColor } : {}}
-                              >
-                                <Phone size={14} />
-                                {action.label}
-                              </a>
-                          ))}
-                      </div>
+                    <div className="flex flex-col gap-2 mt-2 w-full max-w-[85%]">
+                      {msg.actions.map((action, idx) => (
+                        <a
+                          key={idx}
+                          href={action.url}
+                          target="_blank"
+                          rel="noreferrer"
+                          className={`flex items-center justify-center gap-2 py-2 px-4 rounded-md text-sm font-bold transition-all shadow-sm ${action.type === 'primary'
+                              ? 'text-white hover:opacity-90'
+                              : 'bg-white border text-gray-700 hover:bg-gray-50'
+                            }`}
+                          style={action.type === 'primary' ? { backgroundColor: settings.primaryColor } : {}}
+                        >
+                          <Phone size={14} />
+                          {action.label}
+                        </a>
+                      ))}
+                    </div>
                   )}
                 </div>
               ))}
               {isLoading && (
                 <div className="flex justify-start">
-                   <div className="bg-white p-3 rounded-lg border shadow-sm flex items-center gap-2">
-                     <Loader2 size={16} className="animate-spin text-gray-400" />
-                     <span className="text-xs text-gray-400">جاري الرد...</span>
-                   </div>
+                  <div className="bg-white p-3 rounded-lg border shadow-sm flex items-center gap-2">
+                    <Loader2 size={16} className="animate-spin text-gray-400" />
+                    <span className="text-xs text-gray-400">جاري الرد...</span>
+                  </div>
                 </div>
               )}
               <div ref={messagesEndRef} />
@@ -223,7 +221,7 @@ export const ChatBot: React.FC = () => {
                 className="flex-1 bg-gray-100 rounded-full px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-offset-1"
                 style={{ '--tw-ring-color': settings.primaryColor } as React.CSSProperties}
               />
-              <button 
+              <button
                 onClick={handleSend}
                 disabled={!input.trim() || isLoading}
                 className="p-2 rounded-full text-white disabled:opacity-50 transition-colors shadow-md hover:shadow-lg"
@@ -244,12 +242,12 @@ export const ChatBot: React.FC = () => {
         style={{ backgroundColor: settings.primaryColor }}
       >
         {isChatOpen ? <X size={24} /> : (
-            <>
-               <MessageCircle size={28} />
-               <span className="absolute right-full mr-3 bg-white text-gray-800 px-2 py-1 rounded-md text-xs font-bold shadow-md opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none">
-                  محادثة
-               </span>
-            </>
+          <>
+            <MessageCircle size={28} />
+            <span className="absolute right-full mr-3 bg-white text-gray-800 px-2 py-1 rounded-md text-xs font-bold shadow-md opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none">
+              محادثة
+            </span>
+          </>
         )}
       </motion.button>
     </>

@@ -41,6 +41,8 @@ export interface SiteSettings {
   githubOwner?: string;
   githubRepo?: string;
   githubBranch?: string;
+  // Gemini AI (for ChatBot)
+  geminiApiKey?: string;
 }
 
 export interface MessageAction {
