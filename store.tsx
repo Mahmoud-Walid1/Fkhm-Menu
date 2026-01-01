@@ -90,6 +90,8 @@ interface AppContextType {
   deleteProduct: (id: string) => void;
   updateSettings: (settings: SiteSettings) => void;
   addCategory: (name: string) => void;
+  updateCategory: (id: string, name: string) => void;
+  deleteCategory: (id: string) => void;
   isChatOpen: boolean;
   toggleChat: () => void;
 }
@@ -179,6 +181,20 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     setCategories([...categories, { id: Math.random().toString(36).substr(2, 9), name }]);
   };
 
+  const updateCategory = (id: string, name: string) => {
+    setCategories(categories.map(c => c.id === id ? { ...c, name } : c));
+  };
+
+  const deleteCategory = (id: string) => {
+    // Only delete if no products are using this category
+    const productsInCategory = products.filter(p => p.categoryId === id);
+    if (productsInCategory.length > 0) {
+      alert(`لا يمكن حذف القسم. يوجد ${productsInCategory.length} منتج في هذا القسم.`);
+      return;
+    }
+    setCategories(categories.filter(c => c.id !== id));
+  };
+
   const toggleChat = () => setIsChatOpen(prev => !prev);
 
   return (
@@ -196,6 +212,8 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       deleteProduct,
       updateSettings,
       addCategory,
+      updateCategory,
+      deleteCategory,
       isChatOpen,
       toggleChat
     }}>
