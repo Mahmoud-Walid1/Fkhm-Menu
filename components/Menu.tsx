@@ -115,28 +115,42 @@ const ProductCard: React.FC<{ product: Product; onAdd: () => void; primaryColor:
       </div>
 
       <div className="p-4 flex flex-col flex-1">
-        <h3 className="font-bold text-gray-800 mb-1 text-lg leading-tight group-hover:text-gray-900 transition-colors">{product.name}</h3>
+        <div className="flex justify-between items-start mb-2">
+          <h3 className="font-bold text-gray-800 text-lg leading-tight group-hover:text-gray-900 transition-colors">{product.name}</h3>
+          {/* Size Badge */}
+          {product.sizes && product.sizes.length > 0 && (
+            <span className="text-[10px] bg-gray-100 text-gray-600 px-2 py-0.5 rounded-full whitespace-nowrap">
+              {product.sizes.length} أحجام
+            </span>
+          )}
+        </div>
+
         <p className="text-gray-500 text-xs md:text-sm mb-4 line-clamp-2 h-10 leading-relaxed">{product.description}</p>
 
-        <div className="flex items-center justify-between mt-auto pt-4 border-t border-gray-50">
+        <div className="flex items-end justify-between mt-auto pt-4 border-t border-gray-50">
           <div className="flex flex-col">
+            {/* Show "Starts from" if sizes exist */}
+            {product.sizes && product.sizes.length > 0 && (
+              <span className="text-[10px] text-gray-400 mb-0.5">يبدأ من</span>
+            )}
+
             {product.isPromo && product.promoPrice ? (
               <div className="flex flex-col items-start">
                 <span className="text-xs text-gray-400 line-through mb-0.5">{product.price} ر.س</span>
-                <span className="font-bold text-xl" style={{ color: primaryColor }}>{product.promoPrice} <span className="text-xs font-normal text-gray-500">ر.س</span></span>
+                <span className="font-extrabold text-2xl" style={{ color: primaryColor }}>{product.promoPrice} <span className="text-xs font-normal text-gray-500">ر.س</span></span>
               </div>
             ) : (
-              <span className="font-bold text-xl" style={{ color: primaryColor }}>{product.price} <span className="text-xs font-normal text-gray-500">ر.س</span></span>
+              <span className="font-extrabold text-2xl" style={{ color: primaryColor }}>{product.price} <span className="text-xs font-normal text-gray-500">ر.س</span></span>
             )}
           </div>
 
           <motion.button
             whileTap={{ scale: 0.95 }}
             onClick={onAdd}
-            className="w-9 h-9 rounded text-white flex items-center justify-center shadow hover:opacity-90 transition-all"
+            className="w-10 h-10 rounded-xl text-white flex items-center justify-center shadow-lg hover:shadow-xl hover:opacity-90 transition-all"
             style={{ backgroundColor: primaryColor }}
           >
-            <Plus size={20} strokeWidth={2.5} />
+            <Plus size={24} strokeWidth={2.5} />
           </motion.button>
         </div>
       </div>
