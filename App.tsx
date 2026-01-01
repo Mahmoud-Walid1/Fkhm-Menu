@@ -18,7 +18,7 @@ const AppContent: React.FC = () => {
   // Check for /admin in URL
   React.useEffect(() => {
     if (window.location.pathname === '/admin' || window.location.hash === '#admin') {
-      const pwd = prompt('أدخل كلمة مرور الإدارة (12345):');
+      const pwd = prompt('أدخل كلمة مرور الإدارة:');
       if (pwd === '12345') {
         setIsAdminOpen(true);
         // Clear the URL without reloading
@@ -36,7 +36,7 @@ const AppContent: React.FC = () => {
     setAdminClickCount(newCount);
 
     if (newCount === 3) {
-      const pwd = prompt('أدخل كلمة مرور الإدارة (12345):');
+      const pwd = prompt('أدخل كلمة مرور الإدارة:');
       if (pwd === '12345') {
         setIsAdminOpen(true);
         setAdminClickCount(0);
