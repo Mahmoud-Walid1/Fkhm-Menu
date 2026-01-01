@@ -5,14 +5,14 @@ import { MessageCircle, Send, X, Bot, Loader2, Phone } from 'lucide-react';
 import { useAppStore } from '../store';
 import { Message } from '../types';
 
-export const ChatBot: React.FC = () => {
+export const ChatBot: React.FC<{ isCartOpen?: boolean }> = ({ isCartOpen = false }) => {
   const { products, settings, isChatOpen, toggleChat } = useAppStore();
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [messages, setMessages] = useState<Message[]>([
     {
       id: 'welcome',
-      text: `مرحباً بك في ${settings.shopName}! ☕\nأنا مساعدك الذكي، كيف أقدر أساعدك اليوم بخصوص المنيو؟`,
+      text: `👋 مرحباً بك في ${settings.shopName}! ☕\n\n🤖 أنا مساعدك الذكي الخاص\n\n❓ كيف أقدر أساعدك اليوم بخصوص المنيو؟`,
       sender: 'bot',
       timestamp: new Date()
     }
@@ -170,8 +170,8 @@ export const ChatBot: React.FC = () => {
                 >
                   <div
                     className={`max-w-[85%] p-3 rounded-lg text-sm whitespace-pre-wrap ${msg.sender === 'user'
-                        ? 'bg-gray-800 text-white rounded-tl-none'
-                        : 'bg-white text-gray-800 border border-gray-200 shadow-sm rounded-tr-none'
+                      ? 'bg-gray-800 text-white rounded-tl-none'
+                      : 'bg-white text-gray-800 border border-gray-200 shadow-sm rounded-tr-none'
                       }`}
                   >
                     {msg.text}
@@ -186,8 +186,8 @@ export const ChatBot: React.FC = () => {
                           target="_blank"
                           rel="noreferrer"
                           className={`flex items-center justify-center gap-2 py-2 px-4 rounded-md text-sm font-bold transition-all shadow-sm ${action.type === 'primary'
-                              ? 'text-white hover:opacity-90'
-                              : 'bg-white border text-gray-700 hover:bg-gray-50'
+                            ? 'text-white hover:opacity-90'
+                            : 'bg-white border text-gray-700 hover:bg-gray-50'
                             }`}
                           style={action.type === 'primary' ? { backgroundColor: settings.primaryColor } : {}}
                         >
@@ -197,7 +197,7 @@ export const ChatBot: React.FC = () => {
                       ))}
                     </div>
                   )}
-                </div>
+                </motion.div>
               ))}
               {isLoading && (
                 <div className="flex justify-start">
@@ -234,22 +234,24 @@ export const ChatBot: React.FC = () => {
         )}
       </AnimatePresence>
 
-      <motion.button
-        whileHover={{ scale: 1.1 }}
-        whileTap={{ scale: 0.9 }}
-        onClick={toggleChat}
-        className="fixed bottom-6 right-6 p-4 rounded-full shadow-2xl text-white z-[100] flex items-center justify-center group"
-        style={{ backgroundColor: settings.primaryColor }}
-      >
-        {isChatOpen ? <X size={24} /> : (
-          <>
-            <MessageCircle size={28} />
-            <span className="absolute right-full mr-3 bg-white text-gray-800 px-2 py-1 rounded-md text-xs font-bold shadow-md opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none">
-              محادثة
-            </span>
-          </>
-        )}
-      </motion.button>
+      {!isCartOpen && (
+        <motion.button
+          whileHover={{ scale: 1.1 }}
+          whileTap={{ scale: 0.9 }}
+          onClick={toggleChat}
+          className="fixed bottom-6 right-6 p-4 rounded-full shadow-2xl text-white z-[100] flex items-center justify-center group"
+          style={{ backgroundColor: settings.primaryColor }}
+        >
+          {isChatOpen ? <X size={24} /> : (
+            <>
+              <MessageCircle size={28} />
+              <span className="absolute right-full mr-3 bg-white text-gray-800 px-2 py-1 rounded-md text-xs font-bold shadow-md opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none">
+                محادثة
+              </span>
+            </>
+          )}
+        </motion.button>
+      )}
     </>
   );
 };
