@@ -69,7 +69,11 @@ const DEFAULT_SETTINGS: SiteSettings = {
   ],
   instagramUrl: 'https://instagram.com',
   snapchatUrl: 'https://snapchat.com',
-  tiktokUrl: 'https://tiktok.com'
+  tiktokUrl: 'https://tiktok.com',
+  // GitHub Integration defaults
+  githubOwner: 'Mahmoud-Walid1',
+  githubRepo: 'Fkhm-Menu',
+  githubBranch: 'main'
 };
 
 interface AppContextType {
@@ -98,7 +102,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     const saved = localStorage.getItem('mood_products');
     return saved ? JSON.parse(saved) : DEFAULT_PRODUCTS;
   });
-  
+
   const [categories, setCategories] = useState<Category[]>(() => {
     const saved = localStorage.getItem('mood_categories');
     return saved ? JSON.parse(saved) : DEFAULT_CATEGORIES;
@@ -131,7 +135,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   const addToCart = (product: Product, size?: { name: string; priceModifier: number }) => {
     const basePrice = product.isPromo && product.promoPrice ? product.promoPrice : product.price;
     const finalPrice = basePrice + (size?.priceModifier || 0);
-    
+
     const newItem: CartItem = {
       ...product,
       cartId: Math.random().toString(36).substr(2, 9),
@@ -160,7 +164,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
   // Admin Logic
   const addProduct = (product: Product) => setProducts([...products, product]);
-  
+
   const updateProduct = (updated: Product) => {
     setProducts(products.map(p => p.id === updated.id ? updated : p));
   };

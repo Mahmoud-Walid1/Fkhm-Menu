@@ -36,6 +36,11 @@ export interface SiteSettings {
   instagramUrl?: string;
   snapchatUrl?: string;
   tiktokUrl?: string;
+  // GitHub Integration (for image uploads)
+  githubToken?: string;
+  githubOwner?: string;
+  githubRepo?: string;
+  githubBranch?: string;
 }
 
 export interface MessageAction {
