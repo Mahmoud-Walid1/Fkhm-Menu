@@ -282,7 +282,7 @@ export const ChatBot: React.FC<{ isCartOpen?: boolean }> = ({ isCartOpen = false
               ease: "easeInOut"
             }}
             onClick={toggleChat}
-            className="fixed bottom-4 right-4 md:bottom-6 md:right-6 p-4 rounded-full shadow-2xl text-white z-[9999] flex items-center justify-center group relative"
+            className="fixed bottom-10 right-4 md:bottom-12 md:right-6 p-4 rounded-full shadow-2xl text-white z-[9999] flex items-center justify-center group relative"
             style={{ backgroundColor: settings.primaryColor }}
           >
             {isChatOpen ? <X size={24} /> : (

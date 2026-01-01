@@ -142,9 +142,9 @@ const AppContent: React.FC = () => {
                 </a>
               )}
               {settings.snapchatUrl && (
-                <a href={settings.snapchatUrl} target="_blank" className="w-10 h-10 rounded-full bg-yellow-400 flex items-center justify-center text-white hover:scale-110 transition-transform shadow-lg hover:text-black">
+                <a href={settings.snapchatUrl} target="_blank" className="w-10 h-10 rounded-2xl bg-yellow-400 flex items-center justify-center text-white hover:scale-110 transition-transform shadow-lg hover:shadow-xl">
                   <span className="sr-only">Snapchat</span>
-                  <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="currentColor" stroke="none">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="white" stroke="black" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
                     <path d="M5.82 10.95c.34-.11.75-.41.75-.82 0-.43-.3-.6-.56-.71-.56-.23-1.01-.6-1.01-1.35 0-.64.49-1.2 1.2-1.31.23-.04.45.08.6.15.22.11.45.22.67.11.19-.08.3-.3.3-.56 0-.34-.34-.79-.52-1.01C7 5.14 7.5 4.5 8.61 4.5c.3 0 .6.07.86.19.26.11.52.26.82.26.3 0 .56-.15.82-.26.26-.11.56-.19.86-.19 1.12 0 1.61.64 1.35.9-.19.23-.52.68-.52 1.01 0 .26.11.49.3.56.22.11.45 0 .67-.11.15-.08.37-.19.6-.15.71.11 1.2.68 1.2 1.31 0 .75-.45 1.12-1.01 1.35-.26.11-.56.26-.56.71 0 .41.41.71.75.82 2.25.75 2.25 2.25 2.25 3.37 0 .37-.15.56-.26.67-.15.15-.41.19-.71.19-.34 0-.6-.11-.79-.37-.19-.26-.37-.6-.94-.6-.23 0-.49.07-.75.19-.26.12-.53.27-.9.27-.37 0-.64-.15-.9-.27-.26-.11-.53-.19-.75-.19-.22 0-.49.08-.75.19-.26.12-.52.27-.9.27s-.64-.15-.9-.27c-.26-.11-.53-.19-.75-.19-.56 0-.75.34-.94.6-.19.26-.45.37-.79.37-.3 0-.56-.04-.71-.19-.11-.11-.26-.3-.26-.67 0-1.12 0-2.62 2.25-3.37z" />
                   </svg>
                 </a>
