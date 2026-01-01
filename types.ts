@@ -75,6 +75,7 @@ export interface AppContextType {
   deleteCategory: (id: string) => void;
   isChatOpen: boolean;
   toggleChat: () => void;
+  toggleTheme: () => void;
 }
 
 export interface MessageAction {

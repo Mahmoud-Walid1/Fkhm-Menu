@@ -257,12 +257,45 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
   const toggleChat = () => setIsChatOpen(prev => !prev);
 
+  // Local Theme State (Separate from Firestore Global Settings)
+  const [localTheme, setLocalTheme] = useState<'light' | 'dark'>(() => {
+    return (localStorage.getItem('theme') as 'light' | 'dark') || 'light';
+  });
+
+  const toggleTheme = () => {
+    setLocalTheme(prev => {
+      const newTheme = prev === 'light' ? 'dark' : 'light';
+      localStorage.setItem('theme', newTheme);
+
+      // Update DOM immediately
+      if (newTheme === 'dark') {
+        document.documentElement.classList.add('dark');
+      } else {
+        document.documentElement.classList.remove('dark');
+      }
+
+      return newTheme;
+    });
+  };
+
+  // Ensure DOM matches initial local theme
+  useEffect(() => {
+    if (localTheme === 'dark') {
+      document.documentElement.classList.add('dark');
+    } else {
+      document.documentElement.classList.remove('dark');
+    }
+  }, []);
+
+  // Merged Settings (Global Settings + Local Theme Override)
+  const activeSettings = { ...settings, theme: localTheme };
+
   return (
     <AppContext.Provider value={{
       products,
       categories,
       cart,
-      settings,
+      settings: activeSettings, // Use merged settings
       addToCart,
       removeFromCart,
       updateQuantity,
@@ -275,7 +308,8 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       updateCategory,
       deleteCategory,
       isChatOpen,
-      toggleChat
+      toggleChat,
+      toggleTheme
     }}>
       {children}
     </AppContext.Provider>
