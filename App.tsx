@@ -58,7 +58,7 @@ const AppContent: React.FC = () => {
           <div className="flex items-center gap-3">
             {/* Navbar Logo - Circular with Purple Background */}
             <div
-              className="w-12 h-12 md:w-14 md:h-14 rounded-full flex items-center justify-center overflow-hidden shadow-md"
+              className="w-16 h-16 md:w-20 md:h-20 rounded-full flex items-center justify-center overflow-hidden shadow-md"
               style={{ backgroundColor: settings.primaryColor }}
             >
               <img src="logo.png" className="w-full h-full object-cover p-1" alt="Logo" />
