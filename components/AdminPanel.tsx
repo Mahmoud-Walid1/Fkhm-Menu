@@ -295,12 +295,75 @@ export const AdminPanel: React.FC<{ onClose: () => void }> = ({ onClose }) => {
                                         </div>
                                         {editingProduct.isPromo && (
                                             <input
-                                                type="number" placeholder="سعر العرض"
+                                                type="number"
+                                                placeholder="سعر العرض"
                                                 value={editingProduct.promoPrice || ''}
                                                 onChange={e => setEditingProduct({ ...editingProduct, promoPrice: Number(e.target.value) })}
                                                 className="p-2 border rounded-md"
                                             />
                                         )}
+
+                                        {/* Size Management Section */}
+                                        <div className="col-span-2 border-t pt-4 mt-2">
+                                            <h4 className="font-bold text-sm mb-2 flex items-center gap-2">📏 أحجام المنتج (اختياري)</h4>
+                                            <div className="space-y-3">
+                                                <div className="flex gap-2">
+                                                    <input
+                                                        id="newSizeName"
+                                                        placeholder="اسم الحجم (مثال: كبير)"
+                                                        className="flex-1 border p-2 rounded-md text-sm"
+                                                    />
+                                                    <input
+                                                        id="newSizePrice"
+                                                        type="number"
+                                                        placeholder="السعر (+/-)"
+                                                        className="w-24 border p-2 rounded-md text-sm"
+                                                    />
+                                                    <button
+                                                        type="button"
+                                                        onClick={() => {
+                                                            const nameInput = document.getElementById('newSizeName') as HTMLInputElement;
+                                                            const priceInput = document.getElementById('newSizePrice') as HTMLInputElement;
+                                                            if (nameInput.value) {
+                                                                const newSize = {
+                                                                    name: nameInput.value,
+                                                                    priceModifier: Number(priceInput.value) || 0
+                                                                };
+                                                                setEditingProduct({
+                                                                    ...editingProduct,
+                                                                    sizes: [...(editingProduct.sizes || []), newSize]
+                                                                });
+                                                                nameInput.value = '';
+                                                                priceInput.value = '';
+                                                            }
+                                                        }}
+                                                        className="bg-green-600 text-white px-3 rounded-md text-sm"
+                                                    >
+                                                        إضافة
+                                                    </button>
+                                                </div>
+
+                                                {editingProduct.sizes && editingProduct.sizes.length > 0 && (
+                                                    <div className="bg-gray-50 rounded-lg p-2 space-y-2">
+                                                        {editingProduct.sizes.map((size, idx) => (
+                                                            <div key={idx} className="flex justify-between items-center bg-white p-2 rounded border text-sm">
+                                                                <span>{size.name} ({size.priceModifier > 0 ? '+' : ''}{size.priceModifier} ريال)</span>
+                                                                <button
+                                                                    type="button"
+                                                                    onClick={() => {
+                                                                        const newSizes = editingProduct.sizes?.filter((_, i) => i !== idx);
+                                                                        setEditingProduct({ ...editingProduct, sizes: newSizes });
+                                                                    }}
+                                                                    className="text-red-500 hover:text-red-700"
+                                                                >
+                                                                    <Trash size={14} />
+                                                                </button>
+                                                            </div>
+                                                        ))}
+                                                    </div>
+                                                )}
+                                            </div>
+                                        </div>
 
                                         <div className="col-span-2 flex justify-end gap-2 mt-2">
                                             <button type="button" onClick={() => { setEditingProduct(null); setSelectedImageFile(null); setImagePreview(''); }} className="px-4 py-2 bg-gray-300 rounded-md">إلغاء</button>
@@ -366,8 +429,29 @@ export const AdminPanel: React.FC<{ onClose: () => void }> = ({ onClose }) => {
                             </form>
                             <ul className="space-y-2">
                                 {categories.map(c => (
-                                    <li key={c.id} className="p-3 border rounded-lg bg-gray-50 flex justify-between">
+                                    <li key={c.id} className="p-3 border rounded-lg bg-gray-50 flex justify-between items-center">
                                         <span>{c.name}</span>
+                                        <div className="flex gap-2">
+                                            <button
+                                                onClick={() => {
+                                                    const newName = prompt('اسم القسم الجديد:', c.name);
+                                                    if (newName && newName !== c.name) updateCategory(c.id, newName);
+                                                }}
+                                                className="text-blue-600 hover:text-blue-800 p-1"
+                                                title="تعديل"
+                                            >
+                                                <Edit size={16} />
+                                            </button>
+                                            <button
+                                                onClick={() => {
+                                                    if (confirm(`هل أنت متأكد من حذف قسم "${c.name}"؟`)) deleteCategory(c.id);
+                                                }}
+                                                className="text-red-600 hover:text-red-800 p-1"
+                                                title="حذف"
+                                            >
+                                                <Trash size={16} />
+                                            </button>
+                                        </div>
                                     </li>
                                 ))}
                             </ul>
@@ -589,6 +673,54 @@ export const AdminPanel: React.FC<{ onClose: () => void }> = ({ onClose }) => {
                                     {settings.geminiApiKey && (
                                         <div className="bg-green-50 border border-green-200 p-2 rounded text-sm text-green-800 mt-2">
                                             ✓ تم حفظ المفتاح. الشات بوت جاهز للعمل!
+                                        </div>
+                                    )}
+                                </div>
+                            </div>
+
+                            <div className="col-span-2 border-t pt-6 mt-4">
+                                <h2 className="text-xl font-bold mb-4 flex items-center gap-2">🎉 إعدادات البوب أب (Promo Popup)</h2>
+                                <div className="space-y-4">
+                                    <label className="flex items-center gap-2 cursor-pointer bg-gray-50 p-3 rounded-lg border">
+                                        <input
+                                            type="checkbox"
+                                            checked={settings.isPopupEnabled}
+                                            onChange={(e) => updateSettings({ ...settings, isPopupEnabled: e.target.checked })}
+                                            className="w-5 h-5 text-green-600 rounded"
+                                        />
+                                        <span className="font-bold">تفعيل البوب أب الترويجي</span>
+                                    </label>
+
+                                    {settings.isPopupEnabled && (
+                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 border p-4 rounded-lg bg-gray-50 relative">
+                                            {!settings.isPopupEnabled && <div className="absolute inset-0 bg-gray-100/50 z-10" />}
+                                            <div>
+                                                <label className="block text-sm font-bold mb-1">عنوان البوب أب</label>
+                                                <input
+                                                    value={settings.popupTitle || ''}
+                                                    onChange={(e) => updateSettings({ ...settings, popupTitle: e.target.value })}
+                                                    placeholder="مثال: عرض خاص!"
+                                                    className="w-full border p-2 rounded-md"
+                                                />
+                                            </div>
+                                            <div>
+                                                <label className="block text-sm font-bold mb-1">صورة البوب أب (URL)</label>
+                                                <input
+                                                    value={settings.popupImage || ''}
+                                                    onChange={(e) => updateSettings({ ...settings, popupImage: e.target.value })}
+                                                    placeholder="رابط الصورة..."
+                                                    className="w-full border p-2 rounded-md"
+                                                />
+                                            </div>
+                                            <div className="col-span-2">
+                                                <label className="block text-sm font-bold mb-1">نص الرسالة</label>
+                                                <textarea
+                                                    value={settings.popupMessage || ''}
+                                                    onChange={(e) => updateSettings({ ...settings, popupMessage: e.target.value })}
+                                                    placeholder="تفاصيل العرض..."
+                                                    className="w-full border p-2 rounded-md h-20"
+                                                />
+                                            </div>
                                         </div>
                                     )}
                                 </div>

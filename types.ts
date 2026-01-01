@@ -1,15 +1,20 @@
+export interface Size {
+  name: string;
+  priceModifier: number;
+}
+
 export interface Product {
   id: string;
   name: string;
   price: number;
-  description?: string;
+  promoPrice?: number;
+  isPromo?: boolean;
+  category: string;
   image: string;
-  categoryId: string;
+  description: string;
+  sizes?: Size[];
   isHot?: boolean;
   isCold?: boolean;
-  sizes?: { name: string; priceModifier: number }[];
-  isPromo?: boolean;
-  promoPrice?: number;
 }
 
 export interface Category {
@@ -20,7 +25,7 @@ export interface Category {
 export interface CartItem extends Product {
   cartId: string;
   quantity: number;
-  selectedSize?: { name: string; priceModifier: number };
+  selectedSize?: Size;
   finalPrice: number;
 }
 
@@ -45,6 +50,31 @@ export interface SiteSettings {
   geminiApiKey?: string;
   // Theme
   theme: 'light' | 'dark';
+  // Promo Popup
+  popupTitle?: string;
+  popupImage?: string;
+  popupMessage?: string;
+  isPopupEnabled: boolean;
+}
+
+export interface AppContextType {
+  products: Product[];
+  categories: Category[];
+  cart: CartItem[];
+  settings: SiteSettings;
+  addToCart: (product: Product, size?: Size) => void;
+  removeFromCart: (cartId: string) => void;
+  updateQuantity: (cartId: string, delta: number) => void;
+  clearCart: () => void;
+  addProduct: (product: Product) => void;
+  updateProduct: (product: Product) => void;
+  deleteProduct: (id: string) => void;
+  updateSettings: (settings: SiteSettings) => void;
+  addCategory: (name: string) => void;
+  updateCategory: (id: string, name: string) => void;
+  deleteCategory: (id: string) => void;
+  isChatOpen: boolean;
+  toggleChat: () => void;
 }
 
 export interface MessageAction {

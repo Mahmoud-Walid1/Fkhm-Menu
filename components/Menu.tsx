@@ -14,7 +14,7 @@ export const Menu: React.FC = () => {
   return (
     <section className="py-16 px-4 max-w-7xl mx-auto min-h-screen" id="menu">
       <div className="text-center mb-12">
-        <h2 className="text-3xl md:text-4xl font-bold text-gray-800 dark:text-white mb-2">شوف المنيو بتاعنا</h2>
+        <h2 className="text-3xl md:text-4xl font-bold text-gray-800 dark:text-white mb-2">استكشف قائمتنا المميزة</h2>
         <div className="w-24 h-1 bg-gray-300 mx-auto rounded"></div>
       </div>
 
@@ -25,8 +25,8 @@ export const Menu: React.FC = () => {
             key={cat.id}
             onClick={() => setActiveCategory(cat.id)}
             className={`px-6 py-3 rounded-md whitespace-nowrap transition-all duration-300 font-bold text-sm md:text-base border ${activeCategory === cat.id
-                ? 'text-white border-transparent shadow-md transform -translate-y-1'
-                : 'bg-white text-gray-500 hover:bg-gray-50 border-gray-200'
+              ? 'text-white border-transparent shadow-md transform -translate-y-1'
+              : 'bg-white text-gray-500 hover:bg-gray-50 border-gray-200'
               }`}
             style={{ backgroundColor: activeCategory === cat.id ? settings.primaryColor : undefined }}
           >
@@ -192,8 +192,8 @@ const ProductModal: React.FC<{
                     key={size.name}
                     onClick={() => setSelectedSize(size)}
                     className={`flex-1 py-3 px-4 rounded border transition-all flex items-center justify-between group ${selectedSize?.name === size.name
-                        ? 'border-transparent text-white shadow'
-                        : 'border-gray-200 text-gray-600 hover:bg-gray-50'
+                      ? 'border-transparent text-white shadow'
+                      : 'border-gray-200 text-gray-600 hover:bg-gray-50'
                       }`}
                     style={{
                       backgroundColor: selectedSize?.name === size.name ? primaryColor : undefined,

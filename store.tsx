@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import { Product, Category, CartItem, SiteSettings } from './types';
+import { AppContextType, Product, Category, SiteSettings, CartItem, Message, Size } from './types';
 
 // Default Data
 const DEFAULT_CATEGORIES: Category[] = [
@@ -16,7 +16,7 @@ const DEFAULT_PRODUCTS: Product[] = [
     price: 24,
     description: 'خلطتنا السرية من الحليب المكثف والاسبريسو الفاخر',
     image: 'https://images.unsplash.com/photo-1541167760496-1628856ab772?auto=format&fit=crop&q=80&w=800',
-    categoryId: '1',
+    category: '1',
     isHot: true,
     isCold: true,
     sizes: [{ name: 'وسط', priceModifier: 0 }, { name: 'كبير', priceModifier: 5 }],
@@ -29,7 +29,7 @@ const DEFAULT_PRODUCTS: Product[] = [
     price: 28,
     description: 'قهوة مقطرة بمذاق فاكهي وإيحاءات التوت',
     image: 'https://images.unsplash.com/photo-1514432324607-a09d9b4aefdd?auto=format&fit=crop&q=80&w=800',
-    categoryId: '1',
+    category: '1',
     isHot: true,
     isCold: false,
   },
@@ -39,7 +39,7 @@ const DEFAULT_PRODUCTS: Product[] = [
     price: 32,
     description: 'كيكة الجبن المحروقة تقدم مع صوص الشوكولاتة البلجيكية',
     image: 'https://images.unsplash.com/photo-1627308595229-7830a5c91f9f?auto=format&fit=crop&q=80&w=800',
-    categoryId: '2',
+    category: '2',
   },
   {
     id: '301',
@@ -47,7 +47,7 @@ const DEFAULT_PRODUCTS: Product[] = [
     price: 120,
     description: '8 عبوات ميني من اختيارك (بارد) في بوكس ثلجي أنيق',
     image: 'https://images.unsplash.com/photo-1623861596758-c0b0c20f1352?auto=format&fit=crop&q=80&w=800',
-    categoryId: '3',
+    category: '3',
   }
 ];
 
@@ -75,28 +75,13 @@ const DEFAULT_SETTINGS: SiteSettings = {
   githubRepo: 'Fkhm-Menu',
   githubBranch: 'main',
   // Default theme
-  theme: 'light'
+  theme: 'light',
+  // Promo Popup Defaults
+  popupTitle: 'عرض مميز 🔥',
+  popupImage: '',
+  popupMessage: 'استمتع بأفضل المشروبات والحلويات لدينا. اطلب الآن!',
+  isPopupEnabled: true
 };
-
-interface AppContextType {
-  products: Product[];
-  categories: Category[];
-  cart: CartItem[];
-  settings: SiteSettings;
-  addToCart: (product: Product, size?: { name: string; priceModifier: number }) => void;
-  removeFromCart: (cartId: string) => void;
-  updateQuantity: (cartId: string, delta: number) => void;
-  clearCart: () => void;
-  addProduct: (product: Product) => void;
-  updateProduct: (product: Product) => void;
-  deleteProduct: (id: string) => void;
-  updateSettings: (settings: SiteSettings) => void;
-  addCategory: (name: string) => void;
-  updateCategory: (id: string, name: string) => void;
-  deleteCategory: (id: string) => void;
-  isChatOpen: boolean;
-  toggleChat: () => void;
-}
 
 const AppContext = createContext<AppContextType | undefined>(undefined);
 
@@ -136,7 +121,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
 
   // Cart Logic
-  const addToCart = (product: Product, size?: { name: string; priceModifier: number }) => {
+  const addToCart = (product: Product, size?: Size) => {
     const basePrice = product.isPromo && product.promoPrice ? product.promoPrice : product.price;
     const finalPrice = basePrice + (size?.priceModifier || 0);
 
@@ -189,9 +174,9 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
   const deleteCategory = (id: string) => {
     // Only delete if no products are using this category
-    const productsInCategory = products.filter(p => p.categoryId === id);
+    const productsInCategory = products.filter(p => p.category === id);
     if (productsInCategory.length > 0) {
-      alert(`لا يمكن حذف القسم. يوجد ${productsInCategory.length} منتج في هذا القسم.`);
+      alert(`لا يمكن حذف القسم.يوجد ${productsInCategory.length} منتج في هذا القسم.`);
       return;
     }
     setCategories(categories.filter(c => c.id !== id));
