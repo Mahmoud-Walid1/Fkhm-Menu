@@ -64,7 +64,7 @@ const AppContent: React.FC = () => {
               >
                 <img src="logo.png" className="w-full h-full object-cover p-1" alt="Logo" />
               </div>
-              <span className="font-bold text-xl md:text-2xl text-gray-900 tracking-tight">{settings.shopName}</span>
+              <span className="font-bold text-xl md:text-2xl text-gray-900 dark:text-white tracking-tight">{settings.shopName}</span>
             </div>
 
             <div className="flex items-center gap-2 md:gap-3">
@@ -77,26 +77,24 @@ const AppContent: React.FC = () => {
                 {settings.theme === 'dark' ? <Sun size={20} /> : <Moon size={20} />}
               </button>
 
+
               <button
                 onClick={toggleChat}
-                className="p-2 rounded-md hover:bg-gray-100 text-gray-800 transition-colors relative group"
+                className="p-2 rounded-md hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-800 dark:text-gray-200 transition-colors relative group"
                 title="المساعد الذكي"
               >
-                <MessageCircle size={24} />
+                <MessageCircle size={20} />
               </button>
 
               <button
                 onClick={() => setIsCartOpen(true)}
-                className="relative p-2 rounded-md hover:bg-gray-100 text-gray-800 transition-colors"
-                title="سلة المشتريات"
+                className="p-2 rounded-md hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-800 dark:text-gray-200 transition-colors relative"
+                title="السلة"
               >
-                <ShoppingBag size={24} />
+                <ShoppingBag size={20} />
                 {cart.length > 0 && (
-                  <span
-                    className="absolute top-0 right-0 w-5 h-5 text-xs text-white rounded-full flex items-center justify-center font-bold shadow-sm translate-x-1/4 -translate-y-1/4"
-                    style={{ backgroundColor: settings.primaryColor }}
-                  >
-                    {cart.reduce((a, b) => a + b.quantity, 0)}
+                  <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs w-5 h-5 rounded-full flex items-center justify-center font-bold">
+                    {cart.length}
                   </span>
                 )}
               </button>
