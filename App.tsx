@@ -10,7 +10,7 @@ import { AdminPanel } from './components/AdminPanel';
 import { OffersSection } from './components/OffersSection';
 
 const AppContent: React.FC = () => {
-  const { cart, settings, toggleChat, updateSettings } = useAppStore();
+  const { cart, settings, toggleChat, updateSettings, toggleTheme } = useAppStore();
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [isAdminOpen, setIsAdminOpen] = useState(false);
   const [adminClickCount, setAdminClickCount] = useState(0);
