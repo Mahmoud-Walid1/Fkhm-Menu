@@ -26,7 +26,7 @@ export const Menu: React.FC = () => {
             onClick={() => setActiveCategory(cat.id)}
             className={`px-6 py-3 rounded-md whitespace-nowrap transition-all duration-300 font-bold text-sm md:text-base border ${activeCategory === cat.id
               ? 'text-white border-transparent shadow-md transform -translate-y-1'
-              : 'bg-white text-gray-500 hover:bg-gray-50 border-gray-200'
+              : 'bg-white dark:bg-gray-800 text-gray-500 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 border-gray-200 dark:border-gray-700'
               }`}
             style={{ backgroundColor: activeCategory === cat.id ? settings.primaryColor : undefined }}
           >
@@ -88,7 +88,7 @@ const ProductCard: React.FC<{ product: Product; onAdd: () => void; primaryColor:
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, scale: 0.9 }}
       whileHover={{ y: -5 }}
-      className="bg-white rounded-lg shadow hover:shadow-xl transition-all duration-300 overflow-hidden group border border-gray-200 flex flex-col h-full"
+      className="bg-white dark:bg-gray-800 rounded-lg shadow hover:shadow-xl transition-all duration-300 overflow-hidden group border border-gray-200 dark:border-gray-700 flex flex-col h-full"
     >
       <div className="relative h-40 flex items-center justify-center pt-4 mb-2 group-hover:pt-2 transition-all duration-300">
         {/* Descriptive Blob/Shape Background */}
