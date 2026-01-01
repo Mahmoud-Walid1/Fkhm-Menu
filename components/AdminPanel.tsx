@@ -566,34 +566,33 @@ export const AdminPanel: React.FC<{ onClose: () => void }> = ({ onClose }) => {
                                     </div>
                                 </div>
                             </div>
-                     </div>
-                     
-                     <div className="col-span-2 border-t pt-6 mt-4">
-                        <h2 className="text-xl font-bold mb-4">🤖 إعدادات Gemini AI (الشات بوت)</h2>
-                        <div className="bg-blue-50 border border-blue-200 p-3 rounded-lg mb-4 text-sm">
-                           <p className="font-bold mb-1">ℹ️ كيفية الحصول على مفتاح Gemini API:</p>
-                           <ol className="list-decimal mr-5 space-y-1 text-blue-800">
-                              <li>انتقل إلى <a href="https://aistudio.google.com/apikey" target="_blank" rel="noopener" className="underline font-bold">Google AI Studio</a></li>
-                              <li>اضغط "Create API Key"</li>
-                              <li>انسخ المفتاح والصقه أدناه</li>
-                           </ol>
-                        </div>
-                        <div>
-                           <label className="block text-sm font-bold mb-1">مفتاح Gemini API</label>
-                           <input 
-                              type="password"
-                              value={settings.geminiApiKey || ''}
-                              onChange={(e) => updateSettings({...settings, geminiApiKey: e.target.value})}
-                              placeholder="AIzaSy..."
-                              className="w-full border p-2 rounded-md font-mono text-sm"
-                           />
-                           {settings.geminiApiKey && (
-                              <div className="bg-green-50 border border-green-200 p-2 rounded text-sm text-green-800 mt-2">
-                                 ✓ تم حفظ المفتاح. الشات بوت جاهز للعمل!
-                              </div>
-                           )}
-                        </div>
-                     </div>
+
+                            <div className="col-span-2 border-t pt-6 mt-4">
+                                <h2 className="text-xl font-bold mb-4">🤖 إعدادات Gemini AI (الشات بوت)</h2>
+                                <div className="bg-blue-50 border border-blue-200 p-3 rounded-lg mb-4 text-sm">
+                                    <p className="font-bold mb-1">ℹ️ كيفية الحصول على مفتاح Gemini API:</p>
+                                    <ol className="list-decimal mr-5 space-y-1 text-blue-800">
+                                        <li>انتقل إلى <a href="https://aistudio.google.com/apikey" target="_blank" rel="noopener" className="underline font-bold">Google AI Studio</a></li>
+                                        <li>اضغط "Create API Key"</li>
+                                        <li>انسخ المفتاح والصقه أدناه</li>
+                                    </ol>
+                                </div>
+                                <div>
+                                    <label className="block text-sm font-bold mb-1">مفتاح Gemini API</label>
+                                    <input
+                                        type="password"
+                                        value={settings.geminiApiKey || ''}
+                                        onChange={(e) => updateSettings({ ...settings, geminiApiKey: e.target.value })}
+                                        placeholder="AIzaSy..."
+                                        className="w-full border p-2 rounded-md font-mono text-sm"
+                                    />
+                                    {settings.geminiApiKey && (
+                                        <div className="bg-green-50 border border-green-200 p-2 rounded text-sm text-green-800 mt-2">
+                                            ✓ تم حفظ المفتاح. الشات بوت جاهز للعمل!
+                                        </div>
+                                    )}
+                                </div>
+                            </div>
 
                         </div>
                     )}
