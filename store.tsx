@@ -216,21 +216,33 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
   // Admin Logic (Firestore)
   const addProduct = async (product: Product) => {
-    // We let Firestore generate ID or use the one provided if we want specific IDs.
-    // For new products, we ignore the local ID and let Firestore generate one, 
-    // OR we generate one here.
-    const { id, ...data } = product; // Remove potentially temporary ID
-    await addDoc(collection(db, 'products'), data);
+    try {
+      const { id, ...data } = product; // Remove potentially temporary ID
+      await addDoc(collection(db, 'products'), data);
+    } catch (error: any) {
+      console.error("Error adding product:", error);
+      alert("فشل إضافة المنتج: " + (error.message || "خطأ غير معروف"));
+    }
   };
 
   const updateProduct = async (updated: Product) => {
-    if (!updated.id) return;
-    const { id, ...data } = updated;
-    await updateDoc(doc(db, 'products', id), data as any);
+    try {
+      if (!updated.id) return;
+      const { id, ...data } = updated;
+      await updateDoc(doc(db, 'products', id), data as any);
+    } catch (error: any) {
+      console.error("Error updating product:", error);
+      alert("فشل تعديل المنتج: " + (error.message || "خطأ غير معروف"));
+    }
   };
 
   const deleteProduct = async (id: string) => {
-    await deleteDoc(doc(db, 'products', id));
+    try {
+      await deleteDoc(doc(db, 'products', id));
+    } catch (error: any) {
+      console.error("Error deleting product:", error);
+      alert("فشل حذف المنتج: " + (error.message || "خطأ غير معروف"));
+    }
   };
 
   const updateSettings = async (newSettings: SiteSettings) => {
