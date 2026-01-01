@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useAppStore } from '../store';
 import { Product } from '../types';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Plus, Flame, Snowflake, Star, X } from 'lucide-react';
+import { Plus, Flame, Snowflake, Star, X, Coffee } from 'lucide-react';
 
 export const Menu: React.FC = () => {
   const { products, categories, addToCart, settings } = useAppStore();
@@ -90,7 +90,7 @@ const ProductCard: React.FC<{ product: Product; onAdd: () => void; primaryColor:
       whileHover={{ y: -5 }}
       className="bg-white rounded-lg shadow hover:shadow-xl transition-all duration-300 overflow-hidden group border border-gray-200 flex flex-col h-full"
     >
-      <div className="relative h-56 overflow-hidden bg-gray-100">
+      <div className="relative h-48 overflow-hidden bg-gray-100">
         <img
           src={product.image}
           alt={product.name}
@@ -114,43 +114,45 @@ const ProductCard: React.FC<{ product: Product; onAdd: () => void; primaryColor:
         </div>
       </div>
 
-      <div className="p-4 flex flex-col flex-1">
-        <div className="flex justify-between items-start mb-2">
-          <h3 className="font-bold text-gray-800 text-lg leading-tight group-hover:text-gray-900 transition-colors">{product.name}</h3>
-          {/* Size Badge */}
+      <div className="p-3 flex flex-col flex-1">
+        <div className="flex justify-between items-start mb-1">
+          <h3 className="font-bold text-gray-800 text-base leading-tight group-hover:text-gray-900 transition-colors">{product.name}</h3>
+
+          {/* Size Visuals - Cup Icons */}
           {product.sizes && product.sizes.length > 0 && (
-            <span className="text-[10px] bg-gray-100 text-gray-600 px-2 py-0.5 rounded-full whitespace-nowrap">
-              {product.sizes.length} أحجام
-            </span>
+            <div className="flex items-end gap-0.5 text-gray-400 bg-gray-50 px-1.5 py-1 rounded-lg">
+              {product.sizes.length >= 2 && <Coffee size={12} className="opacity-70" />}
+              <Coffee size={16} />
+            </div>
           )}
         </div>
 
-        <p className="text-gray-500 text-xs md:text-sm mb-4 line-clamp-2 h-10 leading-relaxed">{product.description}</p>
+        <p className="text-gray-500 text-[11px] mb-3 line-clamp-2 leading-relaxed h-8">{product.description}</p>
 
-        <div className="flex items-end justify-between mt-auto pt-4 border-t border-gray-50">
+        <div className="flex items-end justify-between mt-auto pt-3 border-t border-gray-50">
           <div className="flex flex-col">
             {/* Show "Starts from" if sizes exist */}
             {product.sizes && product.sizes.length > 0 && (
-              <span className="text-[10px] text-gray-400 mb-0.5">يبدأ من</span>
+              <span className="text-[10px] text-gray-400">يبدأ من</span>
             )}
 
             {product.isPromo && product.promoPrice ? (
               <div className="flex flex-col items-start">
-                <span className="text-xs text-gray-400 line-through mb-0.5">{product.price} ر.س</span>
-                <span className="font-extrabold text-2xl" style={{ color: primaryColor }}>{product.promoPrice} <span className="text-xs font-normal text-gray-500">ر.س</span></span>
+                <span className="text-[10px] text-gray-400 line-through">{product.price} ر.س</span>
+                <span className="font-extrabold text-xl" style={{ color: primaryColor }}>{product.promoPrice} <span className="text-[10px] font-normal text-gray-500">ر.س</span></span>
               </div>
             ) : (
-              <span className="font-extrabold text-2xl" style={{ color: primaryColor }}>{product.price} <span className="text-xs font-normal text-gray-500">ر.س</span></span>
+              <span className="font-extrabold text-xl" style={{ color: primaryColor }}>{product.price} <span className="text-[10px] font-normal text-gray-500">ر.س</span></span>
             )}
           </div>
 
           <motion.button
             whileTap={{ scale: 0.95 }}
             onClick={onAdd}
-            className="w-10 h-10 rounded-xl text-white flex items-center justify-center shadow-lg hover:shadow-xl hover:opacity-90 transition-all"
+            className="w-9 h-9 rounded-xl text-white flex items-center justify-center shadow-lg hover:shadow-xl hover:opacity-90 transition-all"
             style={{ backgroundColor: primaryColor }}
           >
-            <Plus size={24} strokeWidth={2.5} />
+            <Plus size={20} strokeWidth={2.5} />
           </motion.button>
         </div>
       </div>
