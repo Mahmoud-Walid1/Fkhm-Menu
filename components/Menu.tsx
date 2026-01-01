@@ -90,66 +90,67 @@ const ProductCard: React.FC<{ product: Product; onAdd: () => void; primaryColor:
       whileHover={{ y: -5 }}
       className="bg-white rounded-lg shadow hover:shadow-xl transition-all duration-300 overflow-hidden group border border-gray-200 flex flex-col h-full"
     >
-      <div className="relative h-48 overflow-hidden bg-gray-100">
-        <img
-          src={product.image}
-          alt={product.name}
-          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 ease-in-out"
-        />
+      <div className="relative h-40 flex items-center justify-center pt-4 mb-2 group-hover:pt-2 transition-all duration-300">
+        {/* Descriptive Blob/Shape Background */}
+        <div className="absolute w-32 h-32 bg-luxury-100 dark:bg-luxury-800/50 rounded-full blur-xl opacity-60 group-hover:opacity-100 transition-all duration-500" />
 
-        {/* Overlays */}
-        <div className="absolute inset-0 bg-black/5 group-hover:bg-black/0 transition-colors" />
+        <div className="relative z-10 w-full h-full flex items-center justify-center p-2">
+          <img
+            src={product.image}
+            alt={product.name}
+            className="h-full w-auto object-contain drop-shadow-xl filter group-hover:drop-shadow-2xl transition-all duration-500 transform group-hover:-translate-y-1"
+          />
+        </div>
 
         {/* Promo Badge */}
         {product.isPromo && (
-          <div className="absolute top-2 right-2 bg-red-600 text-white text-[10px] font-bold px-2 py-1 rounded shadow-sm z-10">
-            عرض مميز
+          <div className="absolute top-2 right-2 bg-red-600 text-white text-[10px] font-bold px-2 py-1 rounded-full shadow-lg z-20">
+            خصم
           </div>
         )}
 
         {/* Temp Icons */}
-        <div className="absolute bottom-2 left-2 flex gap-1">
-          {product.isHot && <span className="w-6 h-6 flex items-center justify-center bg-white/90 backdrop-blur text-red-500 rounded shadow-sm" title="حار"><Flame size={12} /></span>}
-          {product.isCold && <span className="w-6 h-6 flex items-center justify-center bg-white/90 backdrop-blur text-blue-500 rounded shadow-sm" title="بارد"><Snowflake size={12} /></span>}
+        <div className="absolute top-2 left-2 flex flex-col gap-1 z-20">
+          {product.isHot && <span className="w-6 h-6 flex items-center justify-center bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm text-red-500 rounded-full shadow-sm" title="حار"><Flame size={12} /></span>}
+          {product.isCold && <span className="w-6 h-6 flex items-center justify-center bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm text-blue-500 rounded-full shadow-sm" title="بارد"><Snowflake size={12} /></span>}
         </div>
       </div>
 
-      <div className="p-3 flex flex-col flex-1">
-        <div className="flex justify-between items-start mb-1">
-          <h3 className="font-bold text-gray-800 text-base leading-tight group-hover:text-gray-900 transition-colors">{product.name}</h3>
+      <div className="p-4 flex flex-col flex-1 relative z-20">
+        <div className="flex flex-col items-center mb-2">
+          <h3 className="font-bold text-gray-800 dark:text-gray-100 text-lg group-hover:text-luxury-600 dark:group-hover:text-luxury-400 transition-colors text-center">{product.name}</h3>
 
           {/* Size Visuals - Cup Icons */}
           {product.sizes && product.sizes.length > 0 && (
-            <div className="flex items-end gap-0.5 text-gray-400 bg-gray-50 px-1.5 py-1 rounded-lg">
+            <div className="flex items-end gap-1 text-gray-400 dark:text-gray-500 mt-1">
               {product.sizes.length >= 2 && <Coffee size={12} className="opacity-70" />}
-              <Coffee size={16} />
+              <Coffee size={14} />
             </div>
           )}
         </div>
 
-        <p className="text-gray-500 text-[11px] mb-3 line-clamp-2 leading-relaxed h-8">{product.description}</p>
+        <p className="text-gray-500 dark:text-gray-400 text-xs text-center mb-4 line-clamp-2 h-8 leading-relaxed px-2">{product.description}</p>
 
-        <div className="flex items-end justify-between mt-auto pt-3 border-t border-gray-50">
-          <div className="flex flex-col">
-            {/* Show "Starts from" if sizes exist */}
+        <div className="flex items-center justify-between mt-auto">
+          <div className="flex flex-col items-start">
             {product.sizes && product.sizes.length > 0 && (
               <span className="text-[10px] text-gray-400">يبدأ من</span>
             )}
 
             {product.isPromo && product.promoPrice ? (
-              <div className="flex flex-col items-start">
-                <span className="text-[10px] text-gray-400 line-through">{product.price} ر.س</span>
-                <span className="font-extrabold text-xl" style={{ color: primaryColor }}>{product.promoPrice} <span className="text-[10px] font-normal text-gray-500">ر.س</span></span>
+              <div className="flex items-baseline gap-1">
+                <span className="font-extrabold text-xl text-gray-900 dark:text-white">{product.promoPrice} <span className="text-[10px] font-normal text-gray-500">ر.س</span></span>
+                <span className="text-[10px] text-gray-400 line-through decoration-red-500">{product.price}</span>
               </div>
             ) : (
-              <span className="font-extrabold text-xl" style={{ color: primaryColor }}>{product.price} <span className="text-[10px] font-normal text-gray-500">ر.س</span></span>
+              <span className="font-extrabold text-xl text-gray-900 dark:text-white" >{product.price} <span className="text-[10px] font-normal text-gray-500">ر.س</span></span>
             )}
           </div>
 
           <motion.button
             whileTap={{ scale: 0.95 }}
             onClick={onAdd}
-            className="w-9 h-9 rounded-xl text-white flex items-center justify-center shadow-lg hover:shadow-xl hover:opacity-90 transition-all"
+            className="w-10 h-10 rounded-full text-white flex items-center justify-center shadow-lg hover:shadow-xl hover:opacity-90 transition-all border-2 border-transparent hover:border-white/20"
             style={{ backgroundColor: primaryColor }}
           >
             <Plus size={20} strokeWidth={2.5} />
