@@ -198,36 +198,44 @@ export const ChatBot: React.FC<{ isCartOpen?: boolean }> = ({ isCartOpen = false
       // Check if this is an order confirmation
       const isOrderConfirmation = responseText.includes('طلبك جاهز') ||
         responseText.includes('تم تأكيد') ||
+        responseText.includes('أكد الطلب') ||
         (responseText.includes('📋') && responseText.includes('💰'));
 
       if (isOrderConfirmation) {
-        // Extract order details from the conversation
+        // Extract order details from the ENTIRE conversation
         const orderLines: string[] = [];
         let totalAmount = 0;
 
-        // Parse the response to extract order items
-        const lines = responseText.split('\n');
-        for (const line of lines) {
-          if (line.includes('×') && line.includes('ريال')) {
-            orderLines.push(line.trim());
-            // Try to extract price
-            const priceMatch = line.match(/(\d+)\s*ريال/);
-            if (priceMatch) {
-              totalAmount += parseInt(priceMatch[1]);
-            }
-          }
-          // Check for total amount
-          if (line.includes('💰') && line.includes('الإجمالي')) {
-            const totalMatch = line.match(/(\d+)\s*ريال/);
-            if (totalMatch) {
-              totalAmount = parseInt(totalMatch[1]);
+        // Look through all bot messages to find order review
+        for (const msg of messages) {
+          if (msg.sender === 'bot') {
+            const lines = msg.text.split('\n');
+            for (const line of lines) {
+              // Match lines like: • منتج × 2 = 50 ريال
+              if ((line.includes('×') || line.includes('x')) && line.includes('ريال')) {
+                const cleanLine = line.replace(/•|bullet/g, '').trim();
+                orderLines.push(cleanLine);
+
+                // Extract price from line
+                const priceMatch = line.match(/=\s*(\d+)\s*ريال/);
+                if (priceMatch) {
+                  totalAmount += parseInt(priceMatch[1]);
+                }
+              }
+              // Check for total amount line
+              if (line.includes('الإجمالي') && line.includes('ريال')) {
+                const totalMatch = line.match(/(\d+)\s*ريال/);
+                if (totalMatch) {
+                  totalAmount = parseInt(totalMatch[1]);
+                }
+              }
             }
           }
         }
 
         // Generate WhatsApp message
         let whatsappMessage = `*طلب جديد من ${settings.shopName}*\n\n`;
-        whatsappMessage += `📋 *تفاصيل الطلب:*\n`;
+        whatsappMessage += `*تفاصيل الطلب:*\n`;
 
         if (orderLines.length > 0) {
           orderLines.forEach(line => {
@@ -235,13 +243,13 @@ export const ChatBot: React.FC<{ isCartOpen?: boolean }> = ({ isCartOpen = false
           });
         }
 
-        whatsappMessage += `\n💰 *الإجمالي: ${totalAmount} ريال*\n\n`;
-        whatsappMessage += `⏰ الوقت: ${new Date().toLocaleString('ar-SA')}\n`;
-        whatsappMessage += `\nشكراً! 🙏`;
+        whatsappMessage += `\n*الإجمالي: ${totalAmount} ريال*\n\n`;
+        whatsappMessage += `الوقت: ${new Date().toLocaleTimeString('ar-SA', { hour: '2-digit', minute: '2-digit' })}\n`;
+        whatsappMessage += `\nشكراً!`;
 
         // Add delivery button with pre-filled message
         actions.push({
-          label: `✅ إرسال الطلب للتوصيل`,
+          label: `إرسال الطلب للتوصيل`,
           url: `https://wa.me/${settings.deliveryNumber.replace(/\D/g, '')}?text=${encodeURIComponent(whatsappMessage)}`,
           type: 'primary'
         });
@@ -298,7 +306,7 @@ export const ChatBot: React.FC<{ isCartOpen?: boolean }> = ({ isCartOpen = false
             initial={{ opacity: 0, y: 20, scale: 0.9 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 20, scale: 0.9 }}
-            className="fixed bottom-24 right-4 w-80 md:w-96 bg-white rounded-lg shadow-xl border border-gray-200 z-[9999] overflow-hidden flex flex-col max-h-[500px]"
+            className="fixed bottom-24 right-2 left-2 md:left-auto md:right-4 w-auto md:w-96 bg-white rounded-lg shadow-xl border border-gray-200 z-[9999] overflow-hidden flex flex-col max-h-[500px]"
           >
             {/* Header */}
             <div
@@ -331,7 +339,7 @@ export const ChatBot: React.FC<{ isCartOpen?: boolean }> = ({ isCartOpen = false
                   </div>
 
                   {msg.actions && (
-                    <div className="flex flex-col gap-2 mt-2 w-full max-w-[85%]">
+                    <div className="flex flex-col gap-3 mt-3 w-full max-w-[90%]">
                       {msg.actions.map((action, idx) => (
                         <a
                           key={idx}
