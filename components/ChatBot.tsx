@@ -29,6 +29,16 @@ export const ChatBot: React.FC<{ isCartOpen?: boolean }> = ({ isCartOpen = false
     }
   ]);
 
+  // Order State
+  interface OrderItem {
+    name: string;
+    quantity: number;
+    price: number;
+    total: number;
+  }
+  const [currentOrder, setCurrentOrder] = useState<OrderItem[]>([]);
+
+
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   const scrollToBottom = () => {
@@ -100,6 +110,26 @@ export const ChatBot: React.FC<{ isCartOpen?: boolean }> = ({ isCartOpen = false
       - استخدم الإيموجي المناسب ☕🍪✨ لكن باعتدال.
       - خلي ردودك قصيرة ومفيدة (لا تزيد عن 3-4 جمل).
       
+      **قدراتك في استلام الطلبات:**
+      - تقدر تستلم طلبات من الزبائن وتأكدها معاهم.
+      - لما الزبون يطلب منتج، أكد معاه اسم المنتج والكمية.
+      - لو طلب أكتر من منتج، اسأله: "تمام! في حاجة تانية؟"
+      - لما يخلص طلبه، راجع معاه الطلب كامل مع الأسعار والإجمالي.
+      - بعد المراجعة، اسأله: "تمام كده؟ لو موافق قولي 'أكد الطلب' وأجهزلك الرسالة للمندوب 😊"
+      - لما يؤكد الطلب، قوله: "تمام! طلبك جاهز ✅"
+      
+      **تنسيق مراجعة الطلب:**
+      عند مراجعة الطلب، اعرضه بالشكل ده:
+      "خلني أراجع معاك الطلب:
+      
+      📋 طلبك:
+      • [اسم المنتج] × [الكمية] = [السعر] ريال
+      • [اسم المنتج] × [الكمية] = [السعر] ريال
+      
+      💰 الإجمالي: [المجموع] ريال
+      
+      تمام كده؟ لو موافق قولي 'أكد الطلب' 😊"
+      
       **حدودك وصلاحياتك (مهم جداً):**
       - أنت مساعد افتراضي وليس لك صلاحية الموافقة على أي خصومات أو تخفيضات.
       - لا تستطيع تغيير المنيو أو الأسعار أو إضافة منتجات جديدة.
@@ -165,7 +195,59 @@ export const ChatBot: React.FC<{ isCartOpen?: boolean }> = ({ isCartOpen = false
       // Detect if response contains contact numbers and add action buttons
       const actions: MessageAction[] = [];
 
-      if (responseText.includes(settings.deliveryNumber) || responseText.includes('توصيل') || responseText.includes('طلب')) {
+      // Check if this is an order confirmation
+      const isOrderConfirmation = responseText.includes('طلبك جاهز') ||
+        responseText.includes('تم تأكيد') ||
+        (responseText.includes('📋') && responseText.includes('💰'));
+
+      if (isOrderConfirmation) {
+        // Extract order details from the conversation
+        const orderLines: string[] = [];
+        let totalAmount = 0;
+
+        // Parse the response to extract order items
+        const lines = responseText.split('\n');
+        for (const line of lines) {
+          if (line.includes('×') && line.includes('ريال')) {
+            orderLines.push(line.trim());
+            // Try to extract price
+            const priceMatch = line.match(/(\d+)\s*ريال/);
+            if (priceMatch) {
+              totalAmount += parseInt(priceMatch[1]);
+            }
+          }
+          // Check for total amount
+          if (line.includes('💰') && line.includes('الإجمالي')) {
+            const totalMatch = line.match(/(\d+)\s*ريال/);
+            if (totalMatch) {
+              totalAmount = parseInt(totalMatch[1]);
+            }
+          }
+        }
+
+        // Generate WhatsApp message
+        let whatsappMessage = `*طلب جديد من ${settings.shopName}*\n\n`;
+        whatsappMessage += `📋 *تفاصيل الطلب:*\n`;
+
+        if (orderLines.length > 0) {
+          orderLines.forEach(line => {
+            whatsappMessage += `${line}\n`;
+          });
+        }
+
+        whatsappMessage += `\n💰 *الإجمالي: ${totalAmount} ريال*\n\n`;
+        whatsappMessage += `⏰ الوقت: ${new Date().toLocaleString('ar-SA')}\n`;
+        whatsappMessage += `\nشكراً! 🙏`;
+
+        // Add delivery button with pre-filled message
+        actions.push({
+          label: `✅ إرسال الطلب للتوصيل`,
+          url: `https://wa.me/${settings.deliveryNumber.replace(/\D/g, '')}?text=${encodeURIComponent(whatsappMessage)}`,
+          type: 'primary'
+        });
+      }
+      // Regular contact buttons
+      else if (responseText.includes(settings.deliveryNumber) || responseText.includes('توصيل') || responseText.includes('طلب')) {
         actions.push({
           label: `📞 تواصل واتساب للتوصيل`,
           url: `https://wa.me/${settings.deliveryNumber.replace(/\D/g, '')}`,
@@ -257,8 +339,8 @@ export const ChatBot: React.FC<{ isCartOpen?: boolean }> = ({ isCartOpen = false
                           target="_blank"
                           rel="noreferrer"
                           className={`flex items-center justify-center gap-2 py-3 px-5 rounded-lg text-sm font-bold transition-all shadow-md hover:shadow-xl transform hover:scale-105 ${action.type === 'primary'
-                              ? 'bg-gradient-to-r from-green-500 to-green-600 text-white hover:from-green-600 hover:to-green-700'
-                              : 'bg-gradient-to-r from-gray-100 to-gray-200 border border-gray-300 text-gray-800 hover:from-gray-200 hover:to-gray-300'
+                            ? 'bg-gradient-to-r from-green-500 to-green-600 text-white hover:from-green-600 hover:to-green-700'
+                            : 'bg-gradient-to-r from-gray-100 to-gray-200 border border-gray-300 text-gray-800 hover:from-gray-200 hover:to-gray-300'
                             }`}
                         >
                           <span className="text-lg">{action.label.split(' ')[0]}</span>
