@@ -7,7 +7,7 @@ import { useAppStore } from '../store';
 import { Message, MessageAction } from '../types';
 
 export const ChatBot: React.FC<{ isCartOpen?: boolean }> = ({ isCartOpen = false }) => {
-  const { products, settings, isChatOpen, toggleChat } = useAppStore();
+  const { products, categories, settings, isChatOpen, toggleChat } = useAppStore();
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [showAutoPopup, setShowAutoPopup] = useState(false);
@@ -98,9 +98,20 @@ export const ChatBot: React.FC<{ isCartOpen?: boolean }> = ({ isCartOpen = false
       البيانات الحالية للمنيو:
       ${products.map(p => `- ${p.name} (${p.price} ريال): ${p.description}`).join('\n')}
       
+      الأقسام المتاحة:
+      ${categories.map(c => `- ${c.name} (ID: ${c.id})`).join('\n')}
+      
       معلومات التواصل:
       - رقم التوصيل/الطلبات: ${settings.deliveryNumber}
       - رقم الإدارة: ${settings.adminNumber}
+      
+      **عرض الأقسام والمنتجات (مهم جداً):**
+      - لو الزبون سأل "ايه المنيو؟" أو "عندكم ايه؟" أو "عايز أشوف الأقسام"، قوله:
+        "عندنا أقسام رائعة! [SHOW_CATEGORIES] وش رايك تختار واحد؟ 😊"
+      - لو سأل عن قسم معين (مثلاً "ايه الحلا عندكم؟" أو "عايز قهوة")، قوله:
+        "عندنا حلويات/قهوة لذيذة! [SHOW_PRODUCTS:اسم_القسم] اختار اللي يعجبك 😋"
+      - استبدل "اسم_القسم" بالاسم الفعلي للقسم من القائمة أعلاه
+      - **لا تكتب** [SHOW_CATEGORIES] أو [SHOW_PRODUCTS:...] إلا لو الزبون طلب يشوف قائمة
       
       **أسلوبك:**
       - مرح وودود لكن في نفس الوقت محترف ورسمي.
@@ -115,7 +126,7 @@ export const ChatBot: React.FC<{ isCartOpen?: boolean }> = ({ isCartOpen = false
       **دورك ومسؤولياتك:**
       - أنت مساعد ذكي بتساعد الزبون **يختار** المنتجات المناسبة ليه.
       - **مش دورك** تاخد الطلب.
-      - لما الزبون يعجبه منتج، قوله: "تمام! ممكن تضيفه للسلة من المنيو �"
+      - لما الزبون يعجبه منتج، قوله: "تمام! ممكن تضيفه للسلة من المنيو 🛒"
       - لو سأل عن كيفية الطلب، قوله:
         "عشان تطلب:
         1️⃣ اضغط على المنتج من المنيو
@@ -191,69 +202,67 @@ export const ChatBot: React.FC<{ isCartOpen?: boolean }> = ({ isCartOpen = false
       // Detect if response contains contact numbers and add action buttons
       const actions: MessageAction[] = [];
 
-      // Check if this is an order confirmation
-      const isOrderConfirmation = responseText.includes('طلبك جاهز') ||
-        responseText.includes('تم تأكيد') ||
-        responseText.includes('أكد الطلب') ||
-        (responseText.includes('📋') && responseText.includes('💰'));
+      // Detect and handle category/product display markers
+      let displayText = responseText;
 
-      if (isOrderConfirmation) {
-        // Extract order details from the ENTIRE conversation
-        const orderLines: string[] = [];
-        let totalAmount = 0;
+      // Check for [SHOW_CATEGORIES] marker
+      if (displayText.includes('[SHOW_CATEGORIES]')) {
+        displayText = displayText.replace('[SHOW_CATEGORIES]', '');
 
-        // Look through all bot messages to find order review
-        for (const msg of messages) {
-          if (msg.sender === 'bot') {
-            const lines = msg.text.split('\n');
-            for (const line of lines) {
-              // Match lines like: • منتج × 2 = 50 ريال
-              if ((line.includes('×') || line.includes('x')) && line.includes('ريال')) {
-                const cleanLine = line.replace(/•|bullet/g, '').trim();
-                orderLines.push(cleanLine);
-
-                // Extract price from line
-                const priceMatch = line.match(/=\s*(\d+)\s*ريال/);
-                if (priceMatch) {
-                  totalAmount += parseInt(priceMatch[1]);
-                }
+        // Add category buttons
+        categories.forEach(category => {
+          actions.push({
+            label: `${category.icon || '📂'} ${category.name}`,
+            onClick: () => {
+              // Scroll to category
+              const categoryElement = document.getElementById(`category-${category.id}`);
+              if (categoryElement) {
+                categoryElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
               }
-              // Check for total amount line
-              if (line.includes('الإجمالي') && line.includes('ريال')) {
-                const totalMatch = line.match(/(\d+)\s*ريال/);
-                if (totalMatch) {
-                  totalAmount = parseInt(totalMatch[1]);
-                }
-              }
-            }
-          }
-        }
-
-        // Generate WhatsApp message
-        let whatsappMessage = `*طلب جديد من ${settings.shopName}*\n\n`;
-        whatsappMessage += `*تفاصيل الطلب:*\n`;
-
-        if (orderLines.length > 0) {
-          orderLines.forEach(line => {
-            whatsappMessage += `- ${line}\n`;
+              toggleChat(); // Close chat
+            },
+            type: 'secondary'
           });
-        } else {
-          whatsappMessage += `(يرجى ذكر تفاصيل الطلب للمندوب)\n`;
-        }
-
-        whatsappMessage += `\n*الإجمالي: ${totalAmount} ريال*\n\n`;
-        whatsappMessage += `الوقت: ${new Date().toLocaleTimeString('ar-SA', { hour: '2-digit', minute: '2-digit' })}\n`;
-        whatsappMessage += `\nشكراً!`;
-
-        // Add delivery button with pre-filled message
-        actions.push({
-          label: `إرسال الطلب للتوصيل`,
-          url: `https://wa.me/${settings.deliveryNumber.replace(/\D/g, '')}?text=${encodeURIComponent(whatsappMessage)}`,
-          type: 'primary'
         });
       }
+
+      // Check for [SHOW_PRODUCTS:categoryName] marker
+      const productMarkerMatch = displayText.match(/\[SHOW_PRODUCTS:([^\]]+)\]/);
+      if (productMarkerMatch) {
+        const categoryName = productMarkerMatch[1];
+        displayText = displayText.replace(productMarkerMatch[0], '');
+
+        // Find matching category
+        const matchingCategory = categories.find(c =>
+          c.name.includes(categoryName) || categoryName.includes(c.name)
+        );
+
+        if (matchingCategory) {
+          // Get products for this category
+          const categoryProducts = products.filter(p => p.categoryId === matchingCategory.id);
+
+          // Add product buttons
+          categoryProducts.forEach(product => {
+            actions.push({
+              label: `${product.name} - ${product.price} ريال`,
+              onClick: () => {
+                // Scroll to product
+                const productElement = document.querySelector(`[data-product-id="${product.id}"]`);
+                if (productElement) {
+                  productElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                }
+                toggleChat(); // Close chat
+              },
+              type: 'secondary'
+            });
+          });
+        }
+      }
+
+      responseText = displayText;
+
       // Regular contact buttons
-      else if (responseText.includes(settings.deliveryNumber) || responseText.includes('توصيل') || responseText.includes('طلب')) {
+      if (responseText.includes(settings.deliveryNumber) || responseText.includes('توصيل') || responseText.includes('طلب')) {
         actions.push({
           label: `📞 تواصل واتساب للتوصيل`,
           url: `https://wa.me/${settings.deliveryNumber.replace(/\D/g, '')}`,
@@ -339,19 +348,33 @@ export const ChatBot: React.FC<{ isCartOpen?: boolean }> = ({ isCartOpen = false
                   {msg.actions && (
                     <div className="flex flex-col gap-3 mt-3 w-full max-w-[90%]">
                       {msg.actions.map((action, idx) => (
-                        <a
-                          key={idx}
-                          href={action.url}
-                          target="_blank"
-                          rel="noreferrer"
-                          className={`flex items-center justify-center gap-2 py-3 px-5 rounded-lg text-sm font-bold transition-all shadow-md hover:shadow-xl transform hover:scale-105 ${action.type === 'primary'
-                            ? 'bg-gradient-to-r from-green-500 to-green-600 text-white hover:from-green-600 hover:to-green-700'
-                            : 'bg-gradient-to-r from-gray-100 to-gray-200 border border-gray-300 text-gray-800 hover:from-gray-200 hover:to-gray-300'
-                            }`}
-                        >
-                          <span className="text-lg">{action.label.split(' ')[0]}</span>
-                          <span>{action.label.split(' ').slice(1).join(' ')}</span>
-                        </a>
+                        action.onClick ? (
+                          <button
+                            key={idx}
+                            onClick={action.onClick}
+                            className={`flex items-center justify-center gap-2 py-3 px-5 rounded-lg text-sm font-bold transition-all shadow-md hover:shadow-xl transform hover:scale-105 w-full ${action.type === 'primary'
+                              ? 'bg-gradient-to-r from-green-500 to-green-600 text-white hover:from-green-600 hover:to-green-700'
+                              : 'bg-gradient-to-r from-gray-100 to-gray-200 border border-gray-300 text-gray-800 hover:from-gray-200 hover:to-gray-300'
+                              }`}
+                          >
+                            <span className="text-lg">{action.label.split(' ')[0]}</span>
+                            <span>{action.label.split(' ').slice(1).join(' ')}</span>
+                          </button>
+                        ) : (
+                          <a
+                            key={idx}
+                            href={action.url}
+                            target="_blank"
+                            rel="noreferrer"
+                            className={`flex items-center justify-center gap-2 py-3 px-5 rounded-lg text-sm font-bold transition-all shadow-md hover:shadow-xl transform hover:scale-105 w-full ${action.type === 'primary'
+                              ? 'bg-gradient-to-r from-green-500 to-green-600 text-white hover:from-green-600 hover:to-green-700'
+                              : 'bg-gradient-to-r from-gray-100 to-gray-200 border border-gray-300 text-gray-800 hover:from-gray-200 hover:to-gray-300'
+                              }`}
+                          >
+                            <span className="text-lg">{action.label.split(' ')[0]}</span>
+                            <span>{action.label.split(' ').slice(1).join(' ')}</span>
+                          </a>
+                        )
                       ))}
                     </div>
                   )}

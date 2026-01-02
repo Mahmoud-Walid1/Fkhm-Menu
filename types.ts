@@ -85,7 +85,8 @@ export interface AppContextType {
 
 export interface MessageAction {
   label: string;
-  url: string;
+  url?: string;
+  onClick?: () => void;
   type: 'primary' | 'secondary';
 }
 
