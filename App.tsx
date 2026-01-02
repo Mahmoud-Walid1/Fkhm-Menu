@@ -185,7 +185,7 @@ const AppContent: React.FC = () => {
         rel="noreferrer"
         whileHover={{ scale: 1.05 }}
         whileTap={{ scale: 0.95 }}
-        className="fixed bottom-20 left-4 z-[9998]"
+        className="fixed bottom-6 left-4 z-[9998]"
       >
         <div className="flex items-center gap-3 bg-gradient-to-r from-green-500 to-green-600 text-white px-4 py-3 rounded-full shadow-xl hover:shadow-green-500/40 transition-all">
           {/* WhatsApp Icon */}
