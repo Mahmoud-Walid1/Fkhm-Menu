@@ -11,14 +11,24 @@ export const ChatBot: React.FC<{ isCartOpen?: boolean }> = ({ isCartOpen = false
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [showAutoPopup, setShowAutoPopup] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const checkMobile = () => setIsMobile(window.innerWidth < 768);
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
+
   const [messages, setMessages] = useState<Message[]>([
     {
       id: 'welcome',
-      text: `👋 مرحباً بك في ${settings.shopName}! ☕\n\n🤖 أنا مساعدك الذكي الخاص\n\n❓ كيف أقدر أساعدك اليوم بخصوص المنيو؟`,
+      text: `هلا والله! نورت ${settings.shopName} ☕✨\n\nأنا الباريستا الذكي، آمرني وش خاطرك فيه اليوم؟ قهوة تعدل المزاج ولا حلى يروق عليك؟ 😋`,
       sender: 'bot',
       timestamp: new Date()
     }
   ]);
+
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   const scrollToBottom = () => {
@@ -89,23 +99,31 @@ export const ChatBot: React.FC<{ isCartOpen?: boolean }> = ({ isCartOpen = false
       ).join('\n');
 
       const systemInstruction = `
-        You are a smart assistant for "${settings.shopName}".
-        Menu: ${menuContext}
-        
-        Social Media Links:
-        - Snapchat: ${settings.snapchatUrl || 'Not available'}
-        - Instagram: ${settings.instagramUrl || 'Not available'}
-        - TikTok: ${settings.tiktokUrl || 'Not available'}
+        أنت "باريستا" ذكي ومرح في كافيه "${settings.shopName}".
+        تتحدث باللهجة السعودية الودودة (عامية بيضاء).
+        أسلوبك:
+        - مرح، خفيف دم، وصديق للزبون (استخدم: يا غالي، هلا والله، أبشر، وش رايك، لا يفوتك).
+        - لا تسرد المنيو كأنه قائمة، بل اقترح بذكاء. مثلاً: "لو تبي شي يصحصحك، ما لك إلا V60، ولو جوك حالي جرب الكوكيز حقنا يذوب بالفم 😋".
+        - استخدم الإيموجي المناسب ☕🍪✨.
+        - خلي ردودك قصيرة ومفيدة.
 
-        Rules:
-        1. Answer questions about coffee/menu.
-        2. If user asks for social media (Snapchat, Instagram, etc), provide the LINK directly in the text response. DO NOT call the contact function.
-        3. If user asks for contact, "Mandoob" (Delegate), complaint, or admin, CALL the function "showContactOptions".
-        4. Be brief and use Arabic.
+        المنيو المتوفر:
+        ${menuContext}
+
+        روابط التواصل:
+        - سناب شات: ${settings.snapchatUrl || 'غير متوفر'}
+        - انستقرام: ${settings.instagramUrl || 'غير متوفر'}
+        - تيك توك: ${settings.tiktokUrl || 'غير متوفر'}
+
+        القواعد:
+        1. جاوب على الأسئلة باللهجة السعودية.
+        2. اقترح منتجات مناسبة بدل السرد الممل.
+        3. لو طلب العميل التواصل، المندوب، أو الإدارة، استدعي دالة "showContactOptions".
+        4. لو طلب حسابات التواصل، اعطه الرابط في المحادثة مباشرة.
       `;
 
       const response = await ai.models.generateContent({
-        model: 'gemini-3-flash-preview',
+        model: 'gemini-1.5-flash', // Updated to reliable model name
         contents: input,
         config: {
           systemInstruction: systemInstruction,
