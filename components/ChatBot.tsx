@@ -269,7 +269,7 @@ export const ChatBot: React.FC<{ isCartOpen?: boolean }> = ({ isCartOpen = false
       </AnimatePresence>
 
       <motion.button
-        drag
+        drag={!isMobile}
         dragConstraints={constraintsRef}
         dragMomentum={false}
         whileHover={{ scale: 1.1, cursor: 'grab' }}
