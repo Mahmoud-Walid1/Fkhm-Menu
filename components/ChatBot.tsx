@@ -177,7 +177,7 @@ export const ChatBot: React.FC<{ isCartOpen?: boolean }> = ({ isCartOpen = false
             initial={{ opacity: 0, y: 20, scale: 0.9 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 20, scale: 0.9 }}
-            className="fixed bottom-24 left-4 w-80 md:w-96 bg-white rounded-lg shadow-xl border border-gray-200 z-[9999] overflow-hidden flex flex-col max-h-[500px]"
+            className="fixed bottom-24 right-4 w-80 md:w-96 bg-white rounded-lg shadow-xl border border-gray-200 z-[9999] overflow-hidden flex flex-col max-h-[500px]"
           >
             {/* Header */}
             <div
@@ -295,7 +295,7 @@ export const ChatBot: React.FC<{ isCartOpen?: boolean }> = ({ isCartOpen = false
           ease: "easeInOut"
         }}
         onClick={toggleChat}
-        className="fixed bottom-6 left-6 z-[2147483647] flex items-center justify-center group relative"
+        className="fixed bottom-6 right-6 z-[2147483647] flex items-center justify-center group relative"
       >
         {isChatOpen ? (
           <div

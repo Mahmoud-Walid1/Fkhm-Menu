@@ -188,7 +188,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   }, []);
 
   // Cart Logic
-  const addToCart = (product: Product, size?: Size) => {
+  const addToCart = (product: Product, size?: Size, temperature?: 'hot' | 'cold') => {
     const basePrice = product.isPromo && product.promoPrice ? product.promoPrice : product.price;
     const finalPrice = basePrice + (size?.priceModifier || 0);
 
@@ -197,6 +197,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       cartId: Math.random().toString(36).substr(2, 9),
       quantity: 1,
       selectedSize: size,
+      selectedTemperature: temperature,
       finalPrice
     };
     setCart(prev => [...prev, newItem]);

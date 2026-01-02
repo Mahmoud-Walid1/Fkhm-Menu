@@ -26,6 +26,7 @@ export interface CartItem extends Product {
   cartId: string;
   quantity: number;
   selectedSize?: Size;
+  selectedTemperature?: 'hot' | 'cold';
   finalPrice: number;
 }
 
@@ -64,7 +65,7 @@ export interface AppContextType {
   categories: Category[];
   cart: CartItem[];
   settings: SiteSettings;
-  addToCart: (product: Product, size?: Size) => void;
+  addToCart: (product: Product, size?: Size, temperature?: 'hot' | 'cold') => void;
   removeFromCart: (cartId: string) => void;
   updateQuantity: (cartId: string, delta: number) => void;
   clearCart: () => void;

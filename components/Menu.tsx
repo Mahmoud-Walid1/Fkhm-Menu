@@ -68,8 +68,8 @@ export const Menu: React.FC = () => {
           <ProductModal
             product={selectedProduct}
             onClose={() => setSelectedProduct(null)}
-            onConfirm={(size) => {
-              addToCart(selectedProduct, size);
+            onConfirm={(size, temperature) => {
+              addToCart(selectedProduct, size, temperature);
               setSelectedProduct(null);
             }}
             primaryColor={settings.primaryColor}
@@ -159,10 +159,16 @@ const ProductCard: React.FC<{ product: Product; onAdd: () => void; primaryColor:
 const ProductModal: React.FC<{
   product: Product;
   onClose: () => void;
-  onConfirm: (size?: { name: string; priceModifier: number }) => void;
+  onConfirm: (size?: { name: string; priceModifier: number }, temperature?: 'hot' | 'cold') => void;
   primaryColor: string;
 }> = ({ product, onClose, onConfirm, primaryColor }) => {
   const [selectedSize, setSelectedSize] = useState(product.sizes?.[0]);
+  const [selectedTemp, setSelectedTemp] = useState<'hot' | 'cold' | undefined>(
+    product.isHot && !product.isCold ? 'hot' :
+      !product.isHot && product.isCold ? 'cold' : undefined
+  );
+
+  const showTempSelection = product.isHot && product.isCold;
 
   return (
     <motion.div
@@ -191,6 +197,38 @@ const ProductModal: React.FC<{
 
         <div className="p-6">
           <p className="text-gray-600 mb-6 leading-relaxed bg-gray-50 p-3 rounded border text-sm">{product.description}</p>
+
+          {/* Temperature Selection (Only if both are available) */}
+          {showTempSelection && (
+            <div className="mb-6">
+              <h3 className="font-bold text-gray-800 mb-3 flex items-center gap-2">
+                <span className="w-1 h-5 rounded" style={{ backgroundColor: primaryColor }}></span>
+                طريقة التقديم:
+              </h3>
+              <div className="flex gap-3">
+                <button
+                  onClick={() => setSelectedTemp('hot')}
+                  className={`flex-1 py-2 px-4 rounded border transition-all flex items-center justify-center gap-2 ${selectedTemp === 'hot'
+                    ? 'bg-red-500 text-white border-transparent'
+                    : 'bg-white text-gray-600 border-gray-200 hover:bg-gray-50'
+                    }`}
+                >
+                  <Flame size={18} />
+                  <span>حار</span>
+                </button>
+                <button
+                  onClick={() => setSelectedTemp('cold')}
+                  className={`flex-1 py-2 px-4 rounded border transition-all flex items-center justify-center gap-2 ${selectedTemp === 'cold'
+                    ? 'bg-blue-500 text-white border-transparent'
+                    : 'bg-white text-gray-600 border-gray-200 hover:bg-gray-50'
+                    }`}
+                >
+                  <Snowflake size={18} />
+                  <span>بارد</span>
+                </button>
+              </div>
+            </div>
+          )}
 
           {product.sizes && product.sizes.length > 0 && (
             <div className="mb-6">
@@ -228,7 +266,13 @@ const ProductModal: React.FC<{
             </div>
 
             <button
-              onClick={() => onConfirm(selectedSize)}
+              onClick={() => {
+                if (showTempSelection && !selectedTemp) {
+                  alert('الرجاء اختيار طريقة التقديم (حار/بارد)');
+                  return;
+                }
+                onConfirm(selectedSize, selectedTemp);
+              }}
               className="flex-1 py-3 rounded text-white font-bold text-lg shadow hover:opacity-90 transition-all flex items-center justify-center gap-2"
               style={{ backgroundColor: primaryColor }}
             >
