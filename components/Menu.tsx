@@ -9,7 +9,7 @@ export const Menu: React.FC = () => {
   const [activeCategory, setActiveCategory] = useState<string>(categories[0]?.id || '1');
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
 
-  const filteredProducts = products.filter(p => p.categoryId === activeCategory);
+  const filteredProducts = products.filter(p => p.category === activeCategory);
 
   return (
     <section className="py-16 px-4 max-w-7xl mx-auto min-h-screen" id="menu">
@@ -133,8 +133,8 @@ const ProductCard: React.FC<{ product: Product; onAdd: () => void; primaryColor:
                     setSelectedSize(size);
                   }}
                   className={`transition-all ${selectedSize?.name === size.name
-                      ? 'text-purple-600 scale-110'
-                      : 'text-purple-300 hover:text-purple-500'
+                    ? 'text-purple-600 scale-110'
+                    : 'text-purple-300 hover:text-purple-500'
                     }`}
                   title={size.name}
                 >
