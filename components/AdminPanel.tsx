@@ -80,7 +80,7 @@ export const AdminPanel: React.FC<{ onClose: () => void }> = ({ onClose }) => {
         const prodData = {
             ...editingProduct,
             price: Number(editingProduct.price),
-            promoPrice: editingProduct.promoPrice ? Number(editingProduct.promoPrice) : undefined,
+            promoPrice: editingProduct.promoPrice ? Number(editingProduct.promoPrice) : null,
             sizes: editingProduct.sizes || [],
             image: imageUrl
         } as Product;
