@@ -8,25 +8,22 @@ import { Cart } from './components/Cart';
 import { ChatBot } from './components/ChatBot';
 import { PromoPopup } from './components/PromoPopup';
 import { AdminPanel } from './components/AdminPanel';
+import { AdminLogin, useAdminAuth } from './components/AdminLogin';
 import { OffersSection } from './components/OffersSection';
 
 const AppContent: React.FC = () => {
   const { cart, settings, toggleChat, updateSettings, toggleTheme } = useAppStore();
   const [isCartOpen, setIsCartOpen] = useState(false);
-  const [isAdminOpen, setIsAdminOpen] = useState(false);
+  const [showAdminLogin, setShowAdminLogin] = useState(false);
   const [adminClickCount, setAdminClickCount] = useState(0);
+  const { isAuthenticated, logout } = useAdminAuth();
 
   // Check for /admin in URL
   React.useEffect(() => {
     if (window.location.pathname === '/admin' || window.location.hash === '#admin') {
-      const pwd = prompt('أدخل كلمة مرور الإدارة:');
-      if (pwd === '12345') {
-        setIsAdminOpen(true);
-        // Clear the URL without reloading
-        window.history.replaceState({}, '', '/');
-      } else if (pwd !== null) {
-        alert('كلمة المرور خاطئة');
-      }
+      setShowAdminLogin(true);
+      // Clear the URL without reloading
+      window.history.replaceState({}, '', '/');
     }
   }, []);
 
@@ -44,14 +41,9 @@ const AppContent: React.FC = () => {
     setAdminClickCount(newCount);
 
     if (newCount >= 3) {
-      // Trigger Admin Prompt
+      // Show admin login
       setTimeout(() => {
-        const pwd = prompt('أدخل كلمة مرور الإدارة:');
-        if (pwd === '12345') {
-          setIsAdminOpen(true);
-        } else if (pwd !== null) {
-          alert('كلمة المرور خاطئة');
-        }
+        setShowAdminLogin(true);
         setAdminClickCount(0);
       }, 50);
       return;
@@ -160,11 +152,9 @@ const AppContent: React.FC = () => {
                 </a>
               )}
               {settings.snapchatUrl && (
-                <a href={settings.snapchatUrl} target="_blank" className="w-10 h-10 rounded-2xl bg-yellow-400 flex items-center justify-center text-gray-800 hover:scale-110 transition-transform shadow-lg hover:shadow-xl">
+                <a href={settings.snapchatUrl} target="_blank" className="w-10 h-10 rounded-2xl bg-yellow-400 flex items-center justify-center hover:scale-110 transition-transform shadow-lg hover:shadow-xl overflow-hidden">
                   <span className="sr-only">Snapchat</span>
-                  <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
-                    <path d="M12.206.793c.99 0 4.347.276 5.93 3.821.529 1.193.403 3.219.299 4.847l-.003.06c-.012.18-.022.345-.03.51.075.045.203.09.401.09.3 0 .719-.149.997-.279.405-.187.76-.235 1.053-.235.243 0 .461.06.663.184.407.258.675.751.675 1.234 0 .324-.097.62-.319.877-.465.534-1.361.703-1.903.703-.12 0-.209-.01-.261-.022-.301-.065-.478-.249-.635-.407-.105-.105-.2-.203-.358-.265-.31-.121-.633-.127-.975-.127-.342 0-.684.006-.994.127-.158.062-.253.16-.358.265-.157.158-.334.342-.635.407-.052.012-.141.022-.261.022-.542 0-1.438-.169-1.903-.703a1.218 1.218 0 01-.319-.877c0-.483.268-.976.675-1.234.202-.124.42-.184.663-.184.293 0 .648.048 1.053.235.278.13.697.279.997.279.198 0 .326-.045.401-.09-.008-.165-.018-.33-.03-.51l-.003-.06c-.104-1.628-.23-3.654.299-4.847C7.859 1.069 11.216.793 12.206.793zm.069 1.376c-.94 0-3.906.232-5.214 3.246-.474 1.089-.358 2.931-.256 4.563l.003.061c.028.414.056.794.056 1.118 0 .608-.201.888-.421 1.025-.229.144-.526.225-.859.225-.212 0-.495-.055-.776-.116-.13-.029-.261-.058-.389-.058-.084 0-.142.018-.173.035-.084.049-.132.138-.132.238 0 .076.038.165.095.241.238.281.815.404 1.183.404.076 0 .137-.006.182-.015.133-.029.235-.109.379-.246.129-.129.296-.303.614-.421.407-.151.831-.158 1.22-.158.389 0 .813.007 1.22.158.318.118.485.292.614.421.144.137.246.217.379.246.045.009.106.015.182.015.368 0 .945-.123 1.183-.404a.424.424 0 00.095-.241c0-.1-.048-.189-.132-.238a.293.293 0 00-.173-.035c-.128 0-.259.029-.389.058-.281.061-.564.116-.776.116-.333 0-.63-.081-.859-.225-.22-.137-.421-.417-.421-1.025 0-.324.028-.704.056-1.118l.003-.061c.102-1.632.218-3.474-.256-4.563-1.308-3.014-4.274-3.246-5.214-3.246z" />
-                  </svg>
+                  <img src="/snapchat.png" alt="Snapchat" className="w-6 h-6 object-contain" />
                 </a>
               )}
               {settings.tiktokUrl && (
@@ -230,7 +220,14 @@ const AppContent: React.FC = () => {
       <Cart isOpen={isCartOpen} onClose={() => setIsCartOpen(false)} />
       <ChatBot isCartOpen={isCartOpen} />
       <PromoPopup />
-      {isAdminOpen && <AdminPanel onClose={() => setIsAdminOpen(false)} />}
+
+      {/* Admin Login Modal */}
+      {showAdminLogin && !isAuthenticated && (
+        <AdminLogin onLoginSuccess={() => setShowAdminLogin(false)} />
+      )}
+
+      {/* Admin Panel - Only show if authenticated */}
+      {isAuthenticated && <AdminPanel onClose={logout} />}
     </div>
   );
 };
