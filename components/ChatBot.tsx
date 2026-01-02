@@ -275,29 +275,50 @@ export const ChatBot: React.FC<{ isCartOpen?: boolean }> = ({ isCartOpen = false
         whileHover={{ scale: 1.1, cursor: 'grab' }}
         whileTap={{ scale: 0.9, cursor: 'grabbing' }}
         animate={{
-          scale: [1, 1.05, 1],
-          boxShadow: [
-            '0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)',
-            '0 20px 25px -5px rgba(139, 92, 246, 0.3), 0 10px 10px -5px rgba(139, 92, 246, 0.2)',
-            '0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)'
-          ]
+          y: [0, -5, 0],
+          rotate: [0, -5, 5, -5, 0],
         }}
         transition={{
-          duration: 4,
+          duration: 5,
           repeat: Infinity,
+          repeatDelay: 2,
           ease: "easeInOut"
         }}
         onClick={toggleChat}
-        className="fixed bottom-8 right-6 md:bottom-12 md:right-12 p-4 rounded-full shadow-2xl text-white z-[2147483647] flex items-center justify-center group relative ring-2 ring-white/20 touch-none"
-        style={{ backgroundColor: settings.primaryColor }}
+        className="fixed bottom-8 right-6 md:bottom-12 md:right-12 z-[2147483647] flex items-center justify-center group relative touch-none"
       >
-        {isChatOpen ? <X size={24} /> : (
-          <>
-            <MessageCircle size={28} />
-            <span className="absolute right-full mr-3 bg-white text-gray-800 px-2 py-1 rounded-md text-xs font-bold shadow-md opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none">
-              محادثة
+        {isChatOpen ? (
+          <div
+            className="p-4 rounded-full shadow-2xl text-white ring-4 ring-white"
+            style={{ backgroundColor: settings.primaryColor }}
+          >
+            <X size={24} />
+          </div>
+        ) : (
+          <div className="relative">
+            {/* Robot Head Container */}
+            <div
+              className="w-16 h-16 rounded-2xl flex items-center justify-center shadow-2xl border-4 border-white transform transition-transform"
+              style={{ backgroundColor: settings.primaryColor }}
+            >
+              <Bot size={32} className="text-white" strokeWidth={1.5} />
+
+              {/* Eyes Animation Wrapper (simple effect) */}
+              <div className="absolute top-1/3 w-full flex justify-center gap-3 opacity-0">
+                <div className="w-1 h-1 bg-white rounded-full animate-ping" />
+                <div className="w-1 h-1 bg-white rounded-full animate-ping delay-75" />
+              </div>
+            </div>
+
+            {/* "Online" Indicator */}
+            <div className="absolute -top-1 -right-1 w-4 h-4 bg-green-500 border-2 border-white rounded-full shadow-sm animate-pulse" />
+
+            {/* Speech Bubble Label */}
+            <span className="absolute right-full mr-4 top-1/2 -translate-y-1/2 bg-white text-gray-800 px-3 py-1.5 rounded-xl rounded-tr-none text-xs font-bold shadow-lg opacity-0 group-hover:opacity-100 transition-all duration-300 whitespace-nowrap pointer-events-none transform translate-x-2 group-hover:translate-x-0">
+              <span className="text-lg align-middle mr-1">🤖</span>
+              مساعدك الشخصي
             </span>
-          </>
+          </div>
         )}
       </motion.button>
 

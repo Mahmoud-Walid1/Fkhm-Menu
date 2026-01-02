@@ -626,6 +626,14 @@ export const AdminPanel: React.FC<{ onClose: () => void }> = ({ onClose }) => {
 
                                 <div className="col-span-2 border-t pt-6 mt-4">
                                     <h2 className="text-xl font-bold mb-4 flex items-center gap-2"><Upload /> إعدادات GitHub (رفع الصور)</h2>
+                                    <div className="bg-yellow-50 border border-yellow-200 p-3 rounded-lg mb-4 text-sm">
+                                        <p className="font-bold text-yellow-800 mb-1">⚠️ هام جداً:</p>
+                                        <p className="text-yellow-800">
+                                            لكي تظهر الصور في الموقع، يجب أن يكون المستودع (Repository) <strong>عام (Public)</strong> وليس خاص (Private).
+                                            <br />
+                                            الصور المرفوعة على مستودع خاص لن تظهر للزوار.
+                                        </p>
+                                    </div>
                                     <div className="bg-blue-50 border border-blue-200 p-3 rounded-lg mb-4 text-sm">
                                         <p className="font-bold mb-1">ℹ️ كيفية الحصول على رمز GitHub:</p>
                                         <ol className="list-decimal mr-5 space-y-1 text-blue-800">

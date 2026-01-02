@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { ShoppingBag, Menu as MenuIcon, MessageCircle, Moon, Sun } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { useAppStore, AppProvider } from './store';
 import { Hero } from './components/Hero';
 import { Menu } from './components/Menu';
@@ -89,18 +90,41 @@ const AppContent: React.FC = () => {
                 <MessageCircle size={20} />
               </button>
 
-              <button
+              <motion.button
+                layout
                 onClick={() => setIsCartOpen(true)}
-                className="p-2 rounded-md hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-800 dark:text-gray-200 transition-colors relative"
                 title="السلة"
+                className={`p-3 rounded-xl transition-colors relative flex items-center gap-2 ${cart.length > 0
+                  ? 'bg-red-50 text-red-600 font-bold ring-2 ring-red-100'
+                  : 'hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-800 dark:text-gray-200'
+                  }`}
+                animate={cart.length > 0 ? {
+                  scale: [1, 1.05, 1],
+                  boxShadow: ["0px 0px 0px rgba(0,0,0,0)", "0px 4px 12px rgba(220, 38, 38, 0.2)", "0px 0px 0px rgba(0,0,0,0)"]
+                } : {}}
+                transition={{
+                  duration: 2,
+                  repeat: Infinity,
+                  ease: "easeInOut"
+                }}
               >
-                <ShoppingBag size={20} />
-                {cart.length > 0 && (
-                  <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs w-5 h-5 rounded-full flex items-center justify-center font-bold">
-                    {cart.length}
-                  </span>
-                )}
-              </button>
+                <div className="relative">
+                  <ShoppingBag size={24} strokeWidth={cart.length > 0 ? 2.5 : 2} />
+                  <AnimatePresence>
+                    {cart.length > 0 && (
+                      <motion.span
+                        initial={{ scale: 0 }}
+                        animate={{ scale: 1 }}
+                        exit={{ scale: 0 }}
+                        className="absolute -top-2 -right-2 bg-red-600 text-white text-[10px] min-w-[18px] h-[18px] rounded-full flex items-center justify-center font-extrabold border-2 border-white shadow-sm"
+                      >
+                        {cart.length}
+                      </motion.span>
+                    )}
+                  </AnimatePresence>
+                </div>
+                {/* Text Label for extra visibility if needed, or keep minimal with just distinct color */}
+              </motion.button>
             </div>
           </div>
         </nav>
