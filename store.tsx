@@ -288,32 +288,16 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     return (localStorage.getItem('theme') as 'light' | 'dark') || 'light';
   });
 
-  // Local Theme Persistence
-  useEffect(() => {
-    // Apply theme
-    if (localTheme === 'dark') {
-      document.documentElement.classList.add('dark');
-    } else {
-      document.documentElement.classList.remove('dark');
-    }
-    // Save
-    localStorage.setItem('theme', localTheme);
-  }, [localTheme]);
 
-  // Toggle Function
-  const toggleTheme = () => {
-    setLocalTheme(prev => prev === 'light' ? 'dark' : 'light');
-  };
 
-  // Merged Settings (Global Settings + Local Theme Override)
-  const activeSettings = { ...settings, theme: localTheme };
+
 
   return (
     <AppContext.Provider value={{
       products,
       categories,
       cart,
-      settings: activeSettings, // Use merged settings
+      settings, // Use global settings directly
       addToCart,
       removeFromCart,
       updateQuantity,
@@ -326,8 +310,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       updateCategory,
       deleteCategory,
       isChatOpen,
-      toggleChat,
-      toggleTheme
+      toggleChat
     }}>
       {children}
     </AppContext.Provider>

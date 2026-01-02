@@ -70,14 +70,7 @@ const AppContent: React.FC = () => {
             </div>
 
             <div className="flex items-center gap-2 md:gap-3">
-              {/* Dark Mode Toggle */}
-              <button
-                onClick={toggleTheme}
-                className="p-2 rounded-md hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-800 dark:text-gray-200 transition-colors"
-                title={settings.theme === 'dark' ? 'وضع النهار' : 'الوضع الليلي'}
-              >
-                {settings.theme === 'dark' ? <Sun size={20} /> : <Moon size={20} />}
-              </button>
+
 
 
               <button
