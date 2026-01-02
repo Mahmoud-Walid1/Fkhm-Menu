@@ -4,7 +4,7 @@ import { GoogleGenAI, FunctionDeclaration, Type } from '@google/genai';
 import { motion, AnimatePresence } from 'framer-motion';
 import { MessageCircle, Send, X, Bot, Loader2, Phone } from 'lucide-react';
 import { useAppStore } from '../store';
-import { Message } from '../types';
+import { Message, MessageAction } from '../types';
 
 export const ChatBot: React.FC<{ isCartOpen?: boolean }> = ({ isCartOpen = false }) => {
   const { products, settings, isChatOpen, toggleChat } = useAppStore();
