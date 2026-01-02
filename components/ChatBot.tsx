@@ -189,10 +189,13 @@ export const ChatBot: React.FC<{ isCartOpen?: boolean }> = ({ isCartOpen = false
           actions.push({
             label: `${category.icon || '📂'} ${category.name}`,
             onClick: () => {
-              // Scroll to category
+              // Scroll to category and CLICK it to active it
               const categoryElement = document.getElementById(`category-${category.id}`);
               if (categoryElement) {
-                categoryElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                categoryElement.click(); // Trigger state change in Menu.tsx
+                setTimeout(() => {
+                  categoryElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                }, 100);
               }
               toggleChat(); // Close chat
             },
@@ -221,11 +224,23 @@ export const ChatBot: React.FC<{ isCartOpen?: boolean }> = ({ isCartOpen = false
             actions.push({
               label: `${product.name} - ${product.price} ريال`,
               onClick: () => {
-                // Scroll to product
-                const productElement = document.querySelector(`[data-product-id="${product.id}"]`);
-                if (productElement) {
-                  productElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                // 1. Switch Category First
+                const categoryElement = document.getElementById(`category-${matchingCategory.id}`);
+                if (categoryElement) {
+                  categoryElement.click(); // Trigger state change
                 }
+
+                // 2. Wait for re-render then scroll to product
+                setTimeout(() => {
+                  const productElement = document.querySelector(`[data-product-id="${product.id}"]`);
+                  if (productElement) {
+                    productElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    // Optional: Highlight effect
+                    productElement.classList.add('ring-4', 'ring-purple-400');
+                    setTimeout(() => productElement.classList.remove('ring-4', 'ring-purple-400'), 2000);
+                  }
+                }, 300); // Wait 300ms for state update and DOM render
+
                 toggleChat(); // Close chat
               },
               type: 'secondary'
