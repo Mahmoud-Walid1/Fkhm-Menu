@@ -153,11 +153,31 @@ export const ChatBot: React.FC<{ isCartOpen?: boolean }> = ({ isCartOpen = false
         responseText = "المعذرة، لم يتم تفعيل خدمة الرد الذكي 🤖. يرجى من المسؤول إضافة مفتاح API في الإعدادات.";
       }
 
+      // Detect if response contains contact numbers and add action buttons
+      const actions: MessageAction[] = [];
+
+      if (responseText.includes(settings.deliveryNumber) || responseText.includes('توصيل') || responseText.includes('طلب')) {
+        actions.push({
+          label: `📱 تواصل واتساب (${settings.deliveryNumber})`,
+          url: `https://wa.me/${settings.deliveryNumber.replace(/\D/g, '')}`,
+          type: 'primary'
+        });
+      }
+
+      if (responseText.includes(settings.adminNumber) || responseText.includes('مدير') || responseText.includes('إدارة')) {
+        actions.push({
+          label: `👤 تواصل مع المدير (${settings.adminNumber})`,
+          url: `https://wa.me/${settings.adminNumber.replace(/\D/g, '')}`,
+          type: 'secondary'
+        });
+      }
+
       const botMessage: Message = {
         id: (Date.now() + 1).toString(),
         text: responseText,
         sender: 'bot',
-        timestamp: new Date()
+        timestamp: new Date(),
+        actions: actions.length > 0 ? actions : undefined
       };
 
       setMessages(prev => [...prev, botMessage]);
