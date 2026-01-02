@@ -33,23 +33,31 @@ const AppContent: React.FC = () => {
 
 
   // Secret Admin Trigger (Triple Click on Footer Text)
+  const clickTimeoutRef = React.useRef<any>(null);
+
   const handleSecretAdminTrigger = () => {
+    // Clear existing timer (debounce)
+    if (clickTimeoutRef.current) clearTimeout(clickTimeoutRef.current);
+
     const newCount = adminClickCount + 1;
     setAdminClickCount(newCount);
 
-    if (newCount === 3) {
-      const pwd = prompt('أدخل كلمة مرور الإدارة:');
-      if (pwd === '12345') {
-        setIsAdminOpen(true);
+    if (newCount >= 3) {
+      // Trigger Admin Prompt
+      setTimeout(() => {
+        const pwd = prompt('أدخل كلمة مرور الإدارة:');
+        if (pwd === '12345') {
+          setIsAdminOpen(true);
+        } else if (pwd !== null) {
+          alert('كلمة المرور خاطئة');
+        }
         setAdminClickCount(0);
-      } else {
-        if (pwd !== null) alert('كلمة المرور خاطئة');
-        setAdminClickCount(0);
-      }
+      }, 50);
+      return;
     }
 
-    // Reset counter if too slow
-    setTimeout(() => setAdminClickCount(0), 2000);
+    // Reset counter if no click for 2 seconds
+    clickTimeoutRef.current = setTimeout(() => setAdminClickCount(0), 2000);
   };
 
   return (
