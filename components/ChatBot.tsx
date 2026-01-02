@@ -282,11 +282,8 @@ export const ChatBot: React.FC<{ isCartOpen?: boolean }> = ({ isCartOpen = false
       </AnimatePresence>
 
       <motion.button
-        drag={!isMobile}
-        dragConstraints={constraintsRef}
-        dragMomentum={false}
-        whileHover={{ scale: 1.1, cursor: 'grab' }}
-        whileTap={{ scale: 0.9, cursor: 'grabbing' }}
+        whileHover={{ scale: 1.1 }}
+        whileTap={{ scale: 0.9 }}
         animate={{
           y: [0, -5, 0],
           rotate: [0, -5, 5, -5, 0],
@@ -298,7 +295,7 @@ export const ChatBot: React.FC<{ isCartOpen?: boolean }> = ({ isCartOpen = false
           ease: "easeInOut"
         }}
         onClick={toggleChat}
-        className="fixed bottom-8 right-6 md:bottom-12 md:right-12 z-[2147483647] flex items-center justify-center group relative touch-none"
+        className="fixed bottom-6 right-6 z-[2147483647] flex items-center justify-center group relative"
       >
         {isChatOpen ? (
           <div
