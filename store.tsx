@@ -99,18 +99,12 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   const [categories, setCategories] = useState<Category[]>([]);
   const [settings, setSettings] = useState<SiteSettings>(DEFAULT_SETTINGS);
 
-  // Cart remains local
-  const [cart, setCart] = useState<CartItem[]>(() => {
-    const saved = localStorage.getItem('local_cart');
-    return saved ? JSON.parse(saved) : [];
-  });
+  // Cart remains local (Session Only)
+  const [cart, setCart] = useState<CartItem[]>([]);
 
   const [isChatOpen, setIsChatOpen] = useState(false);
 
-  // Cart Persistence
-  useEffect(() => {
-    localStorage.setItem('local_cart', JSON.stringify(cart));
-  }, [cart]);
+
 
   // Firestore Subscriptions
   useEffect(() => {
@@ -141,11 +135,11 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     };
   }, []);
 
-  // One-time Seeding Logic - FIXED (Prevents Overwriting)
+  // One-time Seeding Logic - DB Check Only
   useEffect(() => {
     const seed = async () => {
-      const isSeeded = localStorage.getItem('firebase_seeded_v2'); // Increment version to force re-check for existing users
-      if (isSeeded) return;
+      // Removed localStorage check as requested. relying strictly on DB state.
+
 
       try {
         const batch = writeBatch(db);
@@ -183,7 +177,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
           console.log("Firebase Seeded Successfully");
         }
 
-        localStorage.setItem('firebase_seeded_v2', 'true');
+
       } catch (err) {
         console.error("Seeding Error:", err);
       }
@@ -283,10 +277,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
   const toggleChat = () => setIsChatOpen(prev => !prev);
 
-  // Local Theme State (Separate from Firestore Global Settings)
-  const [localTheme, setLocalTheme] = useState<'light' | 'dark'>(() => {
-    return (localStorage.getItem('theme') as 'light' | 'dark') || 'light';
-  });
+
 
 
 
