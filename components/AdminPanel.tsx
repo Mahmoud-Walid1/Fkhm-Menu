@@ -255,18 +255,6 @@ export const AdminPanel: React.FC<{ onClose: () => void }> = ({ onClose }) => {
 
                                             {settings.githubToken ? (
                                                 <div>
-                                                    <div className="mb-6">
-          <label className="block text-gray-700 font-bold mb-2">نص الشريط المتحرك (أعلى الموقع)</label>
-          <input
-            type="text"
-            value={settings.scrollingBannerText || ''}
-            onChange={(e) => updateSettings({ ...settings, scrollingBannerText: e.target.value })}
-            className="w-full border p-2 rounded-md"
-            placeholder="مثال: ✨ فخم البن يرحب بكم ✨ خصومات خاصة لفترة محدودة"
-          />
-        </div>
-
-        <div className="mb-6 opacity-60 pointer-events-none filter grayscale">
                                                     <label className="block text-sm mb-2 font-medium">اختر صورة من جهازك</label>
                                                     <div className="flex gap-3 items-start">
                                                         <label className="flex-1 cursor-pointer">
@@ -336,94 +324,94 @@ export const AdminPanel: React.FC<{ onClose: () => void }> = ({ onClose }) => {
                                             </label>
                                         </div>
                                         {editingProduct.isPromo && (
-                                                <input
-                                                    type="number"
-                                                    placeholder="سعر العرض"
-                                                    value={editingProduct.promoPrice || ''}
-                                                    onChange={e => setEditingProduct({ ...editingProduct, promoPrice: Number(e.target.value) })}
-                                                    className="p-2 border rounded-md"
-                                                />
-                                            )}
+                                            <input
+                                                type="number"
+                                                placeholder="سعر العرض"
+                                                value={editingProduct.promoPrice || ''}
+                                                onChange={e => setEditingProduct({ ...editingProduct, promoPrice: Number(e.target.value) })}
+                                                className="p-2 border rounded-md"
+                                            />
+                                        )}
 
-                                            {/* Size Management Section */}
-                                            <div className="col-span-2 border-t pt-4 mt-2">
-                                                <h4 className="font-bold text-sm mb-2 flex items-center gap-2">📏 أحجام المنتج (اختياري)</h4>
-                                                <div className="space-y-3">
-                                                    <div className="flex gap-2">
-                                                        <input
-                                                            id="newSizeName"
-                                                            placeholder="اسم الحجم (مثال: كبير)"
-                                                            className="flex-1 border p-2 rounded-md text-sm"
-                                                        />
-                                                        <input
-                                                            id="newSizePrice"
-                                                            type="number"
-                                                            placeholder="السعر (+/-)"
-                                                            className="w-24 border p-2 rounded-md text-sm"
-                                                        />
-                                                        <button
-                                                            type="button"
-                                                            onClick={() => {
-                                                                const nameInput = document.getElementById('newSizeName') as HTMLInputElement;
-                                                                const priceInput = document.getElementById('newSizePrice') as HTMLInputElement;
-                                                                if (nameInput.value) {
-                                                                    const newSize = {
-                                                                        name: nameInput.value,
-                                                                        priceModifier: Number(priceInput.value) || 0
-                                                                    };
-                                                                    setEditingProduct({
-                                                                        ...editingProduct,
-                                                                        sizes: [...(editingProduct.sizes || []), newSize]
-                                                                    });
-                                                                    nameInput.value = '';
-                                                                    priceInput.value = '';
-                                                                }
-                                                            }}
-                                                            className="bg-green-600 text-white px-3 rounded-md text-sm"
-                                                        >
-                                                            إضافة
-                                                        </button>
-                                                    </div>
-
-                                                    {editingProduct.sizes && editingProduct.sizes.length > 0 && (
-                                                        <div className="bg-gray-50 rounded-lg p-2 space-y-2">
-                                                            {editingProduct.sizes.map((size, idx) => (
-                                                                <div key={idx} className="flex justify-between items-center bg-white p-2 rounded border text-sm">
-                                                                    <span>{size.name} ({size.priceModifier > 0 ? '+' : ''}{size.priceModifier} ريال)</span>
-                                                                    <button
-                                                                        type="button"
-                                                                        onClick={() => {
-                                                                            const newSizes = editingProduct.sizes?.filter((_, i) => i !== idx);
-                                                                            setEditingProduct({ ...editingProduct, sizes: newSizes });
-                                                                        }}
-                                                                        className="text-red-500 hover:text-red-700"
-                                                                    >
-                                                                        <Trash size={14} />
-                                                                    </button>
-                                                                </div>
-                                                            ))}
-                                                        </div>
-                                                    )}
+                                        {/* Size Management Section */}
+                                        <div className="col-span-2 border-t pt-4 mt-2">
+                                            <h4 className="font-bold text-sm mb-2 flex items-center gap-2">📏 أحجام المنتج (اختياري)</h4>
+                                            <div className="space-y-3">
+                                                <div className="flex gap-2">
+                                                    <input
+                                                        id="newSizeName"
+                                                        placeholder="اسم الحجم (مثال: كبير)"
+                                                        className="flex-1 border p-2 rounded-md text-sm"
+                                                    />
+                                                    <input
+                                                        id="newSizePrice"
+                                                        type="number"
+                                                        placeholder="السعر (+/-)"
+                                                        className="w-24 border p-2 rounded-md text-sm"
+                                                    />
+                                                    <button
+                                                        type="button"
+                                                        onClick={() => {
+                                                            const nameInput = document.getElementById('newSizeName') as HTMLInputElement;
+                                                            const priceInput = document.getElementById('newSizePrice') as HTMLInputElement;
+                                                            if (nameInput.value) {
+                                                                const newSize = {
+                                                                    name: nameInput.value,
+                                                                    priceModifier: Number(priceInput.value) || 0
+                                                                };
+                                                                setEditingProduct({
+                                                                    ...editingProduct,
+                                                                    sizes: [...(editingProduct.sizes || []), newSize]
+                                                                });
+                                                                nameInput.value = '';
+                                                                priceInput.value = '';
+                                                            }
+                                                        }}
+                                                        className="bg-green-600 text-white px-3 rounded-md text-sm"
+                                                    >
+                                                        إضافة
+                                                    </button>
                                                 </div>
-                                            </div>
 
-                                            <div className="col-span-2 flex justify-end gap-2 mt-2">
-                                                <button type="button" onClick={() => { setEditingProduct(null); setSelectedImageFile(null); setImagePreview(''); }} className="px-4 py-2 bg-gray-300 rounded-md">إلغاء</button>
-                                                <button
-                                                    type="submit"
-                                                    disabled={uploadingImage}
-                                                    className="px-4 py-2 bg-blue-600 text-white rounded-md flex items-center gap-2 disabled:opacity-50"
-                                                >
-                                                    {uploadingImage ? (
-                                                        <>
-                                                            <Loader className="animate-spin" size={16} />
-                                                            جاري الرفع...
-                                                        </>
-                                                    ) : (
-                                                        'حفظ'
-                                                    )}
-                                                </button>
+                                                {editingProduct.sizes && editingProduct.sizes.length > 0 && (
+                                                    <div className="bg-gray-50 rounded-lg p-2 space-y-2">
+                                                        {editingProduct.sizes.map((size, idx) => (
+                                                            <div key={idx} className="flex justify-between items-center bg-white p-2 rounded border text-sm">
+                                                                <span>{size.name} ({size.priceModifier > 0 ? '+' : ''}{size.priceModifier} ريال)</span>
+                                                                <button
+                                                                    type="button"
+                                                                    onClick={() => {
+                                                                        const newSizes = editingProduct.sizes?.filter((_, i) => i !== idx);
+                                                                        setEditingProduct({ ...editingProduct, sizes: newSizes });
+                                                                    }}
+                                                                    className="text-red-500 hover:text-red-700"
+                                                                >
+                                                                    <Trash size={14} />
+                                                                </button>
+                                                            </div>
+                                                        ))}
+                                                    </div>
+                                                )}
                                             </div>
+                                        </div>
+
+                                        <div className="col-span-2 flex justify-end gap-2 mt-2">
+                                            <button type="button" onClick={() => { setEditingProduct(null); setSelectedImageFile(null); setImagePreview(''); }} className="px-4 py-2 bg-gray-300 rounded-md">إلغاء</button>
+                                            <button
+                                                type="submit"
+                                                disabled={uploadingImage}
+                                                className="px-4 py-2 bg-blue-600 text-white rounded-md flex items-center gap-2 disabled:opacity-50"
+                                            >
+                                                {uploadingImage ? (
+                                                    <>
+                                                        <Loader className="animate-spin" size={16} />
+                                                        جاري الرفع...
+                                                    </>
+                                                ) : (
+                                                    'حفظ'
+                                                )}
+                                            </button>
+                                        </div>
                                     </form>
                                 </div>
                             )}
