@@ -168,9 +168,12 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
           batch.set(ref, prod);
         });
 
-        // Seed Settings
+        // Seed Settings (Only if not exists)
         const settingsRef = doc(db, 'settings', 'config');
-        batch.set(settingsRef, DEFAULT_SETTINGS);
+        const settingsSnap = await getDoc(settingsRef);
+        if (!settingsSnap.exists()) {
+          batch.set(settingsRef, DEFAULT_SETTINGS);
+        }
 
         await batch.commit();
         localStorage.setItem('firebase_seeded_v1', 'true');
@@ -246,7 +249,12 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   };
 
   const updateSettings = async (newSettings: SiteSettings) => {
-    await setDoc(doc(db, 'settings', 'config'), newSettings, { merge: true });
+    try {
+      await setDoc(doc(db, 'settings', 'config'), newSettings, { merge: true });
+    } catch (error: any) {
+      console.error("Error updating settings:", error);
+      alert("فشل تحديث الإعدادات: " + (error.message || "خطأ غير معروف"));
+    }
   };
 
   const addCategory = async (name: string) => {
