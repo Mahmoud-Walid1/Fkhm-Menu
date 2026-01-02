@@ -152,8 +152,12 @@ export const ChatBot: React.FC<{ isCartOpen?: boolean }> = ({ isCartOpen = false
     }
   };
 
+  const constraintsRef = useRef(null);
+
   return createPortal(
     <>
+      <div ref={constraintsRef} className="fixed inset-4 pointer-events-none z-[2147483646]" />
+
       <AnimatePresence>
         {isChatOpen && (
           <motion.div
@@ -266,6 +270,7 @@ export const ChatBot: React.FC<{ isCartOpen?: boolean }> = ({ isCartOpen = false
 
       <motion.button
         drag
+        dragConstraints={constraintsRef}
         dragMomentum={false}
         whileHover={{ scale: 1.1, cursor: 'grab' }}
         whileTap={{ scale: 0.9, cursor: 'grabbing' }}
