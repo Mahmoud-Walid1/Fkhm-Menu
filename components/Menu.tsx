@@ -87,73 +87,76 @@ const ProductCard: React.FC<{ product: Product; onAdd: () => void; primaryColor:
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, scale: 0.9 }}
-      whileHover={{ y: -5 }}
-      className="bg-white dark:bg-gray-800 rounded-lg shadow hover:shadow-xl transition-all duration-300 overflow-hidden group border border-gray-200 dark:border-gray-700 flex flex-col h-full"
+      whileHover={{ y: -8 }}
+      className="bg-white dark:bg-gray-800 rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300 overflow-hidden group border border-gray-100 dark:border-gray-700 flex flex-col h-full ring-1 ring-black/5"
     >
-      <div className="relative h-40 flex items-center justify-center pt-4 mb-2 group-hover:pt-2 transition-all duration-300">
-        {/* Descriptive Blob/Shape Background */}
-        <div className="absolute w-32 h-32 bg-luxury-100 dark:bg-luxury-800/50 rounded-full blur-xl opacity-60 group-hover:opacity-100 transition-all duration-500" />
+      <div className="relative h-56 overflow-hidden">
+        <div className="absolute inset-0 bg-gray-100 dark:bg-gray-700/50 animate-pulse" />
+        <img
+          src={product.image}
+          alt={product.name}
+          className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+        />
 
-        <div className="relative z-10 w-full h-full flex items-center justify-center p-2">
-          <img
-            src={product.image}
-            alt={product.name}
-            className="h-full w-auto object-contain drop-shadow-xl filter group-hover:drop-shadow-2xl transition-all duration-500 transform group-hover:-translate-y-1"
-          />
-        </div>
+        {/* Gradient Overlay for Text Contrast */}
+        <div className="absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-black/60 to-transparent opacity-60" />
 
         {/* Promo Badge */}
         {product.isPromo && (
-          <div className="absolute top-2 right-2 bg-red-600 text-white text-[10px] font-bold px-2 py-1 rounded-full shadow-lg z-20">
-            خصم
+          <div className="absolute top-3 right-3 bg-red-600 text-white text-xs font-bold px-3 py-1 rounded-full shadow-lg z-20 animate-bounce">
+            خصم مميز
           </div>
         )}
 
         {/* Temp Icons */}
-        <div className="absolute top-2 left-2 flex flex-col gap-1 z-20">
-          {product.isHot && <span className="w-6 h-6 flex items-center justify-center bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm text-red-500 rounded-full shadow-sm" title="حار"><Flame size={12} /></span>}
-          {product.isCold && <span className="w-6 h-6 flex items-center justify-center bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm text-blue-500 rounded-full shadow-sm" title="بارد"><Snowflake size={12} /></span>}
+        <div className="absolute top-3 left-3 flex flex-col gap-2 z-20">
+          {product.isHot && <span className="w-8 h-8 flex items-center justify-center bg-white/90 dark:bg-gray-800/90 backdrop-blur-sm text-red-500 rounded-full shadow-md" title="حار"><Flame size={16} /></span>}
+          {product.isCold && <span className="w-8 h-8 flex items-center justify-center bg-white/90 dark:bg-gray-800/90 backdrop-blur-sm text-blue-500 rounded-full shadow-md" title="بارد"><Snowflake size={16} /></span>}
         </div>
       </div>
 
-      <div className="p-4 flex flex-col flex-1 relative z-20">
-        <div className="flex flex-col items-center mb-2">
-          <h3 className="font-bold text-gray-800 dark:text-gray-100 text-lg group-hover:text-luxury-600 dark:group-hover:text-luxury-400 transition-colors text-center">{product.name}</h3>
+      <div className="p-5 flex flex-col flex-1 relative">
+        <div className="flex flex-col items-center mb-3">
+          <h3 className="font-extrabold text-gray-900 dark:text-white text-xl md:text-2xl group-hover:text-amber-600 dark:group-hover:text-amber-400 transition-colors text-center w-full leading-tight">
+            {product.name}
+          </h3>
 
           {/* Size Visuals - Cup Icons */}
           {product.sizes && product.sizes.length > 0 && (
-            <div className="flex items-end gap-1 text-gray-400 dark:text-gray-500 mt-1">
-              {product.sizes.length >= 2 && <Coffee size={12} className="opacity-70" />}
-              <Coffee size={14} />
+            <div className="flex items-end gap-1 text-gray-400 dark:text-gray-500 mt-2">
+              {product.sizes.length >= 2 && <Coffee size={14} className="opacity-70" />}
+              <Coffee size={18} />
             </div>
           )}
         </div>
 
-        <p className="text-gray-500 dark:text-gray-400 text-xs text-center mb-4 line-clamp-2 h-8 leading-relaxed px-2">{product.description}</p>
+        <p className="text-gray-600 dark:text-gray-300 text-sm text-center mb-5 line-clamp-2 leading-relaxed px-2 font-medium">
+          {product.description || 'وصف مختصر للمنتج يظهر هنا...'}
+        </p>
 
-        <div className="flex items-center justify-between mt-auto">
-          <div className="flex flex-col items-start">
+        <div className="flex items-center justify-between mt-auto bg-gray-50 dark:bg-gray-700/30 p-3 rounded-xl">
+          <div className="flex flex-col items-start min-w-[30%]">
             {product.sizes && product.sizes.length > 0 && (
-              <span className="text-[10px] text-gray-400">يبدأ من</span>
+              <span className="text-[10px] text-gray-500 dark:text-gray-400 font-bold mb-0.5">يبدأ من</span>
             )}
 
             {product.isPromo && product.promoPrice ? (
-              <div className="flex items-baseline gap-1">
-                <span className="font-extrabold text-xl text-gray-900 dark:text-white">{product.promoPrice} <span className="text-[10px] font-normal text-gray-500">ر.س</span></span>
-                <span className="text-[10px] text-gray-400 line-through decoration-red-500">{product.price}</span>
+              <div className="flex flex-col items-start leading-none">
+                <span className="font-black text-2xl text-red-600">{product.promoPrice} <span className="text-xs font-bold text-gray-500">ر.س</span></span>
+                <span className="text-xs text-gray-400 line-through decoration-red-500 mt-1">{product.price}</span>
               </div>
             ) : (
-              <span className="font-extrabold text-xl text-gray-900 dark:text-white" >{product.price} <span className="text-[10px] font-normal text-gray-500">ر.س</span></span>
+              <span className="font-black text-2xl text-gray-900 dark:text-white" >{product.price} <span className="text-xs font-bold text-gray-500">ر.س</span></span>
             )}
           </div>
 
           <motion.button
             whileTap={{ scale: 0.95 }}
             onClick={onAdd}
-            className="w-10 h-10 rounded-full text-white flex items-center justify-center shadow-lg hover:shadow-xl hover:opacity-90 transition-all border-2 border-transparent hover:border-white/20"
+            className="w-12 h-12 rounded-full text-white flex items-center justify-center shadow-lg hover:shadow-2xl hover:scale-105 transition-all outline-none ring-2 ring-offset-2 ring-transparent hover:ring-offset-1"
             style={{ backgroundColor: primaryColor }}
           >
-            <Plus size={20} strokeWidth={2.5} />
+            <Plus size={24} strokeWidth={3} />
           </motion.button>
         </div>
       </div>

@@ -89,7 +89,8 @@ const DEFAULT_SETTINGS: SiteSettings = {
   popupTitle: 'عرض مميز 🔥',
   popupImage: '',
   popupMessage: 'استمتع بأفضل المشروبات والحلويات لدينا. اطلب الآن!',
-  isPopupEnabled: true
+  isPopupEnabled: true,
+  groqApiKey: ''
 };
 
 const AppContext = createContext<AppContextType | undefined>(undefined);

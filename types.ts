@@ -48,6 +48,8 @@ export interface SiteSettings {
   githubBranch?: string;
   // Gemini AI (for ChatBot)
   geminiApiKey?: string;
+  // Groq AI (Llama 3)
+  groqApiKey?: string;
   // Theme
   theme: 'light' | 'dark';
   // Promo Popup

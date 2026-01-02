@@ -698,16 +698,36 @@ export const AdminPanel: React.FC<{ onClose: () => void }> = ({ onClose }) => {
                             </div>
 
                             <div className="col-span-2 border-t pt-6 mt-4">
-                                <h2 className="text-xl font-bold mb-4">🤖 إعدادات Gemini AI (الشات بوت)</h2>
-                                <div className="bg-blue-50 border border-blue-200 p-3 rounded-lg mb-4 text-sm">
-                                    <p className="font-bold mb-1">ℹ️ كيفية الحصول على مفتاح Gemini API:</p>
-                                    <ol className="list-decimal mr-5 space-y-1 text-blue-800">
-                                        <li>انتقل إلى <a href="https://aistudio.google.com/apikey" target="_blank" rel="noopener" className="underline font-bold">Google AI Studio</a></li>
-                                        <li>اضغط "Create API Key"</li>
-                                        <li>انسخ المفتاح والصقه أدناه</li>
-                                    </ol>
+                                <h2 className="text-xl font-bold mb-4">🤖 إعدادات الذكاء الاصطناعي (ChatBot)</h2>
+
+                                {/* Groq Section */}
+                                <div className="mb-6">
+                                    <h3 className="font-bold text-lg text-purple-700 mb-2 flex items-center gap-2">
+                                        🚀 Groq API (Llama 3) - {settings.groqApiKey ? <span className="text-green-600 text-sm">مفعل</span> : <span className="text-gray-400 text-sm">غير مفعل</span>}
+                                    </h3>
+                                    <div className="bg-purple-50 border border-purple-200 p-3 rounded-lg mb-4 text-sm">
+                                        <p className="font-bold mb-1">ℹ️ ينصح به (أسرع وأدق):</p>
+                                        <ol className="list-decimal mr-5 space-y-1 text-purple-800">
+                                            <li>انتقل إلى <a href="https://console.groq.com/keys" target="_blank" rel="noopener" className="underline font-bold">Groq Console</a></li>
+                                            <li>انشئ حساب ثم اضغط "Create API Key"</li>
+                                            <li>انسخ المفتاح والصقه هنا</li>
+                                        </ol>
+                                    </div>
+                                    <label className="block text-sm font-bold mb-1">مفتاح Groq API Token</label>
+                                    <input
+                                        type="password"
+                                        value={settings.groqApiKey || ''}
+                                        onChange={(e) => updateSettings({ ...settings, groqApiKey: e.target.value })}
+                                        placeholder="gsk_..."
+                                        className="w-full border p-2 rounded-md font-mono text-sm"
+                                    />
                                 </div>
-                                <div>
+
+                                <div className="border-t my-4"></div>
+
+                                {/* Gemini Section (Backup) */}
+                                <div className="opacity-75">
+                                    <h3 className="font-bold text-gray-700 mb-2">Google Gemini API (بديل)</h3>
                                     <label className="block text-sm font-bold mb-1">مفتاح Gemini API</label>
                                     <input
                                         type="password"
@@ -716,11 +736,6 @@ export const AdminPanel: React.FC<{ onClose: () => void }> = ({ onClose }) => {
                                         placeholder="AIzaSy..."
                                         className="w-full border p-2 rounded-md font-mono text-sm"
                                     />
-                                    {settings.geminiApiKey && (
-                                        <div className="bg-green-50 border border-green-200 p-2 rounded text-sm text-green-800 mt-2">
-                                            ✓ تم حفظ المفتاح. الشات بوت جاهز للعمل!
-                                        </div>
-                                    )}
                                 </div>
                             </div>
 

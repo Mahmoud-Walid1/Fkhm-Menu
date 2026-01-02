@@ -69,102 +69,97 @@ export const ChatBot: React.FC<{ isCartOpen?: boolean }> = ({ isCartOpen = false
   const handleSend = async () => {
     if (!input.trim()) return;
 
-    if (!settings.geminiApiKey) {
-      const errorMsg: Message = {
-        id: Date.now().toString(),
-        text: 'عذراً، لم يتم إعداد مفتاح Gemini API. يرجى إضافته من صفحة الأدمن → الإعدادات.',
-        sender: 'bot',
-        timestamp: new Date()
-      };
-      setMessages(prev => [...prev, errorMsg]);
-      return;
-    }
-
-    const userMsg: Message = {
+    const userMessage: Message = {
       id: Date.now().toString(),
       text: input,
       sender: 'user',
       timestamp: new Date()
     };
 
-    setMessages(prev => [...prev, userMsg]);
+    setMessages(prev => [...prev, userMessage]);
     setInput('');
     setIsLoading(true);
 
+    // Prepare System Instruction
+    const systemInstruction = `
+      أنت "باريستا" ذكي ومرح في كافيه "${settings.shopName}".
+      تتحدث باللهجة السعودية الودودة (عامية بيضاء).
+      
+      البيانات الحالية للمنيو:
+      ${products.map(p => `- ${p.name} (${p.price} ريال): ${p.description}`).join('\n')}
+      
+      أسلوبك:
+      - مرح، خفيف دم، وصديق للزبون (استخدم: يا غالي، هلا والله، أبشر، وش رايك، لا يفوتك).
+      - لا تسرد المنيو كأنه قائمة، بل اقترح بذكاء بناءً على طلب الزبون.
+      - اقترح دائماً إضافات (Cross-sell) بطريقة لطيفة (مثل: "جربت الحلى مع القهوة؟ تراه دمار 🔥😍").
+      - استخدم الإيموجي المناسب ☕🍪✨.
+      - خلي ردودك قصيرة ومفيدة (لا تزيد عن 3-4 جمل).
+    `;
+
     try {
-      const ai = new GoogleGenAI({ apiKey: settings.geminiApiKey });
+      let responseText = '';
 
-      const menuContext = products.map(p =>
-        `- ${p.name}: ${p.price} SAR (${p.description || ''})`
-      ).join('\n');
+      // PRIORITY 1: Check for Groq API (Llama 3)
+      if (settings.groqApiKey) {
+        const response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${settings.groqApiKey}`,
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            messages: [
+              { role: 'system', content: systemInstruction },
+              ...messages.map(m => ({ role: m.sender === 'user' ? 'user' : 'assistant', content: m.text })),
+              { role: 'user', content: userMessage.text }
+            ],
+            model: 'llama3-70b-8192',
+            temperature: 0.7,
+            max_tokens: 300
+          })
+        });
 
-      const systemInstruction = `
-        أنت "باريستا" ذكي ومرح في كافيه "${settings.shopName}".
-        تتحدث باللهجة السعودية الودودة (عامية بيضاء).
-        أسلوبك:
-        - مرح، خفيف دم، وصديق للزبون (استخدم: يا غالي، هلا والله، أبشر، وش رايك، لا يفوتك).
-        - لا تسرد المنيو كأنه قائمة، بل اقترح بذكاء. مثلاً: "لو تبي شي يصحصحك، ما لك إلا V60، ولو جوك حالي جرب الكوكيز حقنا يذوب بالفم 😋".
-        - استخدم الإيموجي المناسب ☕🍪✨.
-        - خلي ردودك قصيرة ومفيدة.
-
-        المنيو المتوفر:
-        ${menuContext}
-
-        روابط التواصل:
-        - سناب شات: ${settings.snapchatUrl || 'غير متوفر'}
-        - انستقرام: ${settings.instagramUrl || 'غير متوفر'}
-        - تيك توك: ${settings.tiktokUrl || 'غير متوفر'}
-
-        القواعد:
-        1. جاوب على الأسئلة باللهجة السعودية.
-        2. اقترح منتجات مناسبة بدل السرد الممل.
-        3. لو طلب العميل التواصل، المندوب، أو الإدارة، استدعي دالة "showContactOptions".
-        4. لو طلب حسابات التواصل، اعطه الرابط في المحادثة مباشرة.
-      `;
-
-      const response = await ai.models.generateContent({
-        model: 'gemini-1.5-flash', // Updated to reliable model name
-        contents: input,
-        config: {
-          systemInstruction: systemInstruction,
-          tools: [{ functionDeclarations: [contactToolDeclaration] }],
+        const data = await response.json();
+        if (data.choices && data.choices.length > 0) {
+          responseText = data.choices[0].message.content;
+        } else {
+          throw new Error(data.error?.message || 'Groq API Error');
         }
-      });
 
-      const functionCalls = response.functionCalls;
+      }
+      // PRIORITY 2: Fallback to Gemini API
+      else if (settings.geminiApiKey) {
+        const genAI = new GoogleGenAI({ apiKey: settings.geminiApiKey });
+        const response = await genAI.models.generateContent({
+          model: 'gemini-1.5-flash',
+          contents: userMessage.text,
+          config: {
+            systemInstruction: systemInstruction,
+          }
+        });
 
-      if (functionCalls && functionCalls.length > 0) {
-        const botMsg: Message = {
-          id: (Date.now() + 1).toString(),
-          text: 'تفضل، يمكنك التواصل مباشرة عبر الأزرار التالية:',
-          sender: 'bot',
-          timestamp: new Date(),
-          actions: [
-            { label: 'تواصل مع مندوب التوصيل', url: `https://wa.me/${settings.deliveryNumber}`, type: 'primary' },
-            { label: 'تواصل مع الإدارة', url: `https://wa.me/${settings.adminNumber}`, type: 'secondary' }
-          ]
-        };
-        setMessages(prev => [...prev, botMsg]);
+        responseText = response.text || 'عذراً، لم أفهم طلبك.';
       } else {
-        const text = response.text || 'عذراً، لم أفهم طلبك.';
-        const botMsg: Message = {
-          id: (Date.now() + 1).toString(),
-          text: text,
-          sender: 'bot',
-          timestamp: new Date()
-        };
-        setMessages(prev => [...prev, botMsg]);
+        responseText = "المعذرة، لم يتم تفعيل خدمة الرد الذكي 🤖. يرجى من المسؤول إضافة مفتاح API في الإعدادات.";
       }
 
-    } catch (error) {
-      console.error('Chat Error:', error);
-      const errorMsg: Message = {
+      const botMessage: Message = {
         id: (Date.now() + 1).toString(),
-        text: 'آسف، حدث خطأ في الاتصال. حاول مرة أخرى.',
+        text: responseText,
         sender: 'bot',
         timestamp: new Date()
       };
-      setMessages(prev => [...prev, errorMsg]);
+
+      setMessages(prev => [...prev, botMessage]);
+    } catch (error) {
+      console.error('AI Error:', error);
+      const errorMessage: Message = {
+        id: (Date.now() + 1).toString(),
+        text: "آسف، صار عندي لخبطة بسيطة في النظام 😵‍💫. ممكن تعيد اللي قلته؟",
+        sender: 'bot',
+        timestamp: new Date()
+      };
+      setMessages(prev => [...prev, errorMessage]);
     } finally {
       setIsLoading(false);
     }
