@@ -276,7 +276,7 @@ export const ChatBot: React.FC<{ isCartOpen?: boolean }> = ({ isCartOpen = false
           ]
         }}
         transition={{
-          duration: 2,
+          duration: 4,
           repeat: Infinity,
           ease: "easeInOut"
         }}
