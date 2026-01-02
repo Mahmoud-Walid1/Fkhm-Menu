@@ -27,6 +27,7 @@ export const Menu: React.FC = () => {
         {categories.map((cat) => (
           <button
             key={cat.id}
+            id={`category-${cat.id}`} // Added ID for ChatBot navigation
             onClick={() => setActiveCategory(cat.id)}
             className={`px-6 py-3 rounded-md whitespace-nowrap transition-all duration-300 font-bold text-sm md:text-base border ${activeCategory === cat.id
               ? 'text-white border-transparent shadow-md transform -translate-y-1'
@@ -94,6 +95,7 @@ const ProductCard: React.FC<{ product: Product; onAdd: () => void; primaryColor:
 
   return (
     <div
+      data-product-id={product.id} // Added Data Attribute for ChatBot navigation
       className="bg-white rounded-3xl shadow-lg border-2 border-purple-50 flex flex-col h-full overflow-hidden transform transition-all duration-200 active:scale-95"
     >
       <div className="relative h-40 md:h-56 overflow-hidden bg-gray-100">
