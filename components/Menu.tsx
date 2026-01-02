@@ -9,7 +9,11 @@ export const Menu: React.FC = () => {
   const [activeCategory, setActiveCategory] = useState<string>(categories[0]?.id || '1');
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
 
-  const filteredProducts = products.filter(p => p.category === activeCategory);
+  const filteredProducts = products.filter(p => {
+    // Support both old 'categoryId' and new 'category' field for backward compatibility
+    const productCategory = (p as any).categoryId || p.category;
+    return productCategory === activeCategory;
+  });
 
   return (
     <section className="py-16 px-4 max-w-7xl mx-auto min-h-screen" id="menu">
