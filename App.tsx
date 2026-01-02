@@ -195,7 +195,7 @@ const AppContent: React.FC = () => {
         rel="noreferrer"
         whileHover={{ scale: 1.05 }}
         whileTap={{ scale: 0.95 }}
-        className="fixed bottom-32 left-6 z-[9998] flex items-center gap-3 bg-gradient-to-r from-green-500 to-green-600 text-white px-5 py-3 rounded-full shadow-2xl hover:shadow-green-500/50 transition-all group"
+        className="fixed bottom-32 left-2 md:left-6 z-[9998] flex items-center gap-2 md:gap-3 bg-gradient-to-r from-green-500 to-green-600 text-white px-3 md:px-5 py-2 md:py-3 rounded-full shadow-2xl hover:shadow-green-500/50 transition-all group text-xs md:text-sm"
       >
         <motion.div
           animate={{
@@ -206,11 +206,11 @@ const AppContent: React.FC = () => {
             repeat: Infinity,
             ease: "easeInOut"
           }}
-          className="text-2xl"
+          className="text-lg md:text-2xl"
         >
           🚗
         </motion.div>
-        <span className="font-bold text-sm whitespace-nowrap">توصيل سريع</span>
+        <span className="font-bold whitespace-nowrap hidden sm:inline">توصيل سريع</span>
       </motion.a>
 
       {/* Contact Admin Button */}
@@ -220,10 +220,10 @@ const AppContent: React.FC = () => {
         rel="noreferrer"
         whileHover={{ scale: 1.05 }}
         whileTap={{ scale: 0.95 }}
-        className="fixed bottom-20 left-6 z-[9998] flex items-center gap-2 bg-gradient-to-r from-gray-700 to-gray-800 text-white px-4 py-2.5 rounded-full shadow-xl hover:shadow-gray-700/50 transition-all"
+        className="fixed bottom-20 left-2 md:left-6 z-[9998] flex items-center gap-1.5 md:gap-2 bg-gradient-to-r from-gray-700 to-gray-800 text-white px-2.5 md:px-4 py-2 md:py-2.5 rounded-full shadow-xl hover:shadow-gray-700/50 transition-all text-xs"
       >
-        <span className="text-lg">💼</span>
-        <span className="font-semibold text-xs whitespace-nowrap">تواصل مع الإدارة</span>
+        <span className="text-base md:text-lg">💼</span>
+        <span className="font-semibold whitespace-nowrap hidden sm:inline">تواصل مع الإدارة</span>
       </motion.a>
 
       {/* Overlays - Moved outside to prevent fixed positioning issues */}
