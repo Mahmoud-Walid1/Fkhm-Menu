@@ -12,13 +12,15 @@ export const Cart: React.FC<CartProps> = ({ isOpen, onClose }) => {
   const { cart, removeFromCart, updateQuantity, settings, clearCart } = useAppStore();
 
   const subtotal = cart.reduce((sum, item) => sum + (item.finalPrice * item.quantity), 0);
-  
+
   const handleCheckout = () => {
     if (cart.length === 0) return;
 
     let message = `مرحباً، أود طلب التالي من *${settings.shopName}*:\n\n`;
     cart.forEach(item => {
-      message += `▪️ ${item.quantity}x ${item.name} ${item.selectedSize ? `(${item.selectedSize.name})` : ''} - ${item.finalPrice * item.quantity} ر.س\n`;
+      const sizeText = item.selectedSize ? `(${item.selectedSize.name})` : '';
+      const tempText = item.selectedTemperature ? ` (${item.selectedTemperature === 'hot' ? 'حار' : 'بارد'})` : '';
+      message += `▪️ ${item.quantity}x ${item.name} ${sizeText}${tempText} - ${item.finalPrice * item.quantity} ر.س\n`;
     });
     message += `\n*المجموع: ${subtotal} ر.س*`;
     message += `\n\nأرجو تأكيد الطلب والتوصيل.`;
@@ -61,8 +63,8 @@ export const Cart: React.FC<CartProps> = ({ isOpen, onClose }) => {
             <div className="h-full flex flex-col items-center justify-center text-gray-400">
               <ShoppingBag size={64} className="mb-4 opacity-20" />
               <p>السلة فارغة</p>
-              <button 
-                onClick={onClose} 
+              <button
+                onClick={onClose}
                 className="mt-4 text-sm underline hover:text-gray-600"
               >
                 تصفح المنيو
@@ -76,23 +78,28 @@ export const Cart: React.FC<CartProps> = ({ isOpen, onClose }) => {
                   <div>
                     <h3 className="font-bold text-gray-800">{item.name}</h3>
                     {item.selectedSize && <p className="text-xs text-gray-500">الحجم: {item.selectedSize.name}</p>}
+                    {item.selectedTemperature && (
+                      <p className="text-xs text-gray-500">
+                        التقديم: {item.selectedTemperature === 'hot' ? 'حار 🔥' : 'بارد ❄️'}
+                      </p>
+                    )}
                   </div>
                   <div className="flex items-center justify-between mt-2">
                     <span className="font-semibold text-gray-700">{item.finalPrice * item.quantity} ر.س</span>
                     <div className="flex items-center gap-2 bg-gray-50 rounded-lg p-1">
-                      <button 
+                      <button
                         onClick={() => updateQuantity(item.cartId, -1)}
                         className="w-6 h-6 flex items-center justify-center bg-white rounded shadow text-sm hover:bg-gray-100"
                       >-</button>
                       <span className="text-sm font-medium w-4 text-center">{item.quantity}</span>
-                      <button 
-                         onClick={() => updateQuantity(item.cartId, 1)}
-                         className="w-6 h-6 flex items-center justify-center bg-white rounded shadow text-sm hover:bg-gray-100"
+                      <button
+                        onClick={() => updateQuantity(item.cartId, 1)}
+                        className="w-6 h-6 flex items-center justify-center bg-white rounded shadow text-sm hover:bg-gray-100"
                       >+</button>
                     </div>
                   </div>
                 </div>
-                <button 
+                <button
                   onClick={() => removeFromCart(item.cartId)}
                   className="text-gray-300 hover:text-red-500 self-start p-1"
                 >
@@ -109,15 +116,15 @@ export const Cart: React.FC<CartProps> = ({ isOpen, onClose }) => {
               <span className="text-gray-600">المجموع الكلي:</span>
               <span className="text-2xl font-bold" style={{ color: settings.primaryColor }}>{subtotal} ر.س</span>
             </div>
-            
+
             <div className="flex gap-3">
-               <button 
+              <button
                 onClick={clearCart}
                 className="px-4 py-3 rounded-xl border border-red-200 text-red-500 hover:bg-red-50 transition-colors"
-               >
-                 <Trash2 size={20} />
-               </button>
-               <button
+              >
+                <Trash2 size={20} />
+              </button>
+              <button
                 onClick={handleCheckout}
                 className="flex-1 py-3 rounded-xl text-white font-bold text-lg shadow-lg hover:opacity-90 transition-opacity flex items-center justify-center gap-2"
                 style={{ backgroundColor: '#25D366' }} // Whatsapp Color
