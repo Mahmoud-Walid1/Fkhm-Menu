@@ -30,14 +30,7 @@ const AppContent: React.FC = () => {
   }, []);
 
 
-  // Apply theme to html element
-  React.useEffect(() => {
-    if (settings.theme === 'dark') {
-      document.documentElement.classList.add('dark');
-    } else {
-      document.documentElement.classList.remove('dark');
-    }
-  }, [settings.theme]);
+
 
   // Secret Admin Trigger (Triple Click on Footer Text)
   const handleSecretAdminTrigger = () => {

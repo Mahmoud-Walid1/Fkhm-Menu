@@ -141,44 +141,49 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     };
   }, []);
 
-  // One-time Seeding Logic
+  // One-time Seeding Logic - FIXED (Prevents Overwriting)
   useEffect(() => {
     const seed = async () => {
-      const isSeeded = localStorage.getItem('firebase_seeded_v1');
+      const isSeeded = localStorage.getItem('firebase_seeded_v2'); // Increment version to force re-check for existing users
       if (isSeeded) return;
-
-      // Check if DB is actually empty to avoid overwriting existing data if local flag is missing
-      const productsRef = collection(db, 'products');
-      // We can't synchronously check empty here easily in useEffect without async
-      // But we can trust our logic: if UI is empty, User can run manual seed? 
-      // Better: Just write defaults if they don't exist? No, that's heavy.
-      // Let's commit to the "First Run" logic.
 
       try {
         const batch = writeBatch(db);
+        let hasUpdates = false;
 
-        // Seed Categories
-        DEFAULT_CATEGORIES.forEach(cat => {
-          const ref = doc(db, 'categories', cat.id);
-          batch.set(ref, cat);
-        });
+        // Check if ANY products exist to avoid overwriting user edits to default products
+        const productsSnapshot = await getDoc(doc(db, 'products', '101'));
+        const isDbEmpty = !productsSnapshot.exists();
 
-        // Seed Products
-        DEFAULT_PRODUCTS.forEach(prod => {
-          const ref = doc(db, 'products', prod.id);
-          batch.set(ref, prod);
-        });
+        if (isDbEmpty) {
+          // Seed Categories
+          DEFAULT_CATEGORIES.forEach(cat => {
+            const ref = doc(db, 'categories', cat.id);
+            batch.set(ref, cat);
+          });
 
-        // Seed Settings (Only if not exists)
+          // Seed Products
+          DEFAULT_PRODUCTS.forEach(prod => {
+            const ref = doc(db, 'products', prod.id);
+            batch.set(ref, prod);
+          });
+          hasUpdates = true;
+        }
+
+        // Seed Settings (Safe check)
         const settingsRef = doc(db, 'settings', 'config');
         const settingsSnap = await getDoc(settingsRef);
         if (!settingsSnap.exists()) {
           batch.set(settingsRef, DEFAULT_SETTINGS);
+          hasUpdates = true;
         }
 
-        await batch.commit();
-        localStorage.setItem('firebase_seeded_v1', 'true');
-        console.log("Firebase Seeded Successfully");
+        if (hasUpdates) {
+          await batch.commit();
+          console.log("Firebase Seeded Successfully");
+        }
+
+        localStorage.setItem('firebase_seeded_v2', 'true');
       } catch (err) {
         console.error("Seeding Error:", err);
       }
@@ -283,30 +288,22 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     return (localStorage.getItem('theme') as 'light' | 'dark') || 'light';
   });
 
-  const toggleTheme = () => {
-    setLocalTheme(prev => {
-      const newTheme = prev === 'light' ? 'dark' : 'light';
-      localStorage.setItem('theme', newTheme);
-
-      // Update DOM immediately
-      if (newTheme === 'dark') {
-        document.documentElement.classList.add('dark');
-      } else {
-        document.documentElement.classList.remove('dark');
-      }
-
-      return newTheme;
-    });
-  };
-
-  // Ensure DOM matches initial local theme
+  // Local Theme Persistence
   useEffect(() => {
+    // Apply theme
     if (localTheme === 'dark') {
       document.documentElement.classList.add('dark');
     } else {
       document.documentElement.classList.remove('dark');
     }
-  }, []);
+    // Save
+    localStorage.setItem('theme', localTheme);
+  }, [localTheme]);
+
+  // Toggle Function
+  const toggleTheme = () => {
+    setLocalTheme(prev => prev === 'light' ? 'dark' : 'light');
+  };
 
   // Merged Settings (Global Settings + Local Theme Override)
   const activeSettings = { ...settings, theme: localTheme };

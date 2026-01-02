@@ -49,7 +49,20 @@ export const AdminPanel: React.FC<{ onClose: () => void }> = ({ onClose }) => {
     // Handlers
     const handleProductSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        if (!editingProduct?.name || !editingProduct?.price || !editingProduct?.categoryId) return;
+
+        // Validation
+        if (!editingProduct?.name) {
+            alert('يرجى كتابة اسم المنتج');
+            return;
+        }
+        if (editingProduct?.price === undefined || isNaN(editingProduct.price)) {
+            alert('يرجى تحديد السعر');
+            return;
+        }
+        if (!editingProduct?.categoryId) {
+            alert('يرجى اختيار القسم');
+            return;
+        }
 
         let imageUrl = editingProduct.image || `https://picsum.photos/400/400?random=${Date.now()}`;
 
