@@ -83,25 +83,34 @@ export const ChatBot: React.FC<{ isCartOpen?: boolean }> = ({ isCartOpen = false
     // Prepare System Instruction
     const systemInstruction = `
       أنت "باريستا" ذكي ومرح في كافيه "${settings.shopName}".
-      تتحدث باللهجة السعودية الودودة (عامية بيضاء).
+      تتحدث باللهجة السعودية الودودة والمحترفة (عامية بيضاء).
       
       البيانات الحالية للمنيو:
       ${products.map(p => `- ${p.name} (${p.price} ريال): ${p.description}`).join('\n')}
       
       معلومات التواصل:
       - رقم التوصيل/الطلبات: ${settings.deliveryNumber}
-      - رقم المدير: ${settings.adminNumber}
+      - رقم الإدارة: ${settings.adminNumber}
       
-      أسلوبك:
-      - مرح، خفيف دم، وصديق للزبون (استخدم: يا غالي، هلا والله، أبشر، وش رايك، لا يفوتك).
+      **أسلوبك:**
+      - مرح وودود لكن في نفس الوقت محترف ورسمي.
+      - استخدم كلمات لطيفة (يا غالي، هلا والله، أبشر، وش رايك، لا يفوتك، يشرفنا).
       - لا تسرد المنيو كأنه قائمة، بل اقترح بذكاء بناءً على طلب الزبون.
-      - اقترح دائماً إضافات (Cross-sell) بطريقة لطيفة (مثل: "جربت الحلى مع القهوة؟ تراه دمار 🔥😍").
-      - استخدم الإيموجي المناسب ☕🍪✨.
+      - اقترح دائماً إضافات (Cross-sell) بطريقة لطيفة ومهذبة.
+      - استخدم الإيموجي المناسب ☕🍪✨ لكن باعتدال.
       - خلي ردودك قصيرة ومفيدة (لا تزيد عن 3-4 جمل).
       
-      **مهم جداً:**
-      - عند طلب رقم التوصيل أو التواصل، قل: "تفضل رقم التوصيل: ${settings.deliveryNumber}" (بدون رموز أو علامات غريبة).
-      - عند طلب رقم المدير، قل: "رقم المدير: ${settings.adminNumber}".
+      **حدودك وصلاحياتك (مهم جداً):**
+      - أنت مساعد افتراضي وليس لك صلاحية الموافقة على أي خصومات أو تخفيضات.
+      - لا تستطيع تغيير المنيو أو الأسعار أو إضافة منتجات جديدة.
+      - لا تستطيع الموافقة على طلبات إضافات خاصة للمنتجات (مثل: إضافة نكهة إضافية، تغيير المكونات).
+      - إذا طلب الزبون خصم أو تغيير في المنيو أو إضافة خاصة، قل له بأدب:
+        "يا غالي، للأسف هذا الموضوع مش من صلاحياتي 😊 لكن ممكن تتواصل مع الإدارة وهم بيساعدونك. رقم الإدارة: ${settings.adminNumber}"
+      - كن مهذباً ومحترماً دائماً حتى لو رفضت الطلب.
+      
+      **مهم جداً (تنسيق الرد):**
+      - عند طلب رقم التوصيل، قل: "تفضل رقم التوصيل: ${settings.deliveryNumber}" (بدون رموز أو علامات غريبة).
+      - عند طلب رقم الإدارة أو رفض طلب، قل: "رقم الإدارة: ${settings.adminNumber}".
       - لا تضيف رموز برمجية أو علامات غريبة في وسط الكلام.
       - اكتب بعربية واضحة بدون أي رموز JSON أو Markdown.
     `;
@@ -158,15 +167,15 @@ export const ChatBot: React.FC<{ isCartOpen?: boolean }> = ({ isCartOpen = false
 
       if (responseText.includes(settings.deliveryNumber) || responseText.includes('توصيل') || responseText.includes('طلب')) {
         actions.push({
-          label: `📱 تواصل واتساب (${settings.deliveryNumber})`,
+          label: `📞 تواصل واتساب للتوصيل`,
           url: `https://wa.me/${settings.deliveryNumber.replace(/\D/g, '')}`,
           type: 'primary'
         });
       }
 
-      if (responseText.includes(settings.adminNumber) || responseText.includes('مدير') || responseText.includes('إدارة')) {
+      if (responseText.includes(settings.adminNumber) || responseText.includes('إدارة') || responseText.includes('صلاحيات') || responseText.includes('خصم')) {
         actions.push({
-          label: `👤 تواصل مع المدير (${settings.adminNumber})`,
+          label: `💼 تواصل مع الإدارة`,
           url: `https://wa.me/${settings.adminNumber.replace(/\D/g, '')}`,
           type: 'secondary'
         });
@@ -247,14 +256,13 @@ export const ChatBot: React.FC<{ isCartOpen?: boolean }> = ({ isCartOpen = false
                           href={action.url}
                           target="_blank"
                           rel="noreferrer"
-                          className={`flex items-center justify-center gap-2 py-2 px-4 rounded-md text-sm font-bold transition-all shadow-sm ${action.type === 'primary'
-                            ? 'text-white hover:opacity-90'
-                            : 'bg-white border text-gray-700 hover:bg-gray-50'
+                          className={`flex items-center justify-center gap-2 py-3 px-5 rounded-lg text-sm font-bold transition-all shadow-md hover:shadow-xl transform hover:scale-105 ${action.type === 'primary'
+                              ? 'bg-gradient-to-r from-green-500 to-green-600 text-white hover:from-green-600 hover:to-green-700'
+                              : 'bg-gradient-to-r from-gray-100 to-gray-200 border border-gray-300 text-gray-800 hover:from-gray-200 hover:to-gray-300'
                             }`}
-                          style={action.type === 'primary' ? { backgroundColor: settings.primaryColor } : {}}
                         >
-                          <Phone size={14} />
-                          {action.label}
+                          <span className="text-lg">{action.label.split(' ')[0]}</span>
+                          <span>{action.label.split(' ').slice(1).join(' ')}</span>
                         </a>
                       ))}
                     </div>
