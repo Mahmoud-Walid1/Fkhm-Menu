@@ -178,29 +178,19 @@ const AppContent: React.FC = () => {
 
       </div>
 
-      {/* Fast Delivery Button - Animated Car Icon */}
+      {/* Fast Delivery Button */}
       <motion.a
         href={`https://wa.me/${settings.deliveryNumber.replace(/\D/g, '')}`}
         target="_blank"
         rel="noreferrer"
         whileHover={{ scale: 1.05 }}
         whileTap={{ scale: 0.95 }}
-        className="fixed bottom-32 left-2 md:left-6 z-[9998] flex items-center gap-2 md:gap-3 bg-gradient-to-r from-green-500 to-green-600 text-white px-3 md:px-5 py-2 md:py-3 rounded-full shadow-2xl hover:shadow-green-500/50 transition-all group text-xs md:text-sm"
+        className="fixed bottom-28 left-4 z-[9998] group"
       >
-        <motion.div
-          animate={{
-            x: [0, 5, 0],
-          }}
-          transition={{
-            duration: 1.5,
-            repeat: Infinity,
-            ease: "easeInOut"
-          }}
-          className="text-lg md:text-2xl"
-        >
-          🚗
-        </motion.div>
-        <span className="font-bold whitespace-nowrap hidden sm:inline">توصيل سريع</span>
+        <div className="flex items-center gap-2 bg-gradient-to-r from-green-500 to-green-600 text-white px-3 py-2.5 md:px-4 md:py-3 rounded-full shadow-lg hover:shadow-green-500/30 transition-all">
+          <span className="text-xl">🚗</span>
+          <span className="font-bold text-sm hidden md:inline whitespace-nowrap">توصيل سريع</span>
+        </div>
       </motion.a>
 
       {/* Contact Admin Button */}
@@ -210,10 +200,12 @@ const AppContent: React.FC = () => {
         rel="noreferrer"
         whileHover={{ scale: 1.05 }}
         whileTap={{ scale: 0.95 }}
-        className="fixed bottom-20 left-2 md:left-6 z-[9998] flex items-center gap-1.5 md:gap-2 bg-gradient-to-r from-gray-700 to-gray-800 text-white px-2.5 md:px-4 py-2 md:py-2.5 rounded-full shadow-xl hover:shadow-gray-700/50 transition-all text-xs"
+        className="fixed bottom-16 left-4 z-[9998] group"
       >
-        <span className="text-base md:text-lg">💼</span>
-        <span className="font-semibold whitespace-nowrap hidden sm:inline">تواصل مع الإدارة</span>
+        <div className="flex items-center gap-2 bg-gradient-to-r from-gray-700 to-gray-800 text-white px-3 py-2.5 md:px-4 md:py-3 rounded-full shadow-lg hover:shadow-gray-700/30 transition-all">
+          <span className="text-xl">💼</span>
+          <span className="font-semibold text-sm hidden md:inline whitespace-nowrap">تواصل مع الإدارة</span>
+        </div>
       </motion.a>
 
       {/* Overlays - Moved outside to prevent fixed positioning issues */}
