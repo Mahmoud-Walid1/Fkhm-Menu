@@ -282,52 +282,66 @@ export const ChatBot: React.FC<{ isCartOpen?: boolean }> = ({ isCartOpen = false
       </AnimatePresence>
 
       <motion.button
-        whileHover={{ scale: 1.1 }}
-        whileTap={{ scale: 0.9 }}
-        animate={{
-          y: [0, -5, 0],
-          rotate: [0, -5, 5, -5, 0],
-        }}
-        transition={{
-          duration: 5,
-          repeat: Infinity,
-          repeatDelay: 2,
-          ease: "easeInOut"
-        }}
+        whileHover={{ scale: 1.05 }}
+        whileTap={{ scale: 0.95 }}
         onClick={toggleChat}
-        className="fixed bottom-6 right-6 z-[2147483647] flex items-center justify-center group relative"
+        className="fixed bottom-6 right-6 z-[2147483647] flex items-center gap-3 group"
       >
         {isChatOpen ? (
           <div
             className="p-4 rounded-full shadow-2xl text-white ring-4 ring-white"
             style={{ backgroundColor: settings.primaryColor }}
           >
-            <X size={24} />
+            <X size={28} />
           </div>
         ) : (
-          <div className="relative">
-            {/* Robot Head Container */}
-            <div
-              className="w-16 h-16 rounded-2xl flex items-center justify-center shadow-2xl border-4 border-white transform transition-transform"
-              style={{ backgroundColor: settings.primaryColor }}
+          <div className="flex items-center gap-3">
+            {/* Visible Text Label */}
+            <motion.div
+              initial={{ opacity: 0, x: 10 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ delay: 1 }}
+              className="bg-white text-gray-800 px-4 py-2 rounded-xl shadow-xl font-bold text-sm border-2 border-purple-100"
             >
-              <Bot size={32} className="text-white" strokeWidth={1.5} />
+              <span className="text-lg align-middle ml-1">🤖</span>
+              تحدث معنا
+            </motion.div>
 
-              {/* Eyes Animation Wrapper (simple effect) */}
-              <div className="absolute top-1/3 w-full flex justify-center gap-3 opacity-0">
-                <div className="w-1 h-1 bg-white rounded-full animate-ping" />
-                <div className="w-1 h-1 bg-white rounded-full animate-ping delay-75" />
-              </div>
+            <div className="relative">
+              {/* Pulsing Ring Effect */}
+              <motion.div
+                animate={{
+                  scale: [1, 1.3, 1],
+                  opacity: [0.5, 0, 0.5],
+                }}
+                transition={{
+                  duration: 2,
+                  repeat: Infinity,
+                  ease: "easeInOut"
+                }}
+                className="absolute inset-0 rounded-2xl"
+                style={{ backgroundColor: settings.primaryColor }}
+              />
+
+              {/* Robot Head Container - Larger */}
+              <motion.div
+                animate={{
+                  y: [0, -8, 0],
+                }}
+                transition={{
+                  duration: 3,
+                  repeat: Infinity,
+                  ease: "easeInOut"
+                }}
+                className="w-20 h-20 rounded-2xl flex items-center justify-center shadow-2xl border-4 border-white transform relative"
+                style={{ backgroundColor: settings.primaryColor }}
+              >
+                <Bot size={40} className="text-white" strokeWidth={1.5} />
+              </motion.div>
+
+              {/* "Online" Indicator - Larger */}
+              <div className="absolute -top-1 -right-1 w-5 h-5 bg-green-400 border-3 border-white rounded-full shadow-lg animate-pulse" />
             </div>
-
-            {/* "Online" Indicator */}
-            <div className="absolute -top-1 -right-1 w-4 h-4 bg-green-500 border-2 border-white rounded-full shadow-sm animate-pulse" />
-
-            {/* Speech Bubble Label */}
-            <span className="absolute right-full mr-4 top-1/2 -translate-y-1/2 bg-white text-gray-800 px-3 py-1.5 rounded-xl rounded-tr-none text-xs font-bold shadow-lg opacity-0 group-hover:opacity-100 transition-all duration-300 whitespace-nowrap pointer-events-none transform translate-x-2 group-hover:translate-x-0">
-              <span className="text-lg align-middle mr-1">🤖</span>
-              مساعدك الشخصي
-            </span>
           </div>
         )}
       </motion.button>
