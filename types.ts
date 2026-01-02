@@ -58,6 +58,8 @@ export interface SiteSettings {
   popupImage?: string;
   popupMessage?: string;
   isPopupEnabled: boolean;
+  // Other
+  scrollingBannerText?: string;
 }
 
 export interface AppContextType {

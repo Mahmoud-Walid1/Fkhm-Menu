@@ -135,7 +135,7 @@ const AppContent: React.FC = () => {
           {/* Offers Banner Strip */}
           <div className="bg-gray-900 border-y border-gray-800 py-3 overflow-hidden shadow-inner">
             <div className="animate-marquee whitespace-nowrap text-center text-white text-sm font-medium tracking-wide">
-              ✨ {settings.shopName} يرحب بكم ✨ استمتعوا بأجود أنواع البن المختص ✨ حلويات فاخرة تصنع يومكم ✨
+              {settings.scrollingBannerText || '✨ فخم البن يرحب بكم ✨ استمتعوا بأجود أنواع البن المختص ✨ حلويات فاخرة تصنع يومكم ✨'}
             </div>
           </div>
 

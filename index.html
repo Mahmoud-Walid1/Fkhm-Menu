@@ -50,61 +50,64 @@
             'blob': 'blob 7s infinite',
           },
           keyframes: {
-            blob: {
-              '0%': { transform: 'translate(0px, 0px) scale(1)' },
-              '33%': { transform: 'translate(30px, -50px) scale(1.1)' },
-              '66%': { transform: 'translate(-20px, 20px) scale(0.9)' },
-              '100%': { transform: 'translate(0px, 0px) scale(1)' },
-            }
+            '0%': { transform: 'translate(0px, 0px) scale(1)' },
+            '33%': { transform: 'translate(30px, -50px) scale(1.1)' },
+            '66%': { transform: 'translate(-20px, 20px) scale(0.9)' },
+            '100%': { transform: 'translate(0px, 0px) scale(1)' },
+          },
+          marquee: {
+            '0%': { transform: 'translateX(100%)' },
+            '100%': { transform: 'translateX(-100%)' },
           }
-        }
-      }
-    }
-  </script>
-  <style>
-    body {
-      font-family: 'Tajawal', sans-serif;
-      background-color: #fcfcfc;
+        },
+        animation: {
+          'blob': 'blob 7s infinite',
+          'marquee': 'marquee 25s linear infinite',
+        },
+  < style >
+        body {
+      font - family: 'Tajawal', sans - serif;
+      background - color: #fcfcfc;
     }
 
     /* Custom Scrollbar */
-    ::-webkit-scrollbar {
+    :: -webkit - scrollbar {
       width: 8px;
     }
 
-    ::-webkit-scrollbar-track {
+    :: -webkit - scrollbar - track {
       background: #1a1a1a;
     }
 
-    ::-webkit-scrollbar-thumb {
+    :: -webkit - scrollbar - thumb {
       background: #6d28d9;
-      border-radius: 4px;
+      border - radius: 4px;
     }
 
-    ::-webkit-scrollbar-thumb:hover {
+    :: -webkit - scrollbar - thumb:hover {
       background: #5b21b6;
     }
 
-    .glass-effect {
+    .glass - effect {
       background: rgba(255, 255, 255, 0.05);
-      backdrop-filter: blur(10px);
+      backdrop - filter: blur(10px);
       border: 1px solid rgba(255, 255, 255, 0.1);
     }
-  </style>
-  <script type="importmap">
-{
-  "imports": {
-    "react": "https://esm.sh/react@^19.2.3",
-    "react/": "https://esm.sh/react@^19.2.3/",
-    "framer-motion": "https://esm.sh/framer-motion@^12.23.26",
-    "lucide-react": "https://esm.sh/lucide-react@^0.562.0",
-    "@google/genai": "https://esm.sh/@google/genai@^1.34.0",
-    "react-dom/": "https://esm.sh/react-dom@^19.2.3/",
-    "firebase/app": "https://esm.sh/firebase@11.0.2/app",
-    "firebase/firestore": "https://esm.sh/firebase@11.0.2/firestore"
+  </style >
+      <script type="importmap">
+        {
+          "imports": {
+          "react": "https://esm.sh/react@^19.2.3",
+        "react/": "https://esm.sh/react@^19.2.3/",
+        "framer-motion": "https://esm.sh/framer-motion@^12.23.26",
+        "lucide-react": "https://esm.sh/lucide-react@^0.562.0",
+        "@google/genai": "https://esm.sh/@google/genai@^1.34.0",
+        "react-dom/": "https://esm.sh/react-dom@^19.2.3/",
+        "firebase/app": "https://esm.sh/firebase@11.0.2/app",
+        "firebase/firestore": "https://esm.sh/firebase@11.0.2/firestore"
   }
 }
-</script>
+  </script>
 </head>
 
 <body class="bg-gray-50 text-gray-900 selection:bg-luxury-500 selection:text-white">

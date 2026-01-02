@@ -90,7 +90,8 @@ const DEFAULT_SETTINGS: SiteSettings = {
   popupImage: '',
   popupMessage: 'استمتع بأفضل المشروبات والحلويات لدينا. اطلب الآن!',
   isPopupEnabled: true,
-  groqApiKey: ''
+  groqApiKey: '',
+  scrollingBannerText: '✨ فخم البن يرحب بكم ✨ استمتعوا بأجود أنواع البن المختص ✨ حلويات فاخرة تصنع يومكم ✨'
 };
 
 const AppContext = createContext<AppContextType | undefined>(undefined);
