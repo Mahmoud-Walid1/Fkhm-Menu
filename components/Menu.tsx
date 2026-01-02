@@ -81,6 +81,12 @@ export const Menu: React.FC = () => {
 };
 
 const ProductCard: React.FC<{ product: Product; onAdd: () => void; primaryColor: string }> = ({ product, onAdd, primaryColor }) => {
+  const [selectedSize, setSelectedSize] = useState(product.sizes?.[0]);
+
+  // Calculate display price based on selected size
+  const basePrice = product.isPromo && product.promoPrice ? product.promoPrice : product.price;
+  const displayPrice = basePrice + (selectedSize?.priceModifier || 0);
+
   return (
     <div
       className="bg-white rounded-3xl shadow-lg border-2 border-purple-50 flex flex-col h-full overflow-hidden transform transition-all duration-200 active:scale-95"
@@ -116,11 +122,34 @@ const ProductCard: React.FC<{ product: Product; onAdd: () => void; primaryColor:
             {product.name}
           </h3>
 
-          {/* Cup Icons */}
+          {/* Interactive Cup Icons for Size Selection */}
           {product.sizes && product.sizes.length > 0 && (
-            <div className="flex items-end gap-1 text-purple-300">
-              <Coffee size={16} strokeWidth={2.5} className="text-purple-600" />
+            <div className="flex items-end gap-2 mt-1">
+              {product.sizes.map((size, index) => (
+                <button
+                  key={size.name}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setSelectedSize(size);
+                  }}
+                  className={`transition-all ${selectedSize?.name === size.name
+                      ? 'text-purple-600 scale-110'
+                      : 'text-purple-300 hover:text-purple-500'
+                    }`}
+                  title={size.name}
+                >
+                  <Coffee
+                    size={selectedSize?.name === size.name ? 22 : 16}
+                    strokeWidth={selectedSize?.name === size.name ? 3 : 2.5}
+                  />
+                </button>
+              ))}
             </div>
+          )}
+
+          {/* Size Label */}
+          {selectedSize && (
+            <span className="text-[10px] text-purple-600 font-bold mt-1">{selectedSize.name}</span>
           )}
         </div>
 
@@ -132,11 +161,11 @@ const ProductCard: React.FC<{ product: Product; onAdd: () => void; primaryColor:
           <div className="flex flex-col items-start min-w-[30%]">
             {product.isPromo && product.promoPrice ? (
               <div className="flex flex-col items-start leading-none">
-                <span className="font-black text-xl md:text-2xl text-red-600">{product.promoPrice}<span className="text-[10px] font-bold text-gray-500 mr-1">ر.س</span></span>
-                <span className="text-[10px] text-gray-400 line-through decoration-red-500">{product.price}</span>
+                <span className="font-black text-xl md:text-2xl text-red-600">{displayPrice}<span className="text-[10px] font-bold text-gray-500 mr-1">ر.س</span></span>
+                <span className="text-[10px] text-gray-400 line-through decoration-red-500">{product.price + (selectedSize?.priceModifier || 0)}</span>
               </div>
             ) : (
-              <span className="font-black text-xl md:text-2xl text-gray-900">{product.price}<span className="text-[10px] font-bold text-gray-500 mr-1">ر.س</span></span>
+              <span className="font-black text-xl md:text-2xl text-gray-900">{displayPrice}<span className="text-[10px] font-bold text-gray-500 mr-1">ر.س</span></span>
             )}
           </div>
 
