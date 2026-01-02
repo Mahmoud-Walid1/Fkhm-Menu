@@ -115,8 +115,9 @@ export const ChatBot: React.FC<{ isCartOpen?: boolean }> = ({ isCartOpen = false
       - لما الزبون يطلب منتج، أكد معاه اسم المنتج والكمية.
       - لو طلب أكتر من منتج، اسأله: "تمام! في حاجة تانية؟"
       - لما يخلص طلبه، راجع معاه الطلب كامل مع الأسعار والإجمالي.
-      - بعد المراجعة، اسأله: "تمام كده؟ لو موافق قولي 'أكد الطلب' وأجهزلك الرسالة للمندوب 😊"
-      - لما يؤكد الطلب، قوله: "تمام! طلبك جاهز ✅"
+      - بعد المراجعة، اسأله: "تمام كده؟ لو موافق قولي 'أكد الطلب' وأجهزلك رسالة واتساب جاهزة للمندوب 😊"
+      - لما يؤكد الطلب، قوله: "تمام! جهزتلك رسالة الطلب ✅ اضغط على الزر اللي تحت عشان تبعت الطلب للمندوب على واتساب"
+      - **مهم**: وضّح للزبون أنك بس بتساعده يكتب الطلب، وإنه لازم يضغط على زر "إرسال الطلب للتوصيل" عشان الطلب يروح فعلاً للمندوب
       
       **تنسيق مراجعة الطلب:**
       عند مراجعة الطلب، اعرضه بالشكل ده:
@@ -239,8 +240,10 @@ export const ChatBot: React.FC<{ isCartOpen?: boolean }> = ({ isCartOpen = false
 
         if (orderLines.length > 0) {
           orderLines.forEach(line => {
-            whatsappMessage += `${line}\n`;
+            whatsappMessage += `- ${line}\n`;
           });
+        } else {
+          whatsappMessage += `(يرجى ذكر تفاصيل الطلب للمندوب)\n`;
         }
 
         whatsappMessage += `\n*الإجمالي: ${totalAmount} ريال*\n\n`;
@@ -429,46 +432,26 @@ export const ChatBot: React.FC<{ isCartOpen?: boolean }> = ({ isCartOpen = false
               initial={{ opacity: 0, x: 10 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ delay: 1 }}
-              className="bg-white text-gray-800 px-4 py-2 rounded-xl shadow-xl font-bold text-sm border-2 border-purple-100"
+              className="bg-white text-gray-800 px-3 md:px-4 py-1.5 md:py-2 rounded-xl shadow-xl font-bold text-xs md:text-sm border-2 border-purple-100 hidden sm:flex items-center"
             >
-              <span className="text-lg align-middle ml-1">🤖</span>
+              <span className="text-base md:text-lg align-middle ml-1">🤖</span>
               تحدث معنا
             </motion.div>
 
             <div className="relative">
-              {/* Pulsing Ring Effect */}
-              <motion.div
-                animate={{
-                  scale: [1, 1.3, 1],
-                  opacity: [0.5, 0, 0.5],
-                }}
-                transition={{
-                  duration: 2,
-                  repeat: Infinity,
-                  ease: "easeInOut"
-                }}
-                className="absolute inset-0 rounded-2xl"
-                style={{ backgroundColor: settings.primaryColor }}
-              />
-
-              {/* Robot Head Container - Larger */}
-              <motion.div
-                animate={{
-                  y: [0, -8, 0],
-                }}
-                transition={{
-                  duration: 3,
-                  repeat: Infinity,
-                  ease: "easeInOut"
-                }}
-                className="w-20 h-20 rounded-2xl flex items-center justify-center shadow-2xl border-4 border-white transform relative"
+              {/* Robot Head Container - Responsive Size */}
+              <div
+                className="w-14 h-14 md:w-16 md:h-16 rounded-2xl flex items-center justify-center shadow-2xl border-2 md:border-4 border-white relative"
                 style={{ backgroundColor: settings.primaryColor }}
               >
-                <Bot size={40} className="text-white" strokeWidth={1.5} />
-              </motion.div>
+                <Bot size={28} className="text-white md:w-8 md:h-8" strokeWidth={1.5} />
+              </div>
 
-              {/* "Online" Indicator - Larger */}
-              <div className="absolute -top-1 -right-1 w-5 h-5 bg-green-400 border-3 border-white rounded-full shadow-lg animate-pulse" />
+              {/* "Online/Offline" Indicator */}
+              <div
+                className={`absolute -top-0.5 -right-0.5 w-4 h-4 md:w-5 md:h-5 ${settings.groqApiKey || settings.geminiApiKey ? 'bg-green-400' : 'bg-red-400'
+                  } border-2 md:border-3 border-white rounded-full shadow-lg animate-pulse`}
+              />
             </div>
           </div>
         )}
