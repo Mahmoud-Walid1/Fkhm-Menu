@@ -9,7 +9,8 @@ import {
   deleteDoc,
   doc,
   setDoc,
-  writeBatch
+  writeBatch,
+  getDoc
 } from 'firebase/firestore';
 
 // Default Data (Used for Seeding)
