@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://fkhm-menu.vercel.app/sitemap.xml
