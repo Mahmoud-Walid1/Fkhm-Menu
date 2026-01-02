@@ -265,8 +265,10 @@ export const ChatBot: React.FC<{ isCartOpen?: boolean }> = ({ isCartOpen = false
       </AnimatePresence>
 
       <motion.button
-        whileHover={{ scale: 1.1 }}
-        whileTap={{ scale: 0.9 }}
+        drag
+        dragMomentum={false}
+        whileHover={{ scale: 1.1, cursor: 'grab' }}
+        whileTap={{ scale: 0.9, cursor: 'grabbing' }}
         animate={{
           scale: [1, 1.05, 1],
           boxShadow: [
@@ -281,7 +283,7 @@ export const ChatBot: React.FC<{ isCartOpen?: boolean }> = ({ isCartOpen = false
           ease: "easeInOut"
         }}
         onClick={toggleChat}
-        className="fixed bottom-8 right-6 md:bottom-12 md:right-12 p-4 rounded-full shadow-2xl text-white z-[2147483647] flex items-center justify-center group relative ring-2 ring-white/20 hover:scale-110 active:scale-95 transition-all duration-300"
+        className="fixed bottom-8 right-6 md:bottom-12 md:right-12 p-4 rounded-full shadow-2xl text-white z-[2147483647] flex items-center justify-center group relative ring-2 ring-white/20 touch-none"
         style={{ backgroundColor: settings.primaryColor }}
       >
         {isChatOpen ? <X size={24} /> : (
