@@ -82,85 +82,77 @@ export const Menu: React.FC = () => {
 
 const ProductCard: React.FC<{ product: Product; onAdd: () => void; primaryColor: string }> = ({ product, onAdd, primaryColor }) => {
   return (
-    <motion.div
-      layout
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      exit={{ opacity: 0, scale: 0.9 }}
-      whileHover={{ y: -10 }}
-      className="bg-white rounded-3xl shadow-xl hover:shadow-2xl transition-all duration-300 overflow-hidden group border-2 border-purple-50 hover:border-purple-200 flex flex-col h-full ring-1 ring-black/5"
+    <div
+      className="bg-white rounded-3xl shadow-lg border-2 border-purple-50 flex flex-col h-full overflow-hidden transform transition-all duration-200 active:scale-95"
     >
-      <div className="relative h-64 overflow-hidden">
-        <div className="absolute inset-0 bg-gray-100 animate-pulse" />
+      <div className="relative h-40 md:h-56 overflow-hidden bg-gray-100">
         <img
           src={product.image}
           alt={product.name}
-          className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+          className="w-full h-full object-cover"
+          loading="lazy"
         />
 
         {/* Gradient Overlay */}
-        <div className="absolute inset-x-0 bottom-0 h-32 bg-gradient-to-t from-black/80 via-black/40 to-transparent opacity-80" />
+        <div className="absolute inset-x-0 bottom-0 h-20 bg-gradient-to-t from-black/60 to-transparent opacity-70" />
 
         {/* Promo Badge */}
         {product.isPromo && (
-          <div className="absolute top-4 right-4 bg-red-600 text-white text-sm font-black px-4 py-1.5 rounded-full shadow-lg z-20 animate-bounce tracking-wide">
-            🔥 عرض خاص
+          <div className="absolute top-2 right-2 bg-red-600 text-white text-[10px] md:text-xs font-bold px-2 py-1 rounded-full shadow-md z-10">
+            خصم
           </div>
         )}
 
-        {/* Icons - Larger & Clearer */}
-        <div className="absolute top-4 left-4 flex flex-col gap-3 z-20">
-          {product.isHot && <span className="w-10 h-10 flex items-center justify-center bg-white/95 backdrop-blur-md text-red-500 rounded-full shadow-lg" title="حار"><Flame size={20} strokeWidth={2.5} /></span>}
-          {product.isCold && <span className="w-10 h-10 flex items-center justify-center bg-white/95 backdrop-blur-md text-blue-500 rounded-full shadow-lg" title="بارد"><Snowflake size={20} strokeWidth={2.5} /></span>}
+        {/* Icons */}
+        <div className="absolute top-2 left-2 flex flex-col gap-2 z-10">
+          {product.isHot && <span className="w-8 h-8 flex items-center justify-center bg-white/90 text-red-500 rounded-full shadow-sm"><Flame size={16} /></span>}
+          {product.isCold && <span className="w-8 h-8 flex items-center justify-center bg-white/90 text-blue-500 rounded-full shadow-sm"><Snowflake size={16} /></span>}
         </div>
       </div>
 
-      <div className="p-6 flex flex-col flex-1 relative bg-white">
-        <div className="flex flex-col items-center mb-4">
-          <h3 className="font-black text-gray-900 text-2xl md:text-3xl text-center w-full leading-tight mb-2 group-hover:text-purple-700 transition-colors">
+      <div className="p-4 flex flex-col flex-1 relative bg-white">
+        <div className="flex flex-col items-center mb-2">
+          <h3 className="font-extrabold text-gray-900 text-lg md:text-2xl text-center leading-tight mb-1">
             {product.name}
           </h3>
 
-          {/* Cup Icons - Clear Purple */}
+          {/* Cup Icons */}
           {product.sizes && product.sizes.length > 0 && (
-            <div className="flex items-end gap-2 text-purple-300 mt-1">
-              {product.sizes.length >= 2 && <Coffee size={20} strokeWidth={2.5} className="opacity-60" />}
-              <Coffee size={26} strokeWidth={2.5} className="text-purple-600" />
+            <div className="flex items-end gap-1 text-purple-300">
+              <Coffee size={16} strokeWidth={2.5} className="text-purple-600" />
             </div>
           )}
         </div>
 
-        <p className="text-gray-600 text-base text-center mb-6 line-clamp-2 leading-relaxed px-2 font-semibold">
-          {product.description || 'وصف طعم المنتج ومكوناته اللذيذة...'}
+        <p className="text-gray-500 text-sm text-center mb-4 line-clamp-2 px-1 font-medium">
+          {product.description || '...'}
         </p>
 
-        <div className="flex items-center justify-between mt-auto bg-purple-50 p-4 rounded-2xl border border-purple-100">
+        <div className="flex items-center justify-between mt-auto bg-purple-50 p-3 rounded-2xl border border-purple-100">
           <div className="flex flex-col items-start min-w-[30%]">
-            {product.sizes && product.sizes.length > 0 && (
-              <span className="text-xs text-purple-800 font-bold mb-0.5">يبدأ من</span>
-            )}
-
             {product.isPromo && product.promoPrice ? (
               <div className="flex flex-col items-start leading-none">
-                <span className="font-black text-3xl text-red-600">{product.promoPrice}<span className="text-sm font-bold text-gray-500 mr-1">ر.س</span></span>
-                <span className="text-sm text-gray-400 line-through decoration-red-500 mt-1 font-bold">{product.price}</span>
+                <span className="font-black text-xl md:text-2xl text-red-600">{product.promoPrice}<span className="text-[10px] font-bold text-gray-500 mr-1">ر.س</span></span>
+                <span className="text-[10px] text-gray-400 line-through decoration-red-500">{product.price}</span>
               </div>
             ) : (
-              <span className="font-black text-3xl text-gray-900">{product.price}<span className="text-sm font-bold text-gray-500 mr-1">ر.س</span></span>
+              <span className="font-black text-xl md:text-2xl text-gray-900">{product.price}<span className="text-[10px] font-bold text-gray-500 mr-1">ر.س</span></span>
             )}
           </div>
 
-          <motion.button
-            whileTap={{ scale: 0.9 }}
-            onClick={onAdd}
-            className="w-14 h-14 rounded-full text-white flex items-center justify-center shadow-lg hover:shadow-2xl hover:scale-110 transition-all outline-none"
-            style={{ backgroundColor: primaryColor, boxShadow: `0 10px 20px -5px ${primaryColor}66` }}
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              onAdd();
+            }}
+            className="w-10 h-10 md:w-12 md:h-12 rounded-full text-white flex items-center justify-center shadow-md transition-colors"
+            style={{ backgroundColor: primaryColor }}
           >
-            <Plus size={28} strokeWidth={3} />
-          </motion.button>
+            <Plus size={24} strokeWidth={3} />
+          </button>
         </div>
       </div>
-    </motion.div>
+    </div>
   );
 };
 
