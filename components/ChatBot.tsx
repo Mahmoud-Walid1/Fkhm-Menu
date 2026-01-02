@@ -435,6 +435,7 @@ export const ChatBot: React.FC<{ isCartOpen?: boolean }> = ({ isCartOpen = false
         whileTap={{ scale: 0.95 }}
         onClick={toggleChat}
         className="fixed bottom-6 right-6 z-[2147483647] flex items-center gap-3 group"
+        style={{ display: isCartOpen ? 'none' : 'flex' }}
       >
         {isChatOpen ? (
           <div
