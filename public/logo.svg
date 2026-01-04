@@ -1,0 +1,20 @@
+<svg width="400" height="400" viewBox="0 0 400 400" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background Circle -->
+  <circle cx="200" cy="200" r="180" fill="#7E60A8" opacity="0.1"/>
+  
+  <!-- Coffee Cup -->
+  <path d="M120 180 C120 180 120 280 120 280 C120 300 140 320 200 320 C260 320 280 300 280 280 C280 280 280 180 280 180" 
+        stroke="#4A3228" stroke-width="8" fill="#FAF6F1" stroke-linecap="round"/>
+  
+  <!-- Coffee -->
+  <ellipse cx="200" cy="180" rx="80" ry="20" fill="#6B4A3A"/>
+  
+  <!-- Steam -->
+  <path d="M160 140 Q155 120 160 100" stroke="#7E60A8" stroke-width="4" fill="none" stroke-linecap="round" opacity="0.6"/>
+  <path d="M200 130 Q195 110 200 90" stroke="#7E60A8" stroke-width="4" fill="none" stroke-linecap="round" opacity="0.6"/>
+  <path d="M240 140 Q245 120 240 100" stroke="#7E60A8" stroke-width="4" fill="none" stroke-linecap="round" opacity="0.6"/>
+  
+  <!-- Handle -->
+  <path d="M280 200 Q320 200 320 240 Q320 260 300 260" 
+        stroke="#4A3228" stroke-width="8" fill="none" stroke-linecap="round"/>
+</svg>

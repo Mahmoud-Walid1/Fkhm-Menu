@@ -88,6 +88,12 @@ export interface MessageAction {
   url?: string;
   onClick?: () => void;
   type: 'primary' | 'secondary';
+  actionType?: 'link' | 'navigate' | 'add-to-cart';
+  productData?: {
+    productId: string;
+    size?: Size;
+    temperature?: 'hot' | 'cold';
+  };
 }
 
 export interface Message {

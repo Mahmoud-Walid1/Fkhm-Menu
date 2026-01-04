@@ -1,0 +1,13 @@
+{
+    "buildCommand": "echo 'No build needed - vanilla JS'",
+    "outputDirectory": ".",
+    "devCommand": "echo 'Use Live Server or any static server'",
+    "installCommand": "echo 'No dependencies'",
+    "framework": null,
+    "routes": [
+        {
+            "src": "/(.*)",
+            "dest": "/$1"
+        }
+    ]
+}
