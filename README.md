@@ -26,7 +26,6 @@ This project is a testament to **Vibe Coding** - intuitively built, aestheticall
 ## ✨ Features
 
 ### 🎨 User Experience
-- **Dark/Light Mode** - Toggle between themes with smooth transitions
 - **Responsive Design** - Perfect on mobile, tablet, and desktop
 - **Interactive Menu** - Browse products by category with elegant animations
 - **Shopping Cart** - Add items, adjust quantities, and checkout via WhatsApp
@@ -34,22 +33,21 @@ This project is a testament to **Vibe Coding** - intuitively built, aestheticall
 - **Offers Carousel** - Showcase promotional banners
 
 ### 🤖 AI-Powered ChatBot
-- **Gemini AI Integration** - Intelligent customer support
+- **AI Integration** - Intelligent customer support
 - **Pulsing Animations** - Eye-catching button with glow effects
 - **Auto-Popup** - Proactive assistance after 30 seconds
 - **Smart Responses** - Context-aware product recommendations
 - **Contact Integration** - Direct links to delivery and admin
 
 ### 🎭 Admin Panel
-- **Secret Access** - Secure admin login via URL (`/#admin`) or triple-click
+- **Secret Access** - Secure admin login 
 - **Product Management** - Full CRUD operations
-- **GitHub Image Upload** - Direct upload to repository
+- **Cloudinary Image Upload** - Direct upload
 - **Category Management** - Organize menu items
 - **Settings Control** - Colors, social links, WhatsApp numbers
 - **Hero & Offer Images** - Visual content management
 
 ### 🔧 Technical Features
-- **GitHub API Integration** - Automatic image hosting
 - **localStorage Persistence** - Data saved across sessions
 - **Framer Motion Animations** - Smooth, professional transitions
 - **TypeScript** - Type-safe development
