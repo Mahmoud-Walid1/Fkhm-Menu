@@ -46,6 +46,7 @@ This project is a testament to **Vibe Coding** - intuitively built, aestheticall
 - **Category Management** - Organize menu items
 - **Settings Control** - Colors, social links, WhatsApp numbers
 - **Hero & Offer Images** - Visual content management
+- **Scrolling Banner** - Customizable news/offers ticker
 
 ### 🔧 Technical Features
 - **localStorage Persistence** - Data saved across sessions
@@ -65,7 +66,8 @@ This project is a testament to **Vibe Coding** - intuitively built, aestheticall
 | **Framer Motion** | Animations |
 | **Lucide React** | Icons |
 | **Google Gemini AI** | ChatBot |
-| **GitHub API** | Image Hosting |
+| **Firebase** | Database (Firestore) |
+| **Cloudinary** | Image Storage |
 | **Tailwind CSS** | Styling |
 
 ---

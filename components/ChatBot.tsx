@@ -12,8 +12,10 @@ export const ChatBot: React.FC<{ isCartOpen?: boolean }> = ({ isCartOpen = false
   const [isLoading, setIsLoading] = useState(false);
   const [showAutoPopup, setShowAutoPopup] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
+  const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
+    setMounted(true);
     const checkMobile = () => setIsMobile(window.innerWidth < 768);
     checkMobile();
     window.addEventListener('resize', checkMobile);
@@ -347,6 +349,8 @@ export const ChatBot: React.FC<{ isCartOpen?: boolean }> = ({ isCartOpen = false
   };
 
   const constraintsRef = useRef(null);
+
+  if (!mounted) return null;
 
   return createPortal(
     <>
