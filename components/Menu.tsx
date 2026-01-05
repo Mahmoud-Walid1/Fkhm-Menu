@@ -139,9 +139,9 @@ const ProductCard: React.FC<{ product: Product; onAdd: () => void; primaryColor:
             {product.name}
           </h3>
 
-          {/* Interactive Cup Icons for Size Selection */}
+          {/* Product Sizes - Compact Vertical Spacing */}
           {product.sizes && product.sizes.length > 0 && (
-            <div className="flex items-end gap-3 my-2 bg-gray-50 px-3 py-1 rounded-full border border-gray-100">
+            <div className="flex items-end gap-3 my-1 md:my-2 bg-gray-50 px-3 py-1 rounded-full border border-gray-100">
               {product.sizes.map((size, index) => (
                 <button
                   key={size.name}
@@ -158,6 +158,7 @@ const ProductCard: React.FC<{ product: Product; onAdd: () => void; primaryColor:
                   <Coffee
                     size={selectedSize?.name === size.name ? 24 : 18}
                     strokeWidth={selectedSize?.name === size.name ? 2.5 : 2}
+                    className="md:w-[24px] md:h-[24px] w-[20px] h-[20px]"
                   />
                   {selectedSize?.name === size.name && (
                     <span className="absolute -bottom-8 left-1/2 -translate-x-1/2 text-[10px] font-bold text-white bg-purple-600 px-2 py-0.5 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap z-50">
@@ -171,16 +172,16 @@ const ProductCard: React.FC<{ product: Product; onAdd: () => void; primaryColor:
 
           {/* Simple Size Label if not interactive or just one */}
           {selectedSize && (!product.sizes || product.sizes.length === 0) && (
-            <span className="text-xs text-gray-400 font-medium">{product.category}</span>
+            <span className="text-[10px] md:text-xs text-gray-400 font-medium mb-1">{product.category}</span>
           )}
 
         </div>
 
-        <p className="text-gray-500 text-sm text-center mb-6 line-clamp-2 px-2 font-medium leading-relaxed">
+        <p className="text-gray-500 text-xs md:text-sm text-center mb-4 md:mb-6 line-clamp-3 px-1 md:px-2 font-medium leading-relaxed h-[4.5em] md:h-[3em]">
           {product.description || 'وصف المنتج غير متوفر حالياً، لكن الطعم أكيد هيعجبك! 😋'}
         </p>
 
-        <div className="flex items-center justify-between mt-auto bg-gray-50 p-3 rounded-2xl border border-gray-100 group-hover:border-purple-200 transition-colors">
+        <div className="flex items-center justify-between mt-auto bg-gray-50 p-2 md:p-3 rounded-2xl border border-gray-100 group-hover:border-purple-200 transition-colors">
           <div className="flex flex-col items-start min-w-[30%]">
             {product.isPromo && product.promoPrice ? (
               <div className="flex flex-col items-start leading-none">
