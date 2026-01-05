@@ -13,7 +13,7 @@ export const AdminPanel: React.FC<{ onClose: () => void }> = ({ onClose }) => {
     const [editingProduct, setEditingProduct] = useState<Partial<Product> | null>(null);
 
     // Category Edit State
-    const [editingCategory, setEditingCategory] = useState<{ id: string; name: string } | null>(null);
+    const [editingCategory, setEditingCategory] = useState<{ id: string; name: string; backgroundColor?: string; textColor?: string; cardBackgroundColor?: string; } | null>(null);
 
     // Size Icon Selection State
     const [newSizeIcon, setNewSizeIcon] = useState<'cup' | 'box' | 'cup_soda'>('cup');
@@ -654,8 +654,13 @@ export const AdminPanel: React.FC<{ onClose: () => void }> = ({ onClose }) => {
                                             <button
 
                                                 onClick={() => {
-                                                    const newName = prompt('اسم القسم الجديد:', c.name);
-                                                    if (newName && newName !== c.name) updateCategory(c.id, newName);
+                                                    setEditingCategory({
+                                                        id: c.id,
+                                                        name: c.name,
+                                                        backgroundColor: c.backgroundColor,
+                                                        textColor: c.textColor,
+                                                        cardBackgroundColor: c.cardBackgroundColor
+                                                    });
                                                 }}
                                                 className="text-blue-600 hover:text-blue-800 p-1"
                                                 title="تعديل"
@@ -676,6 +681,138 @@ export const AdminPanel: React.FC<{ onClose: () => void }> = ({ onClose }) => {
                                 ))}
                             </ul>
                         </div >
+                    )}
+
+                    {/* Category Edit Modal */}
+                    {editingCategory && (
+                        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-[210] p-4">
+                            <div className="bg-white rounded-lg p-6 w-full max-w-md shadow-2xl">
+                                <h3 className="text-xl font-bold mb-4">تعديل القسم</h3>
+                                <div className="space-y-4">
+                                    {/* Name */}
+                                    <div>
+                                        <label className="block text-sm font-bold mb-1">اسم القسم</label>
+                                        <input
+                                            value={editingCategory.name}
+                                            onChange={(e) => setEditingCategory({ ...editingCategory, name: e.target.value })}
+                                            className="w-full border p-2 rounded-md"
+                                        />
+                                    </div>
+
+                                    {/* Background Color */}
+                                    <div>
+                                        <label className="block text-sm font-bold mb-1">لون خلفية القسم (اختياري)</label>
+                                        <div className="flex gap-2">
+                                            <input
+                                                type="color"
+                                                value={editingCategory.backgroundColor || '#ffffff'}
+                                                onChange={(e) => setEditingCategory({ ...editingCategory, backgroundColor: e.target.value })}
+                                                className="h-10 w-20 p-1 rounded cursor-pointer border"
+                                            />
+                                            <input
+                                                type="text"
+                                                value={editingCategory.backgroundColor || ''}
+                                                onChange={(e) => setEditingCategory({ ...editingCategory, backgroundColor: e.target.value })}
+                                                placeholder="مثال: #f3f4f6 أو transparent"
+                                                className="flex-1 border p-2 rounded-md text-sm ltr"
+                                                dir="ltr"
+                                            />
+                                            {editingCategory.backgroundColor && (
+                                                <button onClick={() => setEditingCategory({ ...editingCategory, backgroundColor: undefined })} className="text-red-500 text-xs px-2 hover:bg-red-50 rounded">إلغاء</button>
+                                            )}
+                                        </div>
+                                    </div>
+
+                                    {/* Text Color */}
+                                    <div>
+                                        <label className="block text-sm font-bold mb-1">لون عنوان القسم (اختياري)</label>
+                                        <div className="flex gap-2">
+                                            <input
+                                                type="color"
+                                                value={editingCategory.textColor || '#000000'}
+                                                onChange={(e) => setEditingCategory({ ...editingCategory, textColor: e.target.value })}
+                                                className="h-10 w-20 p-1 rounded cursor-pointer border"
+                                            />
+                                            <input
+                                                type="text"
+                                                value={editingCategory.textColor || ''}
+                                                onChange={(e) => setEditingCategory({ ...editingCategory, textColor: e.target.value })}
+                                                placeholder="مثال: #000000"
+                                                className="flex-1 border p-2 rounded-md text-sm ltr"
+                                                dir="ltr"
+                                            />
+                                            {editingCategory.textColor && (
+                                                <button onClick={() => setEditingCategory({ ...editingCategory, textColor: undefined })} className="text-red-500 text-xs px-2 hover:bg-red-50 rounded">إلغاء</button>
+                                            )}
+                                        </div>
+                                    </div>
+
+                                    {/* Card Background Color */}
+                                    <div>
+                                        <label className="block text-sm font-bold mb-1">لون خلفية الكرت (اختياري)</label>
+                                        <div className="flex gap-2">
+                                            <input
+                                                type="color"
+                                                value={editingCategory.cardBackgroundColor || '#ffffff'}
+                                                onChange={(e) => setEditingCategory({ ...editingCategory, cardBackgroundColor: e.target.value })}
+                                                className="h-10 w-20 p-1 rounded cursor-pointer border"
+                                            />
+                                            <input
+                                                type="text"
+                                                value={editingCategory.cardBackgroundColor || ''}
+                                                onChange={(e) => setEditingCategory({ ...editingCategory, cardBackgroundColor: e.target.value })}
+                                                placeholder="مثال: #ffffff"
+                                                className="flex-1 border p-2 rounded-md text-sm ltr"
+                                                dir="ltr"
+                                            />
+                                            {editingCategory.cardBackgroundColor && (
+                                                <button onClick={() => setEditingCategory({ ...editingCategory, cardBackgroundColor: undefined })} className="text-red-500 text-xs px-2 hover:bg-red-50 rounded">إلغاء</button>
+                                            )}
+                                        </div>
+                                        <p className="text-xs text-gray-400 mt-1">يغير لون خلفية بطاقات المنتجات داخل هذا القسم فقط.</p>
+                                    </div>
+                                </div>
+
+                                <div className="flex justify-end gap-2 mt-6 border-t pt-4">
+                                    <button
+                                        onClick={() => setEditingCategory(null)}
+                                        className="px-4 py-2 bg-gray-100 text-gray-700 rounded-md hover:bg-gray-200"
+                                    >
+                                        إلغاء
+                                    </button>
+                                    <button
+                                        onClick={() => {
+                                            // Handle update logic here
+                                            // Since updateCategory only takes (id, name), we need to update the logic in AppContext or allow Category object update
+                                            // Wait, AppContext updateCategory signature is (id: string, name: string). I need to change that too! 
+                                            // For now, I will modify updateCategory to accept a partial Category object or create a new method.
+                                            // Let's assume I will fix updateCategory in store.tsx next.
+                                            // Actually I can pass the extra props if I update the signature in store.tsx.
+                                            // For this step, I'll call updateCategory passing both specific fields.
+                                            // But wait, updateCategory(id, name) is strict.
+                                            // I'll call updateCategory(editingCategory.id, editingCategory.name, editingCategory) - I need to modify the function first?
+                                            // Or I can modify the store to accept (id, partialCategory).
+                                            // Let's assume I'll update store.tsx.
+                                            // I'll pass the full object to a new function or modified existing one.
+                                            // Let's use `updateCategory(editingCategory.id, editingCategory)` assuming I'll refactor the store.
+
+                                            // ACTUALLY: I should check store.tsx first.
+                                            // Let's modify the onClick later after checking store.tsx.
+                                            // For now, keep the structure.
+                                            // Update with full partial object
+                                            if (editingCategory) {
+                                                const { id, ...updates } = editingCategory;
+                                                updateCategory(id, updates);
+                                            }
+                                            setEditingCategory(null);
+                                        }}
+                                        className="px-4 py-2 bg-purple-600 text-white rounded-md hover:bg-purple-700"
+                                    >
+                                        حفظ التعديلات
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
                     )}
 
                     {

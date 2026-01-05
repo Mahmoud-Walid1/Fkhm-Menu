@@ -24,6 +24,10 @@ export interface Category {
   id: string;
   name: string;
   order?: number;
+  // Theme Properties
+  backgroundColor?: string;
+  textColor?: string;
+  cardBackgroundColor?: string;
 }
 
 export interface CartItem extends Product {
@@ -79,7 +83,7 @@ export interface AppContextType {
   deleteProduct: (id: string) => void;
   updateSettings: (settings: SiteSettings) => void;
   addCategory: (name: string) => void;
-  updateCategory: (id: string, name: string) => void;
+  updateCategory: (id: string, updates: Partial<Category>) => void;
   deleteCategory: (id: string) => void;
   reorderCategories: (newOrder: Category[]) => void;
   reorderProducts: (newOrder: Product[]) => void;

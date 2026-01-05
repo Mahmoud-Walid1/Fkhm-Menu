@@ -72,13 +72,21 @@ export const Menu: React.FC = () => {
               exit={{ opacity: 0 }}
               transition={{ duration: 0.3 }}
               key={cat.id}
+              className={`${cat.backgroundColor ? 'p-6 rounded-[2rem] shadow-sm mb-12' : ''}`}
+              style={{ backgroundColor: cat.backgroundColor ?? undefined }}
             >
               {isAll && (
                 <div className="flex items-center gap-4 mb-8">
-                  <h3 className="text-2xl md:text-3xl font-bold text-gray-800 dark:text-white border-r-4 pr-4 rounded-sm" style={{ borderColor: settings.primaryColor }}>
+                  <h3
+                    className="text-2xl md:text-3xl font-bold border-r-4 pr-4 rounded-sm"
+                    style={{
+                      borderColor: settings.primaryColor,
+                      color: cat.textColor || (settings.theme === 'dark' ? 'white' : '#1f2937') // fallback to default text colors
+                    }}
+                  >
                     {cat.name}
                   </h3>
-                  <div className="h-px bg-gray-200 flex-1"></div>
+                  <div className="h-px bg-gray-200 flex-1 opacity-50"></div>
                 </div>
               )}
 
@@ -90,6 +98,7 @@ export const Menu: React.FC = () => {
                       product={product}
                       onAdd={() => setSelectedProduct(product)}
                       primaryColor={settings.primaryColor}
+                      cardBackgroundColor={cat.cardBackgroundColor}
                     />
                   ))}
                 </AnimatePresence>
@@ -135,7 +144,7 @@ const getSizeIcon = (categoryName: string, isCold: boolean) => {
   return Coffee;
 };
 
-const ProductCard: React.FC<{ product: Product; onAdd: () => void; primaryColor: string }> = ({ product, onAdd, primaryColor }) => {
+const ProductCard: React.FC<{ product: Product; onAdd: () => void; primaryColor: string; cardBackgroundColor?: string }> = ({ product, onAdd, primaryColor, cardBackgroundColor }) => {
   const [selectedSize, setSelectedSize] = useState(product.sizes?.[0]);
   const SizeIcon = getSizeIcon(product.category || '', product.isCold || false);
 
@@ -147,6 +156,7 @@ const ProductCard: React.FC<{ product: Product; onAdd: () => void; primaryColor:
     <div
       data-product-id={product.id}
       className="bg-white rounded-[1.5rem] md:rounded-[2rem] shadow-xl border border-purple-100 flex flex-col h-full overflow-visible transform transition-all duration-200 hover:shadow-2xl hover:-translate-y-2 relative mt-12 pt-10 md:mt-16 md:pt-16 group will-change-transform"
+      style={{ backgroundColor: cardBackgroundColor ?? undefined }}
     >
       {/* Popped Out Image Container */}
       <div className="absolute -top-16 md:-top-20 left-0 right-0 flex justify-center z-10 w-full pointer-events-none">
@@ -180,7 +190,7 @@ const ProductCard: React.FC<{ product: Product; onAdd: () => void; primaryColor:
       </div>
 
       {/* Card Content */}
-      <div className="p-4 md:p-6 flex flex-col flex-1 relative bg-gradient-to-b from-white to-gray-50 rounded-[1.5rem] md:rounded-[2rem] z-0">
+      <div className={`p-4 md:p-6 flex flex-col flex-1 relative ${!cardBackgroundColor ? 'bg-gradient-to-b from-white to-gray-50' : ''} rounded-[1.5rem] md:rounded-[2rem] z-0`}>
         {/* Subtle Background Pattern */}
         <div className="absolute inset-0 opacity-[0.03] pointer-events-none" style={{ backgroundImage: 'radial-gradient(circle at 2px 2px, black 1px, transparent 0)', backgroundSize: '16px 16px' }}></div>
 

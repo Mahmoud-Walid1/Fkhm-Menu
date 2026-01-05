@@ -180,8 +180,8 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     await addDoc(collection(db, 'categories'), { name });
   };
 
-  const updateCategory = async (id: string, name: string) => {
-    await updateDoc(doc(db, 'categories', id), { name });
+  const updateCategory = async (id: string, updates: Partial<Category>) => {
+    await updateDoc(doc(db, 'categories', id), updates as any);
   };
 
   const deleteCategory = async (id: string) => {
