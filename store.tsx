@@ -38,7 +38,14 @@ const DEFAULT_SETTINGS: SiteSettings = {
   popupImage: '',
   popupMessage: 'استمتع بأفضل المشروبات والحلويات لدينا. اطلب الآن!',
   isPopupEnabled: true,
+  // Groq API Keys (Multiple for load balancing)
   groqApiKey: '',
+  groqApiKey2: '',
+  groqApiKey3: '',
+  // Gemini API Keys (Multiple for load balancing)
+  geminiApiKey: '',
+  geminiApiKey2: '',
+  geminiApiKey3: '',
   scrollingBannerText: '✨ فخم البن يرحب بكم ✨ استمتعوا بأجود أنواع البن المختص ✨ حلويات فاخرة تصنع يومكم ✨'
 };
 
