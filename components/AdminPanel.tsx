@@ -1130,14 +1130,67 @@ export const AdminPanel: React.FC<{ onClose: () => void }> = ({ onClose }) => {
                                                 <li>انسخ المفتاح والصقه هنا</li>
                                             </ol>
                                         </div>
-                                        <label className="block text-sm font-bold mb-1">مفتاح Groq API Token</label>
-                                        <input
-                                            type="password"
-                                            value={settings.groqApiKey || ''}
-                                            onChange={(e) => updateSettings({ ...settings, groqApiKey: e.target.value })}
-                                            placeholder="gsk_..."
-                                            className="w-full border p-2 rounded-md font-mono text-sm"
-                                        />
+                                        <label className="block text-sm font-bold mb-1">مفاتيح Groq API Tokens (يمكنك إضافة أكثر من مفتاح)</label>
+
+                                        {/* List of existing keys */}
+                                        <div className="space-y-2 mb-3">
+                                            {(settings.groqApiKey ? settings.groqApiKey.split(',').filter(k => k.trim()) : []).map((key, index) => (
+                                                <div key={index} className="flex gap-2 items-center">
+                                                    <input
+                                                        type="password"
+                                                        value={key}
+                                                        disabled
+                                                        className="flex-1 border p-2 rounded-md font-mono text-sm bg-gray-50 text-gray-500"
+                                                    />
+                                                    <button
+                                                        onClick={() => {
+                                                            const currentKeys = settings.groqApiKey ? settings.groqApiKey.split(',').filter(k => k.trim()) : [];
+                                                            const newKeys = currentKeys.filter((_, i) => i !== index);
+                                                            updateSettings({ ...settings, groqApiKey: newKeys.join(',') });
+                                                        }}
+                                                        className="bg-red-100 text-red-600 p-2 rounded-md hover:bg-red-200"
+                                                        title="حذف المفتاح"
+                                                    >
+                                                        <Trash2 size={18} />
+                                                    </button>
+                                                </div>
+                                            ))}
+                                        </div>
+
+                                        {/* Add new key input */}
+                                        <div className="flex gap-2 items-center">
+                                            <input
+                                                type="text"
+                                                id="new-groq-key"
+                                                placeholder="gsk_... (أضف مفتاح جديد)"
+                                                className="flex-1 border p-2 rounded-md font-mono text-sm"
+                                                onKeyDown={(e) => {
+                                                    if (e.key === 'Enter') {
+                                                        const input = e.currentTarget;
+                                                        const val = input.value.trim();
+                                                        if (val) {
+                                                            const currentKeys = settings.groqApiKey ? settings.groqApiKey.split(',').filter(k => k.trim()) : [];
+                                                            updateSettings({ ...settings, groqApiKey: [...currentKeys, val].join(',') });
+                                                            input.value = '';
+                                                        }
+                                                    }
+                                                }}
+                                            />
+                                            <button
+                                                onClick={() => {
+                                                    const input = document.getElementById('new-groq-key') as HTMLInputElement;
+                                                    const val = input?.value.trim();
+                                                    if (val) {
+                                                        const currentKeys = settings.groqApiKey ? settings.groqApiKey.split(',').filter(k => k.trim()) : [];
+                                                        updateSettings({ ...settings, groqApiKey: [...currentKeys, val].join(',') });
+                                                        input.value = '';
+                                                    }
+                                                }}
+                                                className="bg-green-100 text-green-700 px-4 py-2 rounded-md hover:bg-green-200 font-bold flex items-center gap-2"
+                                            >
+                                                <Plus size={18} /> إضافة
+                                            </button>
+                                        </div>
                                     </div>
 
                                     <div className="border-t my-4"></div>
