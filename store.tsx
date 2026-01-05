@@ -182,7 +182,12 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   const addProduct = async (product: Product) => {
     try {
       const { id, ...data } = product; // Remove potentially temporary ID
-      await addDoc(collection(db, 'products'), data);
+
+      // Calculate next order index
+      const maxOrder = products.length > 0 ? Math.max(...products.map(p => p.order || 0)) : 0;
+      const newOrder = maxOrder + 1;
+
+      await addDoc(collection(db, 'products'), { ...data, order: newOrder });
     } catch (error: any) {
       console.error("Error adding product:", error);
       alert("فشل إضافة المنتج: " + (error.message || "خطأ غير معروف"));

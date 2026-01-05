@@ -485,23 +485,32 @@ export const AdminPanel: React.FC<{ onClose: () => void }> = ({ onClose }) => {
                             )}
 
                             <div className="overflow-x-auto">
-                                <table className="w-full text-right">
+                                <table className="w-full text-right border-collapse">
                                     <thead>
-                                        <tr className="border-b bg-gray-50">
-                                            <th className="p-3">صورة</th>
-                                            <th className="p-3">الاسم</th>
+                                        <tr className="bg-gray-100 text-gray-600">
+                                            {isReorderProducts && <th className="p-3 w-16">#</th>}
+                                            <th className="p-3">الصورة</th>
+                                            <th className="p-3">اسم المنتج</th>
                                             <th className="p-3">السعر</th>
                                             <th className="p-3">القسم</th>
                                             <th className="p-3">إجراءات</th>
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        {products.map(p => (
+                                        {products.map((p, index) => (
                                             <tr key={p.id} className="border-b hover:bg-gray-50">
+                                                {isReorderProducts && (
+                                                    <td className="p-3">
+                                                        <div className="flex flex-col gap-1">
+                                                            <button onClick={() => handleMoveProduct(index, 'up')} disabled={index === 0} className="p-1 hover:bg-gray-200 rounded disabled:opacity-30"><ArrowUp size={14} /></button>
+                                                            <button onClick={() => handleMoveProduct(index, 'down')} disabled={index === products.length - 1} className="p-1 hover:bg-gray-200 rounded disabled:opacity-30"><ArrowDown size={14} /></button>
+                                                        </div>
+                                                    </td>
+                                                )}
                                                 <td className="p-3"><img src={p.image} className="w-12 h-12 rounded object-cover" /></td>
                                                 <td className="p-3">{p.name} {p.isPromo && <span className="text-red-500 text-xs">(عرض)</span>}</td>
                                                 <td className="p-3">{p.price}</td>
-                                                <td className="p-3">{categories.find(c => c.id === p.categoryId)?.name}</td>
+                                                <td className="p-3">{p.categoryIds?.map(id => categories.find(c => c.id === id)?.name).join(', ') || categories.find(c => c.id === p.categoryId)?.name}</td>
                                                 <td className="p-3 flex gap-2">
                                                     <button onClick={() => setEditingProduct(p)} className="p-1 text-blue-600"><Edit size={18} /></button>
                                                     <button onClick={() => deleteProduct(p.id)} className="p-1 text-red-600"><Trash size={18} /></button>
