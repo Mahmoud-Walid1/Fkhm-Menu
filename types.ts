@@ -82,6 +82,7 @@ export interface AppContextType {
   deleteCategory: (id: string) => void;
   reorderCategories: (newOrder: Category[]) => void;
   reorderProducts: (newOrder: Product[]) => void;
+  refreshData: () => void;
   isChatOpen: boolean;
   toggleChat: () => void;
   toggleTheme: () => void;

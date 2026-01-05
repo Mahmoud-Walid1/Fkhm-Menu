@@ -6,7 +6,7 @@ import { Settings, Plus, Edit, Trash, X, Save, Palette, Image as ImageIcon, Link
 import { uploadImageToCloudinary } from '../utils/cloudinaryUpload';
 
 export const AdminPanel: React.FC<{ onClose: () => void }> = ({ onClose }) => {
-    const { products, categories, settings, addProduct, updateProduct, deleteProduct, addCategory, updateCategory, deleteCategory, updateSettings, reorderCategories, reorderProducts } = useAppStore();
+    const { products, categories, settings, addProduct, updateProduct, deleteProduct, addCategory, updateCategory, deleteCategory, updateSettings, reorderCategories, reorderProducts, refreshData } = useAppStore();
     const [activeTab, setActiveTab] = useState<'products' | 'categories' | 'settings' | 'images'>('products');
 
     // Product Form State
@@ -69,7 +69,7 @@ export const AdminPanel: React.FC<{ onClose: () => void }> = ({ onClose }) => {
             return;
         }
         if ((!editingProduct?.categoryIds || editingProduct.categoryIds.length === 0) && !editingProduct?.category && !editingProduct?.categoryId) {
-            alert('يرجى اختيار قسم واحد على الأقل');
+            alert('❌ خطأ: يرجى اختيار قسم واحد على الأقل للمنتج!');
             return;
         }
 
@@ -222,9 +222,14 @@ export const AdminPanel: React.FC<{ onClose: () => void }> = ({ onClose }) => {
                         <h1 className="text-3xl font-bold text-gray-800">إدارة {settings.shopName}</h1>
                         <p className="text-gray-500 text-sm mt-1">نسخة المتصفح (المحلية)</p>
                     </div>
-                    <button onClick={onClose} className="bg-red-100 text-red-600 px-4 py-2 rounded-lg hover:bg-red-200">
-                        إغلاق
-                    </button>
+                    <div className="flex gap-2">
+                        <button onClick={refreshData} className="bg-blue-100 text-blue-600 px-4 py-2 rounded-lg hover:bg-blue-200 flex items-center gap-2">
+                            🔄 تحديث
+                        </button>
+                        <button onClick={onClose} className="bg-red-100 text-red-600 px-4 py-2 rounded-lg hover:bg-red-200">
+                            إغلاق
+                        </button>
+                    </div>
                 </div>
 
                 <div className="flex gap-2 md:gap-4 mb-8 bg-white p-2 rounded-lg shadow-sm overflow-x-auto">

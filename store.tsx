@@ -140,6 +140,10 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     };
   }, []);
 
+  const refreshData = () => {
+    window.location.reload();
+  };
+
   // One-time Seeding Logic - DISABLED to prevent ghost data
   // useEffect(() => {
   //   const seed = async () => { ... }
@@ -304,6 +308,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       deleteCategory,
       reorderCategories,
       reorderProducts,
+      refreshData,
       isChatOpen,
       toggleChat
     }}>
