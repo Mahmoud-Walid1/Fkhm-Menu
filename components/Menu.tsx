@@ -95,43 +95,46 @@ const ProductCard: React.FC<{ product: Product; onAdd: () => void; primaryColor:
 
   return (
     <div
-      data-product-id={product.id} // Added Data Attribute for ChatBot navigation
-      className="bg-white rounded-3xl shadow-lg border-2 border-purple-50 flex flex-col h-full overflow-hidden transform transition-all duration-200 active:scale-95"
+      data-product-id={product.id}
+      className="bg-white rounded-[2rem] shadow-xl border border-purple-100 flex flex-col h-full overflow-visible transform transition-all duration-200 hover:shadow-2xl hover:-translate-y-1 relative mt-12 pt-12"
     >
-      <div className="relative h-40 md:h-56 overflow-hidden bg-gray-100">
-        <img
-          src={product.image}
-          alt={product.name}
-          className="w-full h-full object-cover"
-          loading="lazy"
-        />
-
-        {/* Gradient Overlay */}
-        <div className="absolute inset-x-0 bottom-0 h-20 bg-gradient-to-t from-black/60 to-transparent opacity-70" />
+      {/* Popped Out Image Container */}
+      <div className="absolute -top-16 left-0 right-0 flex justify-center z-10 w-full pointer-events-none">
+        <div className="relative w-40 h-40 md:w-48 md:h-48 transition-transform duration-500 ease-out group-hover:scale-110 group-hover:-rotate-6 group-hover:-translate-y-2">
+          {/* Glow Effect */}
+          <div className="absolute inset-0 bg-purple-500/20 rounded-full blur-xl group-hover:bg-purple-500/30 transition-all duration-500"></div>
+          <img
+            src={product.image}
+            alt={product.name}
+            className="w-full h-full object-contain filter drop-shadow-[0_10px_20px_rgba(0,0,0,0.15)] group-hover:drop-shadow-[0_20px_30px_rgba(0,0,0,0.25)] transition-all duration-500 pointer-events-auto"
+            loading="lazy"
+          />
+        </div>
 
         {/* Promo Badge */}
         {product.isPromo && (
-          <div className="absolute top-2 right-2 bg-red-600 text-white text-[10px] md:text-xs font-bold px-2 py-1 rounded-full shadow-md z-10">
+          <div className="absolute top-4 right-10 bg-red-600 text-white text-xs font-bold px-3 py-1 rounded-full shadow-lg z-20 animate-pulse">
             خصم
           </div>
         )}
 
         {/* Icons */}
-        <div className="absolute top-2 left-2 flex flex-col gap-2 z-10">
-          {product.isHot && <span className="w-8 h-8 flex items-center justify-center bg-white/90 text-red-500 rounded-full shadow-sm"><Flame size={16} /></span>}
-          {product.isCold && <span className="w-8 h-8 flex items-center justify-center bg-white/90 text-blue-500 rounded-full shadow-sm"><Snowflake size={16} /></span>}
+        <div className="absolute top-4 left-10 flex flex-col gap-2 z-20">
+          {product.isHot && <span className="w-8 h-8 flex items-center justify-center bg-white/90 text-red-500 rounded-full shadow-md backdrop-blur-sm"><Flame size={16} /></span>}
+          {product.isCold && <span className="w-8 h-8 flex items-center justify-center bg-white/90 text-blue-500 rounded-full shadow-md backdrop-blur-sm"><Snowflake size={16} /></span>}
         </div>
       </div>
 
-      <div className="p-4 flex flex-col flex-1 relative bg-white">
-        <div className="flex flex-col items-center mb-2">
-          <h3 className="font-extrabold text-gray-900 text-lg md:text-2xl text-center leading-tight mb-1">
+      {/* Card Content */}
+      <div className="p-5 flex flex-col flex-1 relative bg-white rounded-[2rem] z-0">
+        <div className="flex flex-col items-center mb-3 mt-4">
+          <h3 className="font-extrabold text-gray-900 text-xl md:text-2xl text-center leading-tight mb-2">
             {product.name}
           </h3>
 
           {/* Interactive Cup Icons for Size Selection */}
           {product.sizes && product.sizes.length > 0 && (
-            <div className="flex items-end gap-2 mt-1">
+            <div className="flex items-end gap-3 my-2 bg-gray-50 px-3 py-1 rounded-full border border-gray-100">
               {product.sizes.map((size, index) => (
                 <button
                   key={size.name}
@@ -139,37 +142,43 @@ const ProductCard: React.FC<{ product: Product; onAdd: () => void; primaryColor:
                     e.stopPropagation();
                     setSelectedSize(size);
                   }}
-                  className={`transition-all ${selectedSize?.name === size.name
+                  className={`transition-all relative group ${selectedSize?.name === size.name
                     ? 'text-purple-600 scale-110'
-                    : 'text-purple-300 hover:text-purple-500'
+                    : 'text-gray-400 hover:text-purple-400'
                     }`}
                   title={size.name}
                 >
                   <Coffee
-                    size={selectedSize?.name === size.name ? 22 : 16}
-                    strokeWidth={selectedSize?.name === size.name ? 3 : 2.5}
+                    size={selectedSize?.name === size.name ? 24 : 18}
+                    strokeWidth={selectedSize?.name === size.name ? 2.5 : 2}
                   />
+                  {selectedSize?.name === size.name && (
+                    <span className="absolute -bottom-8 left-1/2 -translate-x-1/2 text-[10px] font-bold text-white bg-purple-600 px-2 py-0.5 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap z-50">
+                      {size.name}
+                    </span>
+                  )}
                 </button>
               ))}
             </div>
           )}
 
-          {/* Size Label */}
-          {selectedSize && (
-            <span className="text-[10px] text-purple-600 font-bold mt-1">{selectedSize.name}</span>
+          {/* Simple Size Label if not interactive or just one */}
+          {selectedSize && (!product.sizes || product.sizes.length === 0) && (
+            <span className="text-xs text-gray-400 font-medium">{product.category}</span>
           )}
+
         </div>
 
-        <p className="text-gray-500 text-sm text-center mb-4 line-clamp-2 px-1 font-medium">
-          {product.description || '...'}
+        <p className="text-gray-500 text-sm text-center mb-6 line-clamp-2 px-2 font-medium leading-relaxed">
+          {product.description || 'وصف المنتج غير متوفر حالياً، لكن الطعم أكيد هيعجبك! 😋'}
         </p>
 
-        <div className="flex items-center justify-between mt-auto bg-purple-50 p-3 rounded-2xl border border-purple-100">
+        <div className="flex items-center justify-between mt-auto bg-gray-50 p-3 rounded-2xl border border-gray-100 group-hover:border-purple-200 transition-colors">
           <div className="flex flex-col items-start min-w-[30%]">
             {product.isPromo && product.promoPrice ? (
               <div className="flex flex-col items-start leading-none">
                 <span className="font-black text-xl md:text-2xl text-red-600">{displayPrice}<span className="text-[10px] font-bold text-gray-500 mr-1">ر.س</span></span>
-                <span className="text-[10px] text-gray-400 line-through decoration-red-500">{product.price + (selectedSize?.priceModifier || 0)}</span>
+                <span className="text-[10px] text-gray-400 line-through decoration-red-500 mt-1">{product.price + (selectedSize?.priceModifier || 0)}</span>
               </div>
             ) : (
               <span className="font-black text-xl md:text-2xl text-gray-900">{displayPrice}<span className="text-[10px] font-bold text-gray-500 mr-1">ر.س</span></span>
@@ -181,10 +190,10 @@ const ProductCard: React.FC<{ product: Product; onAdd: () => void; primaryColor:
               e.stopPropagation();
               onAdd();
             }}
-            className="w-10 h-10 md:w-12 md:h-12 rounded-full text-white flex items-center justify-center shadow-md transition-colors"
+            className="w-11 h-11 md:w-12 md:h-12 rounded-xl text-white flex items-center justify-center shadow-lg shadow-purple-200 hover:shadow-purple-400 hover:scale-105 active:scale-95 transition-all duration-200"
             style={{ backgroundColor: primaryColor }}
           >
-            <Plus size={24} strokeWidth={3} />
+            <Plus size={26} strokeWidth={3} />
           </button>
         </div>
       </div>
