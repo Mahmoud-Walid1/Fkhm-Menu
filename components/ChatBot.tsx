@@ -272,10 +272,10 @@ export const ChatBot: React.FC<{ isCartOpen?: boolean }> = ({ isCartOpen = false
 
         // Multiple Gemini models to try (ordered by preference)
         const geminiModels = [
-          'gemini-2.0-flash-exp',           // Primary: Latest experimental (working!)
-          'gemini-1.5-flash-latest',        // Backup 1: Stable flash
-          'gemini-1.5-pro-latest',          // Backup 2: More capable
-          'gemini-exp-1206'                 // Backup 3: Experimental Dec 2024
+          'gemini-2.5-flash',               // Primary: Latest & fastest (Jan 2025)
+          'gemini-2.0-flash-exp',           // Backup 1: Experimental Dec 2024
+          'gemini-1.5-flash-latest',        // Backup 2: Stable flash
+          'gemini-1.5-pro-latest'           // Backup 3: More capable but slower
         ];
 
         console.log(`🔑 Gemini: Found ${geminiKeys.length} key(s), ${geminiModels.length} model(s)`);
@@ -340,7 +340,7 @@ export const ChatBot: React.FC<{ isCartOpen?: boolean }> = ({ isCartOpen = false
         if (!geminiSuccess) {
           console.warn('⚠️ All Gemini keys & models exhausted, using rule-based fallback...');
           const fallbackText = getFallbackResponse(userMessage.text);
-          responseText = fallbackText || `عذراً، النظام مشغول حالياً 🤖\n\nلكن يمكنك:\n🔹 تصفح المنيو مباشرة\n🔹 التواصل معنا عبر واتساب: ${settings.whatsappNumber}\n\nنسعد بخدمتك! 😊`;
+          responseText = fallbackText || `آسف، في مشكلة تقنية بسيطة 😔\n\nتواصل معنا مباشرة:\n[CONTACT_CAFE]\n[CONTACT_DELIVERY]\n\nأو تصفح المنيو:\n[SHOW_CATEGORIES]`;
         }
       } else if (usedFallback && !settings.geminiApiKey) {
         // No API key - use rule-based responses
