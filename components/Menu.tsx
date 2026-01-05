@@ -78,11 +78,11 @@ export const Menu: React.FC = () => {
               {isAll && (
                 <div className="flex items-center gap-4 mb-8">
                   <h3
-                    className={`text-2xl md:text-3xl font-bold ${cat.headerBackgroundColor ? 'px-6 py-2 rounded-lg shadow-sm' : 'border-r-4 pr-4 rounded-sm'}`}
+                    className={`text-2xl md:text-3xl font-bold ${cat.headerBackgroundColor ? 'px-6 py-2 rounded-lg shadow-sm' : 'border-r-4 pr-4 rounded-sm'} ${cat.textColor ? '' : 'text-gray-800 dark:text-white'}`}
                     style={{
                       borderColor: !cat.headerBackgroundColor ? settings.primaryColor : undefined,
                       backgroundColor: cat.headerBackgroundColor ?? undefined,
-                      color: cat.textColor || (settings.theme === 'dark' ? 'white' : '#1f2937')
+                      color: cat.textColor || undefined
                     }}
                   >
                     {cat.name}
