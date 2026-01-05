@@ -1,13 +1,11 @@
 {
-    "buildCommand": "echo 'No build needed - vanilla JS'",
-    "outputDirectory": ".",
-    "devCommand": "echo 'Use Live Server or any static server'",
-    "installCommand": "echo 'No dependencies'",
-    "framework": null,
-    "routes": [
+    "framework": "vite",
+    "buildCommand": "npm run build",
+    "outputDirectory": "dist",
+    "rewrites": [
         {
-            "src": "/(.*)",
-            "dest": "/$1"
+            "source": "/(.*)",
+            "destination": "/index.html"
         }
     ]
 }
