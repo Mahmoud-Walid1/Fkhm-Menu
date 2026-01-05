@@ -213,19 +213,27 @@ const ProductCard: React.FC<{ product: Product; onAdd: () => void; primaryColor:
                       <Box
                         size={selectedSize?.name === size.name ? 24 : 18}
                         strokeWidth={selectedSize?.name === size.name ? 2.5 : 2}
-                        className="md:w-[24px] md:h-[24px] w-[20px] h-[20px] mb-1 text-blue-600"
+                        className={`md:w-[24px] md:h-[24px] w-[20px] h-[20px] mb-1 ${selectedSize?.name === size.name ? 'text-purple-600' : 'text-gray-400'}`}
                       />
                     ) : size.icon === 'cup' ? (
-                      <Coffee
-                        size={selectedSize?.name === size.name ? 24 : 18}
-                        strokeWidth={selectedSize?.name === size.name ? 2.5 : 2}
-                        className="md:w-[24px] md:h-[24px] w-[20px] h-[20px] mb-1 text-orange-600"
-                      />
+                      product.isCold ? (
+                        <CupSoda
+                          size={selectedSize?.name === size.name ? 24 : 18}
+                          strokeWidth={selectedSize?.name === size.name ? 2.5 : 2}
+                          className={`md:w-[24px] md:h-[24px] w-[20px] h-[20px] mb-1 ${selectedSize?.name === size.name ? 'text-purple-600' : 'text-gray-400'}`}
+                        />
+                      ) : (
+                        <Coffee
+                          size={selectedSize?.name === size.name ? 24 : 18}
+                          strokeWidth={selectedSize?.name === size.name ? 2.5 : 2}
+                          className={`md:w-[24px] md:h-[24px] w-[20px] h-[20px] mb-1 ${selectedSize?.name === size.name ? 'text-purple-600' : 'text-gray-400'}`}
+                        />
+                      )
                     ) : (
                       <SizeIcon
                         size={selectedSize?.name === size.name ? 24 : 18}
                         strokeWidth={selectedSize?.name === size.name ? 2.5 : 2}
-                        className="md:w-[24px] md:h-[24px] w-[20px] h-[20px] mb-1"
+                        className={`md:w-[24px] md:h-[24px] w-[20px] h-[20px] mb-1 ${selectedSize?.name === size.name ? 'text-purple-600' : 'text-gray-400'}`}
                       />
                     )}
                   </div>
