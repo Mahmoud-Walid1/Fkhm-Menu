@@ -11,7 +11,11 @@ export const Menu: React.FC = () => {
 
   // Helper to check if a product belongs to a category
   const productBelongsToCategory = (product: Product, categoryId: string) => {
-    const ids = product.categoryIds || (product.category ? [product.category] : []) || ((product as any).categoryId ? [(product as any).categoryId] : []);
+    // Check categoryIds (must have length), fallback to category, then fallback to categoryId (legacy)
+    const ids = (product.categoryIds && product.categoryIds.length > 0)
+      ? product.categoryIds
+      : (product.category ? [product.category] : []) || ((product as any).categoryId ? [(product as any).categoryId] : []);
+
     return ids.includes(categoryId);
   };
 
