@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useAppStore } from '../store';
 import { Product } from '../types';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Plus, Flame, Snowflake, Star, X, Coffee } from 'lucide-react';
+import { Plus, Flame, Snowflake, Star, X, Coffee, Package, Utensils, CupSoda, Cake } from 'lucide-react';
 
 export const Menu: React.FC = () => {
   const { products, categories, addToCart, settings } = useAppStore();
@@ -14,7 +14,7 @@ export const Menu: React.FC = () => {
     // Check categoryIds (must have length), fallback to category, then fallback to categoryId (legacy)
     const ids = (product.categoryIds && product.categoryIds.length > 0)
       ? product.categoryIds
-      : (product.category ? [product.category] : []) || ((product as any).categoryId ? [(product as any).categoryId] : []);
+      : (product.category ? [product.category] : ((product as any).categoryId ? [(product as any).categoryId] : []));
 
     return ids.includes(categoryId);
   };
@@ -70,7 +70,7 @@ export const Menu: React.FC = () => {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0 }}
-              transition={{ duration: 0.3 }} // Fixed duration for better perf
+              transition={{ duration: 0.3 }}
               key={cat.id}
             >
               {isAll && (
@@ -127,8 +127,17 @@ export const Menu: React.FC = () => {
   );
 };
 
+const getSizeIcon = (categoryName: string, isCold: boolean) => {
+  if (categoryName.includes('بوكس') || categoryName.includes('Box')) return Package;
+  if (categoryName.includes('حلى') || categoryName.includes('حلويات') || categoryName.includes('كيك')) return Cake;
+  if (categoryName.includes('اكل') || categoryName.includes('فطور')) return Utensils;
+  if (isCold) return CupSoda;
+  return Coffee;
+};
+
 const ProductCard: React.FC<{ product: Product; onAdd: () => void; primaryColor: string }> = ({ product, onAdd, primaryColor }) => {
   const [selectedSize, setSelectedSize] = useState(product.sizes?.[0]);
+  const SizeIcon = getSizeIcon(product.category || '', product.isCold || false);
 
   // Calculate display price based on selected size
   const basePrice = product.isPromo && product.promoPrice ? product.promoPrice : product.price;
@@ -137,7 +146,7 @@ const ProductCard: React.FC<{ product: Product; onAdd: () => void; primaryColor:
   return (
     <div
       data-product-id={product.id}
-      className="bg-white rounded-[1.5rem] md:rounded-[2rem] shadow-xl border border-purple-100 flex flex-col h-full overflow-visible transform transition-all duration-200 hover:shadow-2xl hover:-translate-y-2 relative mt-12 pt-10 md:mt-16 md:pt-16 group will-change-transform" // Added will-change-transform
+      className="bg-white rounded-[1.5rem] md:rounded-[2rem] shadow-xl border border-purple-100 flex flex-col h-full overflow-visible transform transition-all duration-200 hover:shadow-2xl hover:-translate-y-2 relative mt-12 pt-10 md:mt-16 md:pt-16 group will-change-transform"
     >
       {/* Popped Out Image Container */}
       <div className="absolute -top-16 md:-top-20 left-0 right-0 flex justify-center z-10 w-full pointer-events-none">
@@ -180,9 +189,12 @@ const ProductCard: React.FC<{ product: Product; onAdd: () => void; primaryColor:
             {product.name}
           </h3>
 
-          {/* Product Sizes - Compact Vertical Spacing */}
+
+
+
+          {/* Product Sizes */}
           {product.sizes && product.sizes.length > 0 && (
-            <div className="flex items-end gap-3 my-1 md:my-2 bg-gray-50 px-3 py-1 rounded-full border border-gray-100">
+            <div className="flex items-end gap-3 my-2 md:my-3 bg-gray-50 px-3 py-2 rounded-full border border-gray-100 min-h-[50px]">
               {product.sizes.map((size, index) => (
                 <button
                   key={size.name}
@@ -190,22 +202,24 @@ const ProductCard: React.FC<{ product: Product; onAdd: () => void; primaryColor:
                     e.stopPropagation();
                     setSelectedSize(size);
                   }}
-                  className={`transition-all relative group ${selectedSize?.name === size.name
+                  className={`transition-all relative group flex flex-col items-center justify-end ${selectedSize?.name === size.name
                     ? 'text-purple-600 scale-110'
                     : 'text-gray-400 hover:text-purple-400'
                     }`}
                   title={size.name}
                 >
-                  <Coffee
+                  <SizeIcon
                     size={selectedSize?.name === size.name ? 24 : 18}
                     strokeWidth={selectedSize?.name === size.name ? 2.5 : 2}
-                    className="md:w-[24px] md:h-[24px] w-[20px] h-[20px]"
+                    className="md:w-[24px] md:h-[24px] w-[20px] h-[20px] mb-1"
                   />
-                  {selectedSize?.name === size.name && (
-                    <span className="absolute -bottom-8 left-1/2 -translate-x-1/2 text-[10px] font-bold text-white bg-purple-600 px-2 py-0.5 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap z-50">
-                      {size.name}
-                    </span>
-                  )}
+                  {/* Label - Positioned Above to avoid covering description */}
+                  <span className={`text-[10px] font-bold whitespace-nowrap transition-all duration-300 ${selectedSize?.name === size.name
+                    ? 'opacity-100 translate-y-0 text-purple-700'
+                    : 'opacity-0 translate-y-2 text-transparent absolute pointer-events-none'
+                    }`}>
+                    {size.name}
+                  </span>
                 </button>
               ))}
             </div>
@@ -213,7 +227,10 @@ const ProductCard: React.FC<{ product: Product; onAdd: () => void; primaryColor:
 
           {/* Simple Size Label if not interactive or just one */}
           {selectedSize && (!product.sizes || product.sizes.length === 0) && (
-            <span className="text-[10px] md:text-xs text-gray-400 font-medium mb-1">{product.category}</span>
+            <span className="text-[10px] md:text-xs text-gray-400 font-medium mb-1 flex items-center gap-1">
+              <SizeIcon size={12} />
+              {product.category}
+            </span>
           )}
 
         </div>

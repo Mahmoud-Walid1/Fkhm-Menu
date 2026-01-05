@@ -772,6 +772,15 @@ export const AdminPanel: React.FC<{ onClose: () => void }> = ({ onClose }) => {
                                         />
                                     </div>
                                     <div>
+                                        <label className="block text-sm font-bold mb-1">شريط الأخبار (المتحرك)</label>
+                                        <input
+                                            value={tempSettings.scrollingBannerText || ''}
+                                            onChange={(e) => { setTempSettings({ ...tempSettings, scrollingBannerText: e.target.value }); setSettingsModified(true); }}
+                                            placeholder="اكتب النص الذي سيظهر في الشريط المتحرك..."
+                                            className="w-full border p-2 rounded-md"
+                                        />
+                                    </div>
+                                    <div>
                                         <label className="block text-sm font-bold mb-1">رقم الواتساب (للتواصل والطلبات)</label>
                                         <input
                                             value={tempSettings.whatsappNumber}

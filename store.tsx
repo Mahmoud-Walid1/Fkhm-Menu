@@ -14,54 +14,10 @@ import {
 } from 'firebase/firestore';
 
 // Default Data (Used for Seeding)
-const DEFAULT_CATEGORIES: Category[] = [
-  { id: '1', name: 'مشروبات فاخرة' },
-  { id: '2', name: 'حلويات' },
-  { id: '3', name: 'بوكسات الجمعات' },
-  { id: '4', name: 'محصول خاص' },
-];
+// Default Data (Used for Seeding) - Cleared as data is now fetched from Firestore/Cloudinary
+const DEFAULT_CATEGORIES: Category[] = [];
 
-const DEFAULT_PRODUCTS: Product[] = [
-  {
-    id: '101',
-    name: 'سجنتشر لاتيه',
-    price: 24,
-    description: 'خلطتنا السرية من الحليب المكثف والاسبريسو الفاخر',
-    image: 'https://images.unsplash.com/photo-1541167760496-1628856ab772?auto=format&fit=crop&q=80&w=800',
-    category: '1',
-    isHot: true,
-    isCold: true,
-    sizes: [{ name: 'وسط', priceModifier: 0 }, { name: 'كبير', priceModifier: 5 }],
-    isPromo: true,
-    promoPrice: 19
-  },
-  {
-    id: '102',
-    name: 'V60 إثيوبي',
-    price: 28,
-    description: 'قهوة مقطرة بمذاق فاكهي وإيحاءات التوت',
-    image: 'https://images.unsplash.com/photo-1514432324607-a09d9b4aefdd?auto=format&fit=crop&q=80&w=800',
-    category: '1',
-    isHot: true,
-    isCold: false,
-  },
-  {
-    id: '201',
-    name: 'سان سباستيان',
-    price: 32,
-    description: 'كيكة الجبن المحروقة تقدم مع صوص الشوكولاتة البلجيكية',
-    image: 'https://images.unsplash.com/photo-1627308595229-7830a5c91f9f?auto=format&fit=crop&q=80&w=800',
-    category: '2',
-  },
-  {
-    id: '301',
-    name: 'بوكس الفخامة',
-    price: 120,
-    description: '8 عبوات ميني من اختيارك (بارد) في بوكس ثلجي أنيق',
-    image: 'https://images.unsplash.com/photo-1623861596758-c0b0c20f1352?auto=format&fit=crop&q=80&w=800',
-    category: '3',
-  }
-];
+const DEFAULT_PRODUCTS: Product[] = [];
 
 const DEFAULT_SETTINGS: SiteSettings = {
   primaryColor: '#5b21b6', // Deep Royal Purple
@@ -70,15 +26,8 @@ const DEFAULT_SETTINGS: SiteSettings = {
   whatsappNumber: '966504312478',
   deliveryNumber: '966504312478',
   adminNumber: '966538371230',
-  heroImages: [
-    'https://images.unsplash.com/photo-1511920170033-f8396924c348?auto=format&fit=crop&q=80&w=1200',
-    'https://images.unsplash.com/photo-1509042239860-f550ce710b93?auto=format&fit=crop&q=80&w=1200',
-    'https://images.unsplash.com/photo-1507133750069-775b0f0da746?auto=format&fit=crop&q=80&w=1200'
-  ],
-  offerImages: [
-    'https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?auto=format&fit=crop&q=80&w=1200',
-    'https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?auto=format&fit=crop&q=80&w=1200'
-  ],
+  heroImages: [],
+  offerImages: [],
   instagramUrl: 'https://instagram.com',
   snapchatUrl: 'https://snapchat.com',
   tiktokUrl: 'https://tiktok.com',

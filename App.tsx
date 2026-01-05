@@ -7,9 +7,11 @@ import { Menu } from './components/Menu';
 import { Cart } from './components/Cart';
 import { ChatBot } from './components/ChatBot';
 import { PromoPopup } from './components/PromoPopup';
-import { AdminPanel } from './components/AdminPanel';
 import { AdminLogin, useAdminAuth } from './components/AdminLogin';
 import { OffersSection } from './components/OffersSection';
+
+// Lazy Load AdminPanel for performance
+const AdminPanel = React.lazy(() => import('./components/AdminPanel'));
 
 const AppContent: React.FC = () => {
   const { cart, settings, toggleChat, updateSettings, toggleTheme } = useAppStore();
@@ -125,8 +127,20 @@ const AppContent: React.FC = () => {
 
           {/* Offers Banner Strip */}
           <div className="bg-gray-900 border-y border-gray-800 py-3 overflow-hidden shadow-inner">
-            <div className="animate-marquee whitespace-nowrap text-center text-white text-sm font-medium tracking-wide">
-              {settings.scrollingBannerText || '✨ فخم البن يرحب بكم ✨ استمتعوا بأجود أنواع البن المختص ✨ حلويات فاخرة تصنع يومكم ✨'}
+            <div className="flex animate-marquee whitespace-nowrap">
+              <span className="text-white text-sm font-medium tracking-wide mx-4">
+                {settings.scrollingBannerText || '✨ فخم البن يرحب بكم ✨ استمتعوا بأجود أنواع البن المختص ✨ حلويات فاخرة تصنع يومكم ✨'}
+              </span>
+              {/* Duplicate for seamless loop */}
+              <span className="text-white text-sm font-medium tracking-wide mx-4">
+                {settings.scrollingBannerText || '✨ فخم البن يرحب بكم ✨ استمتعوا بأجود أنواع البن المختص ✨ حلويات فاخرة تصنع يومكم ✨'}
+              </span>
+              <span className="text-white text-sm font-medium tracking-wide mx-4">
+                {settings.scrollingBannerText || '✨ فخم البن يرحب بكم ✨ استمتعوا بأجود أنواع البن المختص ✨ حلويات فاخرة تصنع يومكم ✨'}
+              </span>
+              <span className="text-white text-sm font-medium tracking-wide mx-4">
+                {settings.scrollingBannerText || '✨ فخم البن يرحب بكم ✨ استمتعوا بأجود أنواع البن المختص ✨ حلويات فاخرة تصنع يومكم ✨'}
+              </span>
             </div>
           </div>
 
@@ -208,7 +222,11 @@ const AppContent: React.FC = () => {
       )}
 
       {/* Admin Panel - Only show if authenticated */}
-      {isAuthenticated && <AdminPanel onClose={logout} />}
+      {isAuthenticated && (
+        <React.Suspense fallback={<div className="fixed inset-0 bg-white/50 z-50 flex items-center justify-center">Loading Admin...</div>}>
+          <AdminPanel onClose={logout} />
+        </React.Suspense>
+      )}
     </div>
   );
 };
