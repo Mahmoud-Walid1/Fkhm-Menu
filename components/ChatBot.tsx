@@ -153,7 +153,7 @@ export const ChatBot: React.FC<{ isCartOpen?: boolean }> = ({ isCartOpen = false
                 ...messages.map(m => ({ role: m.sender === 'user' ? 'user' : 'assistant', content: m.text })),
                 { role: 'user', content: userMessage.text }
               ],
-              model: 'llama-3.3-70b-versatile',
+              model: 'llama3-8b-8192',
               temperature: 0.3,
               max_tokens: 300
             })
@@ -179,7 +179,7 @@ export const ChatBot: React.FC<{ isCartOpen?: boolean }> = ({ isCartOpen = false
       if (usedFallback && settings.geminiApiKey) {
         const genAI = new GoogleGenAI({ apiKey: settings.geminiApiKey });
         const response = await genAI.models.generateContent({
-          model: 'gemini-pro',
+          model: 'gemini-1.5-flash',
           contents: { role: 'user', parts: [{ text: userMessage.text }] } as any, // Adjust content structure if needed for specific SDK version
           config: {
             temperature: 0.3,
