@@ -255,423 +255,431 @@ export const ChatBot: React.FC<{ isCartOpen?: boolean }> = ({ isCartOpen = false
         if (!groqSuccess) {
           console.warn('⚠️ All Groq keys failed, falling back to Gemini...');
           usedFallback = true;
-        }
-      } else {
-        usedFallback = true;
-      }
 
-      // PRIORITY 2: Fallback to Gemini Flash API (Free, Fast, Generous Limits)
-      if (usedFallback && settings.geminiApiKey) {
-        // Collect all available Gemini keys from separate fields
-        const geminiKeys = [
-          settings.geminiApiKey,
-          settings.geminiApiKey2,
-          settings.geminiApiKey3
-        ].filter(k => k && k.trim());
+          // PRIORITY 2: Fallback to Gemini API (Multiple Models for Better Quota)
+          if (usedFallback && settings.geminiApiKey) {
+            // Collect all available Gemini keys
+            const geminiKeys = [
+              settings.geminiApiKey,
+              settings.geminiApiKey2,
+              settings.geminiApiKey3
+            ].filter(k => k && k.trim());
 
-        console.log(`🔑 Gemini: Found ${geminiKeys.length} API key(s)`);
+            // Multiple Gemini models to try (ordered by preference)
+            const geminiModels = [
+              'gemini-2.0-flash-exp',      // Primary: Latest experimental
+              'gemini-1.5-flash',           // Backup 1: Stable flash
+              'gemini-1.5-flash-8b',        // Backup 2: Smaller, faster
+              'gemini-1.5-pro'              // Backup 3: More capable
+            ];
 
-        // Try each Gemini key sequentially until one succeeds
-        let geminiSuccess = false;
-        for (let i = 0; i < geminiKeys.length && !geminiSuccess; i++) {
-          const activeGeminiKey = geminiKeys[i];
-          console.log(`🎯 Trying Gemini key ${i + 1}/${geminiKeys.length} ending in: ...${activeGeminiKey?.slice(-8)}`);
+            console.log(`🔑 Gemini: Found ${geminiKeys.length} key(s), ${geminiModels.length} model(s)`);
 
-          try {
-            const geminiResponse = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-exp:generateContent`, {
-              method: 'POST',
-              headers: {
-                'Content-Type': 'application/json',
-                'x-goog-api-key': activeGeminiKey
-              },
-              body: JSON.stringify({
-                contents: [
-                  {
-                    role: 'user',
-                    parts: [
-                      { text: systemInstruction },
-                      { text: '\n\nالمحادثة السابقة:\n' + messages.map(m => `${m.sender === 'user' ? 'المستخدم' : 'المساعد'}: ${m.text}`).join('\n') },
-                      { text: '\n\nالسؤال الحالي:\n' + userMessage.text }
-                    ]
+            // Try each key × model combination until one succeeds
+            let geminiSuccess = false;
+            for (let i = 0; i < geminiKeys.length && !geminiSuccess; i++) {
+              const activeGeminiKey = geminiKeys[i];
+
+              for (let m = 0; m < geminiModels.length && !geminiSuccess; m++) {
+                const model = geminiModels[m];
+                console.log(`🎯 Trying key ${i + 1}/${geminiKeys.length}, model: ${model}`);
+
+                try {
+                  const geminiResponse = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent`, {
+                    method: 'POST',
+                    headers: {
+                      'Content-Type': 'application/json',
+                      'x-goog-api-key': activeGeminiKey
+                    },
+                    body: JSON.stringify({
+                      contents: [
+                        {
+                          role: 'user',
+                          parts: [
+                            { text: systemInstruction },
+                            { text: '\n\nالمحادثة السابقة:\n' + messages.map(m => `${m.sender === 'user' ? 'المستخدم' : 'المساعد'}: ${m.text}`).join('\n') },
+                            { text: '\n\nالسؤال الحالي:\n' + userMessage.text }
+                          ]
+                        }
+                      ],
+                      generationConfig: {
+                        temperature: 0.3,
+                        maxOutputTokens: 500
+                      }
+                    })
+                  });
+
+                  const geminiData = await geminiResponse.json();
+
+                  if (!geminiResponse.ok) {
+                    console.error(`Gemini Error (key ${i + 1}, ${model}):`, geminiData);
+                    // If rate limit, try next model or key
+                    if (geminiData.error?.code === 429 || geminiData.error?.status === 'RESOURCE_EXHAUSTED') {
+                      console.warn(`⚠️ ${model} quota exceeded, trying next...`);
+                      continue;
+                    }
+                    throw new Error(`Gemini Error: ${geminiData.error?.message}`);
                   }
-                ],
-                generationConfig: {
-                  temperature: 0.3,
-                  maxOutputTokens: 500
+
+                  responseText = geminiData.candidates?.[0]?.content?.parts?.[0]?.text || 'عذراً، لم أتمكن من فهم الطلب.';
+                  geminiSuccess = true;
+                  console.log(`✅ Success with key ${i + 1}, model: ${model}`);
+                } catch (err) {
+                  console.error(`❌ Failed: key ${i + 1}, ${model}:`, err);
+                  // Continue to next model/key
                 }
-              })
-            });
-
-            const geminiData = await geminiResponse.json();
-
-            if (!geminiResponse.ok) {
-              console.error(`Gemini API Error (key ${i + 1}):`, geminiData);
-              // If rate limit, try next key
-              if (geminiData.error?.code === 429 || geminiData.error?.status === 'RESOURCE_EXHAUSTED') {
-                console.warn(`⚠️ Gemini key ${i + 1} hit rate limit, trying next key...`);
-                continue;
               }
-              throw new Error(`Gemini API Error: ${geminiData.error?.code} - ${geminiData.error?.message}`);
             }
 
-            responseText = geminiData.candidates?.[0]?.content?.parts?.[0]?.text || 'عذراً، لم أتمكن من فهم الطلب.';
-            geminiSuccess = true;
-            console.log(`✅ Gemini key ${i + 1} succeeded!`);
-          } catch (err) {
-            console.error(`❌ Gemini key ${i + 1} failed:`, err);
-            // Continue to next key
+            // If all combinations failed, use rule-based fallback
+            if (!geminiSuccess) {
+              console.warn('⚠️ All Gemini keys & models exhausted, using rule-based fallback...');
+              const fallbackText = getFallbackResponse(userMessage.text);
+              responseText = fallbackText || `عذراً، النظام مشغول حالياً 🤖\n\nلكن يمكنك:\n🔹 تصفح المنيو مباشرة\n🔹 التواصل معنا عبر واتساب: ${settings.whatsappNumber}\n\nنسعد بخدمتك! 😊`;
+            }
+          } else if (usedFallback && !settings.geminiApiKey) {
+            // No API key - use rule-based responses
+            const fallbackText = getFallbackResponse(userMessage.text);
+            responseText = fallbackText || "أهلاً! للاستمتاع بالمساعد الذكي، يرجى من المسؤول إضافة مفتاح Gemini API (مجاني!) 🤖\n\nلكن تقدر تتصفح المنيو:\n[SHOW_CATEGORIES]";
           }
-        }
-
-        // If all Gemini keys failed, use rule-based fallback
-        if (!geminiSuccess) {
-          console.warn('⚠️ All Gemini keys failed, using rule-based fallback...');
-          const fallbackText = getFallbackResponse(userMessage.text);
-          responseText = fallbackText || `عذراً، النظام مشغول حالياً 🤖\n\nلكن يمكنك:\n🔹 تصفح المنيو مباشرة\n🔹 التواصل معنا عبر واتساب: ${settings.whatsappNumber}\n\nنسعد بخدمتك! 😊`;
-        }
-      } else if (usedFallback && !settings.geminiApiKey) {
-        // No API key - use rule-based responses
-        const fallbackText = getFallbackResponse(userMessage.text);
-        responseText = fallbackText || "أهلاً! للاستمتاع بالمساعد الذكي، يرجى من المسؤول إضافة مفتاح Gemini API (مجاني!) 🤖\n\nلكن تقدر تتصفح المنيو:\n[SHOW_CATEGORIES]";
-      }
 
 
-      // Detect if response contains contact numbers and add action buttons
-      const actions: MessageAction[] = [];
+          // Detect if response contains contact numbers and add action buttons
+          const actions: MessageAction[] = [];
 
-      // Detect and handle category/product display markers
-      let displayText = responseText;
+          // Detect and handle category/product display markers
+          let displayText = responseText;
 
-      // Check for [SHOW_CATEGORIES] marker
-      if (displayText.includes('[SHOW_CATEGORIES]')) {
-        displayText = displayText.replace('[SHOW_CATEGORIES]', '');
+          // Check for [SHOW_CATEGORIES] marker
+          if (displayText.includes('[SHOW_CATEGORIES]')) {
+            displayText = displayText.replace('[SHOW_CATEGORIES]', '');
 
-        // Add category buttons
-        categories.forEach(category => {
-          actions.push({
-            label: `${category.icon || '📂'} ${category.name}`,
-            onClick: () => {
-              // Scroll to category and CLICK it to active it
-              const categoryElement = document.getElementById(`category-${category.id}`);
-              if (categoryElement) {
-                categoryElement.click(); // Trigger state change in Menu.tsx
-                setTimeout(() => {
-                  categoryElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
-                }, 100);
-              }
-              toggleChat(); // Close chat
-            },
-            type: 'secondary'
-          });
-        });
-      }
-
-      // Check for [SHOW_PRODUCTS:categoryName] marker
-      const productMarkerMatch = displayText.match(/\[SHOW_PRODUCTS:([^\]]+)\]/);
-      if (productMarkerMatch) {
-        const categoryName = productMarkerMatch[1];
-        displayText = displayText.replace(productMarkerMatch[0], '');
-
-        // Find matching category
-        const matchingCategory = categories.find(c =>
-          c.name.includes(categoryName) || categoryName.includes(c.name)
-        );
-
-        if (matchingCategory) {
-          // Get products for this category
-          const categoryProducts = products.filter(p => p.categoryId === matchingCategory.id);
-
-          // Add product buttons
-          categoryProducts.forEach(product => {
-            actions.push({
-              label: `${product.name} - ${product.price} ريال`,
-              onClick: () => {
-                // 1. Switch Category First
-                const categoryElement = document.getElementById(`category-${matchingCategory.id}`);
-                if (categoryElement) {
-                  categoryElement.click(); // Trigger state change
-                }
-
-                // 2. Wait for re-render then scroll to product
-                setTimeout(() => {
-                  const productElement = document.querySelector(`[data-product-id="${product.id}"]`);
-                  if (productElement) {
-                    productElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                    // Optional: Highlight effect
-                    productElement.classList.add('ring-4', 'ring-purple-400');
-                    setTimeout(() => productElement.classList.remove('ring-4', 'ring-purple-400'), 2000);
+            // Add category buttons
+            categories.forEach(category => {
+              actions.push({
+                label: `${category.icon || '📂'} ${category.name}`,
+                onClick: () => {
+                  // Scroll to category and CLICK it to active it
+                  const categoryElement = document.getElementById(`category-${category.id}`);
+                  if (categoryElement) {
+                    categoryElement.click(); // Trigger state change in Menu.tsx
+                    setTimeout(() => {
+                      categoryElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                    }, 100);
                   }
-                }, 300); // Wait 300ms for state update and DOM render
+                  toggleChat(); // Close chat
+                },
+                type: 'secondary'
+              });
+            });
+          }
 
-                toggleChat(); // Close chat
-              },
+          // Check for [SHOW_PRODUCTS:categoryName] marker
+          const productMarkerMatch = displayText.match(/\[SHOW_PRODUCTS:([^\]]+)\]/);
+          if (productMarkerMatch) {
+            const categoryName = productMarkerMatch[1];
+            displayText = displayText.replace(productMarkerMatch[0], '');
+
+            // Find matching category
+            const matchingCategory = categories.find(c =>
+              c.name.includes(categoryName) || categoryName.includes(c.name)
+            );
+
+            if (matchingCategory) {
+              // Get products for this category
+              const categoryProducts = products.filter(p => p.categoryId === matchingCategory.id);
+
+              // Add product buttons
+              categoryProducts.forEach(product => {
+                actions.push({
+                  label: `${product.name} - ${product.price} ريال`,
+                  onClick: () => {
+                    // 1. Switch Category First
+                    const categoryElement = document.getElementById(`category-${matchingCategory.id}`);
+                    if (categoryElement) {
+                      categoryElement.click(); // Trigger state change
+                    }
+
+                    // 2. Wait for re-render then scroll to product
+                    setTimeout(() => {
+                      const productElement = document.querySelector(`[data-product-id="${product.id}"]`);
+                      if (productElement) {
+                        productElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                        // Optional: Highlight effect
+                        productElement.classList.add('ring-4', 'ring-purple-400');
+                        setTimeout(() => productElement.classList.remove('ring-4', 'ring-purple-400'), 2000);
+                      }
+                    }, 300); // Wait 300ms for state update and DOM render
+
+                    toggleChat(); // Close chat
+                  },
+                  type: 'secondary'
+                });
+              });
+            }
+          }
+
+          // Check for [SUGGEST_PRODUCT:...] marker
+          const suggestRegex = /\[SUGGEST_PRODUCT:([^:\]]+)(?::([^:\]]+))?(?::([^:\]]+))?\]/g;
+          let suggestionMatch;
+          while ((suggestionMatch = suggestRegex.exec(displayText)) !== null) {
+            const [fullMatch, productId, size, temperature] = suggestionMatch;
+            displayText = displayText.replace(fullMatch, '');
+
+            // Find the product
+            const product = products.find(p => p.id === productId);
+            if (product) {
+              // Find size object if specified
+              const sizeObj = size && product.sizes ? product.sizes.find(s => s.name === size) : undefined;
+              const temp = temperature as 'hot' | 'cold' | undefined;
+
+              actions.push({
+                label: `🛒 إضافة ${product.name} للسلة`,
+                onClick: () => {
+                  addToCart(product, sizeObj, temp);
+                  // Add confirmation message
+                  const confirmMsg: Message = {
+                    id: Date.now().toString(),
+                    text: `تمام! أضفت ${product.name} للسلة 🎉\nتقدر تكمل طلبك أو تفتح السلة للتأكيد`,
+                    sender: 'bot',
+                    timestamp: new Date()
+                  };
+                  setMessages(prev => [...prev, confirmMsg]);
+                },
+                type: 'primary',
+                actionType: 'add-to-cart',
+                productData: {
+                  productId,
+                  size: sizeObj,
+                  temperature: temp
+                }
+              });
+            }
+          }
+
+          responseText = displayText;
+
+          // SHOW_DELIVERY logic
+          if (responseText.includes('[SHOW_DELIVERY]')) {
+            responseText = responseText.replace('[SHOW_DELIVERY]', '');
+            actions.push({
+              label: `📞 تواصل واتساب للتوصيل`,
+              url: `https://wa.me/${settings.deliveryNumber.replace(/\D/g, '')}`,
+              type: 'primary'
+            });
+          }
+
+          // SHOW_ADMIN logic
+          if (responseText.includes('[SHOW_ADMIN]') || responseText.includes(settings.adminNumber) || responseText.includes('إدارة')) {
+            responseText = responseText.replace('[SHOW_ADMIN]', '').trim();
+            actions.push({
+              label: `💼 تواصل مع الإدارة (للحجز/الاستلام)`,
+              url: `https://wa.me/${settings.adminNumber.replace(/\D/g, '')}`,
               type: 'secondary'
             });
-          });
+          }
+
+          const botMessage: Message = {
+            id: (Date.now() + 1).toString(),
+            text: responseText,
+            sender: 'bot',
+            timestamp: new Date(),
+            actions: actions.length > 0 ? actions : undefined
+          };
+
+          setMessages(prev => [...prev, botMessage]);
+        } catch (error) {
+          console.error('AI Error:', error);
+          const errorMessage: Message = {
+            id: (Date.now() + 1).toString(),
+            text: "آسف، صار عندي لخبطة بسيطة في النظام 😵‍💫. ممكن تعيد اللي قلته؟",
+            sender: 'bot',
+            timestamp: new Date()
+          };
+          setMessages(prev => [...prev, errorMessage]);
+        } finally {
+          setIsLoading(false);
         }
-      }
-
-      // Check for [SUGGEST_PRODUCT:...] marker
-      const suggestRegex = /\[SUGGEST_PRODUCT:([^:\]]+)(?::([^:\]]+))?(?::([^:\]]+))?\]/g;
-      let suggestionMatch;
-      while ((suggestionMatch = suggestRegex.exec(displayText)) !== null) {
-        const [fullMatch, productId, size, temperature] = suggestionMatch;
-        displayText = displayText.replace(fullMatch, '');
-
-        // Find the product
-        const product = products.find(p => p.id === productId);
-        if (product) {
-          // Find size object if specified
-          const sizeObj = size && product.sizes ? product.sizes.find(s => s.name === size) : undefined;
-          const temp = temperature as 'hot' | 'cold' | undefined;
-
-          actions.push({
-            label: `🛒 إضافة ${product.name} للسلة`,
-            onClick: () => {
-              addToCart(product, sizeObj, temp);
-              // Add confirmation message
-              const confirmMsg: Message = {
-                id: Date.now().toString(),
-                text: `تمام! أضفت ${product.name} للسلة 🎉\nتقدر تكمل طلبك أو تفتح السلة للتأكيد`,
-                sender: 'bot',
-                timestamp: new Date()
-              };
-              setMessages(prev => [...prev, confirmMsg]);
-            },
-            type: 'primary',
-            actionType: 'add-to-cart',
-            productData: {
-              productId,
-              size: sizeObj,
-              temperature: temp
-            }
-          });
-        }
-      }
-
-      responseText = displayText;
-
-      // SHOW_DELIVERY logic
-      if (responseText.includes('[SHOW_DELIVERY]')) {
-        responseText = responseText.replace('[SHOW_DELIVERY]', '');
-        actions.push({
-          label: `📞 تواصل واتساب للتوصيل`,
-          url: `https://wa.me/${settings.deliveryNumber.replace(/\D/g, '')}`,
-          type: 'primary'
-        });
-      }
-
-      // SHOW_ADMIN logic
-      if (responseText.includes('[SHOW_ADMIN]') || responseText.includes(settings.adminNumber) || responseText.includes('إدارة')) {
-        responseText = responseText.replace('[SHOW_ADMIN]', '').trim();
-        actions.push({
-          label: `💼 تواصل مع الإدارة (للحجز/الاستلام)`,
-          url: `https://wa.me/${settings.adminNumber.replace(/\D/g, '')}`,
-          type: 'secondary'
-        });
-      }
-
-      const botMessage: Message = {
-        id: (Date.now() + 1).toString(),
-        text: responseText,
-        sender: 'bot',
-        timestamp: new Date(),
-        actions: actions.length > 0 ? actions : undefined
       };
 
-      setMessages(prev => [...prev, botMessage]);
-    } catch (error) {
-      console.error('AI Error:', error);
-      const errorMessage: Message = {
-        id: (Date.now() + 1).toString(),
-        text: "آسف، صار عندي لخبطة بسيطة في النظام 😵‍💫. ممكن تعيد اللي قلته؟",
-        sender: 'bot',
-        timestamp: new Date()
-      };
-      setMessages(prev => [...prev, errorMessage]);
-    } finally {
-      setIsLoading(false);
-    }
-  };
+      const constraintsRef = useRef(null);
 
-  const constraintsRef = useRef(null);
+      if (!mounted) return null;
 
-  if (!mounted) return null;
+      return createPortal(
+        <>
+          <div ref={constraintsRef} className="fixed inset-4 pointer-events-none z-[2147483646]" />
 
-  return createPortal(
-    <>
-      <div ref={constraintsRef} className="fixed inset-4 pointer-events-none z-[2147483646]" />
-
-      <AnimatePresence>
-        {isChatOpen && (
-          <motion.div
-            initial={{ opacity: 0, y: 20, scale: 0.9 }}
-            animate={{ opacity: 1, y: 0, scale: 1 }}
-            exit={{ opacity: 0, y: 20, scale: 0.9 }}
-            className="fixed bottom-24 right-2 left-2 md:left-auto md:right-4 w-auto md:w-96 bg-white rounded-lg shadow-xl border border-gray-200 z-[9999] overflow-hidden flex flex-col max-h-[500px]"
-          >
-            {/* Header */}
-            <div
-              className="p-4 text-white flex justify-between items-center shadow-md"
-              style={{ backgroundColor: settings.primaryColor }}
-            >
-              <div className="flex items-center gap-2">
-                <Bot size={24} className="animate-bounce" />
-                <span className="font-bold">مساعد {settings.shopName}</span>
-              </div>
-              <button onClick={toggleChat} className="hover:bg-white/20 rounded-full p-1 transition-colors">
-                <X size={20} />
-              </button>
-            </div>
-
-            {/* Messages */}
-            <div className="flex-1 overflow-y-auto p-4 space-y-3 bg-gray-50 h-80">
-              {messages.map((msg) => (
+          <AnimatePresence>
+            {isChatOpen && (
+              <motion.div
+                initial={{ opacity: 0, y: 20, scale: 0.9 }}
+                animate={{ opacity: 1, y: 0, scale: 1 }}
+                exit={{ opacity: 0, y: 20, scale: 0.9 }}
+                className="fixed bottom-24 right-2 left-2 md:left-auto md:right-4 w-auto md:w-96 bg-white rounded-lg shadow-xl border border-gray-200 z-[9999] overflow-hidden flex flex-col max-h-[500px]"
+              >
+                {/* Header */}
                 <div
-                  key={msg.id}
-                  className={`flex flex-col ${msg.sender === 'user' ? 'items-end' : 'items-start'}`}
+                  className="p-4 text-white flex justify-between items-center shadow-md"
+                  style={{ backgroundColor: settings.primaryColor }}
                 >
-                  <div
-                    className={`max-w-[85%] p-3 rounded-lg text-sm whitespace-pre-wrap ${msg.sender === 'user'
-                      ? 'bg-gray-800 text-white rounded-tl-none'
-                      : 'bg-white text-gray-800 border border-gray-200 shadow-sm rounded-tr-none'
-                      }`}
-                  >
-                    {msg.text}
+                  <div className="flex items-center gap-2">
+                    <Bot size={24} className="animate-bounce" />
+                    <span className="font-bold">مساعد {settings.shopName}</span>
                   </div>
+                  <button onClick={toggleChat} className="hover:bg-white/20 rounded-full p-1 transition-colors">
+                    <X size={20} />
+                  </button>
+                </div>
 
-                  {msg.actions && (
-                    <div className="flex flex-col gap-3 mt-3 w-full max-w-[90%]">
-                      {msg.actions.map((action, idx) => (
-                        action.onClick ? (
-                          <button
-                            key={idx}
-                            onClick={action.onClick}
-                            className={`flex items-center justify-center gap-2 py-3 px-5 rounded-lg text-sm font-bold transition-all shadow-md hover:shadow-xl transform hover:scale-105 w-full ${action.type === 'primary'
-                              ? 'bg-gradient-to-r from-green-500 to-green-600 text-white hover:from-green-600 hover:to-green-700'
-                              : 'bg-gradient-to-r from-gray-100 to-gray-200 border border-gray-300 text-gray-800 hover:from-gray-200 hover:to-gray-300'
-                              }`}
-                          >
-                            <span className="text-lg">{action.label.split(' ')[0]}</span>
-                            <span>{action.label.split(' ').slice(1).join(' ')}</span>
-                          </button>
-                        ) : (
-                          <a
-                            key={idx}
-                            href={action.url}
-                            target="_blank"
-                            rel="noreferrer"
-                            className={`flex items-center justify-center gap-2 py-3 px-5 rounded-lg text-sm font-bold transition-all shadow-md hover:shadow-xl transform hover:scale-105 w-full ${action.type === 'primary'
-                              ? 'bg-gradient-to-r from-green-500 to-green-600 text-white hover:from-green-600 hover:to-green-700'
-                              : 'bg-gradient-to-r from-gray-100 to-gray-200 border border-gray-300 text-gray-800 hover:from-gray-200 hover:to-gray-300'
-                              }`}
-                          >
-                            <span className="text-lg">{action.label.split(' ')[0]}</span>
-                            <span>{action.label.split(' ').slice(1).join(' ')}</span>
-                          </a>
-                        )
-                      ))}
+                {/* Messages */}
+                <div className="flex-1 overflow-y-auto p-4 space-y-3 bg-gray-50 h-80">
+                  {messages.map((msg) => (
+                    <div
+                      key={msg.id}
+                      className={`flex flex-col ${msg.sender === 'user' ? 'items-end' : 'items-start'}`}
+                    >
+                      <div
+                        className={`max-w-[85%] p-3 rounded-lg text-sm whitespace-pre-wrap ${msg.sender === 'user'
+                          ? 'bg-gray-800 text-white rounded-tl-none'
+                          : 'bg-white text-gray-800 border border-gray-200 shadow-sm rounded-tr-none'
+                          }`}
+                      >
+                        {msg.text}
+                      </div>
+
+                      {msg.actions && (
+                        <div className="flex flex-col gap-3 mt-3 w-full max-w-[90%]">
+                          {msg.actions.map((action, idx) => (
+                            action.onClick ? (
+                              <button
+                                key={idx}
+                                onClick={action.onClick}
+                                className={`flex items-center justify-center gap-2 py-3 px-5 rounded-lg text-sm font-bold transition-all shadow-md hover:shadow-xl transform hover:scale-105 w-full ${action.type === 'primary'
+                                  ? 'bg-gradient-to-r from-green-500 to-green-600 text-white hover:from-green-600 hover:to-green-700'
+                                  : 'bg-gradient-to-r from-gray-100 to-gray-200 border border-gray-300 text-gray-800 hover:from-gray-200 hover:to-gray-300'
+                                  }`}
+                              >
+                                <span className="text-lg">{action.label.split(' ')[0]}</span>
+                                <span>{action.label.split(' ').slice(1).join(' ')}</span>
+                              </button>
+                            ) : (
+                              <a
+                                key={idx}
+                                href={action.url}
+                                target="_blank"
+                                rel="noreferrer"
+                                className={`flex items-center justify-center gap-2 py-3 px-5 rounded-lg text-sm font-bold transition-all shadow-md hover:shadow-xl transform hover:scale-105 w-full ${action.type === 'primary'
+                                  ? 'bg-gradient-to-r from-green-500 to-green-600 text-white hover:from-green-600 hover:to-green-700'
+                                  : 'bg-gradient-to-r from-gray-100 to-gray-200 border border-gray-300 text-gray-800 hover:from-gray-200 hover:to-gray-300'
+                                  }`}
+                              >
+                                <span className="text-lg">{action.label.split(' ')[0]}</span>
+                                <span>{action.label.split(' ').slice(1).join(' ')}</span>
+                              </a>
+                            )
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  ))}
+                  {isLoading && (
+                    <div className="flex justify-start">
+                      <div className="bg-white p-3 rounded-lg border shadow-sm flex items-center gap-2">
+                        <Loader2 size={16} className="animate-spin text-gray-400" />
+                        <span className="text-xs text-gray-400">جاري الرد...</span>
+                      </div>
                     </div>
                   )}
+                  <div ref={messagesEndRef} />
                 </div>
-              ))}
-              {isLoading && (
-                <div className="flex justify-start">
-                  <div className="bg-white p-3 rounded-lg border shadow-sm flex items-center gap-2">
-                    <Loader2 size={16} className="animate-spin text-gray-400" />
-                    <span className="text-xs text-gray-400">جاري الرد...</span>
-                  </div>
-                </div>
-              )}
-              <div ref={messagesEndRef} />
-            </div>
 
-            {/* Input */}
-            <div className="p-3 bg-white border-t flex gap-2 shadow-[0_-5px_15px_rgba(0,0,0,0.05)]">
-              <input
-                type="text"
-                value={input}
-                onChange={(e) => setInput(e.target.value)}
-                onKeyDown={(e) => e.key === 'Enter' && handleSend()}
-                placeholder="اسألني عن القهوة..."
-                className="flex-1 bg-gray-100 rounded-full px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-offset-1"
-                style={{ '--tw-ring-color': settings.primaryColor } as React.CSSProperties}
-              />
-              <button
-                onClick={handleSend}
-                disabled={!input.trim() || isLoading}
-                className="p-2 rounded-full text-white disabled:opacity-50 transition-colors shadow-md hover:shadow-lg"
-                style={{ backgroundColor: settings.primaryColor }}
+                {/* Input */}
+                <div className="p-3 bg-white border-t flex gap-2 shadow-[0_-5px_15px_rgba(0,0,0,0.05)]">
+                  <input
+                    type="text"
+                    value={input}
+                    onChange={(e) => setInput(e.target.value)}
+                    onKeyDown={(e) => e.key === 'Enter' && handleSend()}
+                    placeholder="اسألني عن القهوة..."
+                    className="flex-1 bg-gray-100 rounded-full px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-offset-1"
+                    style={{ '--tw-ring-color': settings.primaryColor } as React.CSSProperties}
+                  />
+                  <button
+                    onClick={handleSend}
+                    disabled={!input.trim() || isLoading}
+                    className="p-2 rounded-full text-white disabled:opacity-50 transition-colors shadow-md hover:shadow-lg"
+                    style={{ backgroundColor: settings.primaryColor }}
+                  >
+                    <Send size={18} />
+                  </button>
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
+
+          {/* Auto-popup tooltip */}
+          <AnimatePresence>
+            {showAutoPopup && !isChatOpen && !isCartOpen && (
+              <motion.div
+                initial={{ opacity: 0, scale: 0.8, y: 10 }}
+                animate={{ opacity: 1, scale: 1, y: 0 }}
+                exit={{ opacity: 0, scale: 0.8, y: 10 }}
+                className="fixed bottom-24 right-6 bg-white dark:bg-gray-800 text-gray-800 dark:text-white px-4 py-3 rounded-lg shadow-xl border border-gray-200 dark:border-gray-700 z-[9998] max-w-[200px]"
               >
-                <Send size={18} />
-              </button>
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+                <p className="text-sm font-bold">👋 ممكن أساعدك؟</p>
+                <p className="text-xs text-gray-600 dark:text-gray-300 mt-1">اضغط للتحدث معي!</p>
+              </motion.div>
+            )}
+          </AnimatePresence>
 
-      {/* Auto-popup tooltip */}
-      <AnimatePresence>
-        {showAutoPopup && !isChatOpen && !isCartOpen && (
-          <motion.div
-            initial={{ opacity: 0, scale: 0.8, y: 10 }}
-            animate={{ opacity: 1, scale: 1, y: 0 }}
-            exit={{ opacity: 0, scale: 0.8, y: 10 }}
-            className="fixed bottom-24 right-6 bg-white dark:bg-gray-800 text-gray-800 dark:text-white px-4 py-3 rounded-lg shadow-xl border border-gray-200 dark:border-gray-700 z-[9998] max-w-[200px]"
+          <motion.button
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+            onClick={toggleChat}
+            className="fixed bottom-6 right-6 z-[2147483647] flex items-center gap-3 group"
+            style={{ display: isCartOpen ? 'none' : 'flex' }}
           >
-            <p className="text-sm font-bold">👋 ممكن أساعدك؟</p>
-            <p className="text-xs text-gray-600 dark:text-gray-300 mt-1">اضغط للتحدث معي!</p>
-          </motion.div>
-        )}
-      </AnimatePresence>
-
-      <motion.button
-        whileHover={{ scale: 1.05 }}
-        whileTap={{ scale: 0.95 }}
-        onClick={toggleChat}
-        className="fixed bottom-6 right-6 z-[2147483647] flex items-center gap-3 group"
-        style={{ display: isCartOpen ? 'none' : 'flex' }}
-      >
-        {isChatOpen ? (
-          <div
-            className="p-4 rounded-full shadow-2xl text-white ring-4 ring-white"
-            style={{ backgroundColor: settings.primaryColor }}
-          >
-            <X size={28} />
-          </div>
-        ) : (
-          <div className="flex items-center gap-3">
-            {/* Visible Text Label */}
-            <motion.div
-              initial={{ opacity: 0, x: 10 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ delay: 1 }}
-              className="bg-white text-gray-800 px-3 md:px-4 py-1.5 md:py-2 rounded-xl shadow-xl font-bold text-xs md:text-sm border-2 border-purple-100 hidden sm:flex items-center"
-            >
-              <span className="text-base md:text-lg align-middle ml-1">🤖</span>
-              تحدث معنا
-            </motion.div>
-
-            <div className="relative">
-              {/* Robot Head Container - Responsive Size */}
+            {isChatOpen ? (
               <div
-                className="w-14 h-14 md:w-16 md:h-16 rounded-2xl flex items-center justify-center shadow-2xl border-2 md:border-4 border-white relative"
+                className="p-4 rounded-full shadow-2xl text-white ring-4 ring-white"
                 style={{ backgroundColor: settings.primaryColor }}
               >
-                <Bot size={28} className="text-white md:w-8 md:h-8" strokeWidth={1.5} />
+                <X size={28} />
               </div>
+            ) : (
+              <div className="flex items-center gap-3">
+                {/* Visible Text Label */}
+                <motion.div
+                  initial={{ opacity: 0, x: 10 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ delay: 1 }}
+                  className="bg-white text-gray-800 px-3 md:px-4 py-1.5 md:py-2 rounded-xl shadow-xl font-bold text-xs md:text-sm border-2 border-purple-100 hidden sm:flex items-center"
+                >
+                  <span className="text-base md:text-lg align-middle ml-1">🤖</span>
+                  تحدث معنا
+                </motion.div>
 
-              {/* "Online/Offline" Indicator */}
-              <div
-                className={`absolute -top-0.5 -right-0.5 w-4 h-4 md:w-5 md:h-5 ${settings.groqApiKey || settings.geminiApiKey ? 'bg-green-400' : 'bg-red-400'
-                  } border-2 md:border-3 border-white rounded-full shadow-lg animate-pulse`}
-              />
-            </div>
-          </div>
-        )}
-      </motion.button>
+                <div className="relative">
+                  {/* Robot Head Container - Responsive Size */}
+                  <div
+                    className="w-14 h-14 md:w-16 md:h-16 rounded-2xl flex items-center justify-center shadow-2xl border-2 md:border-4 border-white relative"
+                    style={{ backgroundColor: settings.primaryColor }}
+                  >
+                    <Bot size={28} className="text-white md:w-8 md:h-8" strokeWidth={1.5} />
+                  </div>
 
-    </>,
-    document.body
-  );
-};
+                  {/* "Online/Offline" Indicator */}
+                  <div
+                    className={`absolute -top-0.5 -right-0.5 w-4 h-4 md:w-5 md:h-5 ${settings.groqApiKey || settings.geminiApiKey ? 'bg-green-400' : 'bg-red-400'
+                      } border-2 md:border-3 border-white rounded-full shadow-lg animate-pulse`}
+                  />
+                </div>
+              </div>
+            )}
+          </motion.button>
+
+        </>,
+        document.body
+      );
+    };
