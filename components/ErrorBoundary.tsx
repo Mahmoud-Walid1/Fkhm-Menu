@@ -21,6 +21,12 @@ export class ErrorBoundary extends Component<Props, State> {
 
     public componentDidCatch(error: Error, errorInfo: ErrorInfo) {
         console.error('Uncaught error:', error, errorInfo);
+
+        // Auto-reload if chunk loading failed (new deployment)
+        if (error.message.includes('Failed to fetch dynamically imported module') ||
+            error.message.includes('Importing a module script failed')) {
+            window.location.reload();
+        }
     }
 
     public render() {

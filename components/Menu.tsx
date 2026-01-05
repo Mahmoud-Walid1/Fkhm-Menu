@@ -118,7 +118,7 @@ export const Menu: React.FC = () => {
               exit={{ opacity: 0 }}
               transition={{ duration: 0.3 }}
               key={cat.id}
-              className={`${cat.backgroundColor ? 'p-6 pb-24 rounded-[2rem] shadow-sm mb-12' : ''}`}
+              className={`${cat.backgroundColor ? 'py-6 px-2 md:px-6 pb-24 rounded-[2rem] shadow-sm mb-12' : ''}`}
               style={{ backgroundColor: cat.backgroundColor ?? undefined }}
             >
               {isAll && (
