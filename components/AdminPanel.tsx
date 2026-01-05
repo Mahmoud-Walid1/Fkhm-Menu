@@ -488,7 +488,21 @@ export const AdminPanel: React.FC<{ onClose: () => void }> = ({ onClose }) => {
                                                         {editingProduct.sizes.map((size, idx) => (
                                                             <div key={idx} className="flex justify-between items-center bg-white p-2 rounded border text-sm">
                                                                 <span className="flex items-center gap-2">
-                                                                    {size.icon === 'box' ? <Box size={14} className="text-blue-600" /> : <Coffee size={14} className="text-orange-600" />}
+                                                                    <button
+                                                                        type="button"
+                                                                        onClick={() => {
+                                                                            const updatedSizes = [...(editingProduct.sizes || [])];
+                                                                            updatedSizes[idx] = {
+                                                                                ...updatedSizes[idx],
+                                                                                icon: updatedSizes[idx].icon === 'box' ? 'cup' : 'box'
+                                                                            };
+                                                                            setEditingProduct({ ...editingProduct, sizes: updatedSizes });
+                                                                        }}
+                                                                        className="hover:scale-110 transition-transform"
+                                                                        title="اضغط لتغيير الأيقونة"
+                                                                    >
+                                                                        {size.icon === 'box' ? <Box size={14} className="text-blue-600" /> : <Coffee size={14} className="text-orange-600" />}
+                                                                    </button>
                                                                     {size.name} ({size.priceModifier > 0 ? '+' : ''}{size.priceModifier} ريال)
                                                                 </span>
                                                                 <button
