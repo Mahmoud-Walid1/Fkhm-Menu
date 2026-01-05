@@ -259,7 +259,7 @@ export const ChatBot: React.FC<{ isCartOpen?: boolean }> = ({ isCartOpen = false
 
           const activeGeminiKey = geminiKeys[Math.floor(Math.random() * geminiKeys.length)];
 
-          const geminiResponse = await fetch(`https://generativelanguage.googleapis.com/v1/models/gemini-1.5-pro:generateContent?key=${activeGeminiKey}`, {
+          const geminiResponse = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key=${activeGeminiKey}`, {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json'
