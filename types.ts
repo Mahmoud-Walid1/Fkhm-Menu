@@ -55,10 +55,14 @@ export interface SiteSettings {
   // Cloudinary Integration (for image uploads)
   cloudinaryCloudName?: string;
   cloudinaryUploadPreset?: string;
-  // Gemini AI (for ChatBot)
+  // Gemini AI (for ChatBot) - Multiple keys for load balancing
   geminiApiKey?: string;
-  // Groq AI (Llama 3)
+  geminiApiKey2?: string;
+  geminiApiKey3?: string;
+  // Groq AI (Llama 3) - Multiple keys for load balancing
   groqApiKey?: string;
+  groqApiKey2?: string;
+  groqApiKey3?: string;
   // Theme
   theme: 'light' | 'dark';
   // Promo Popup

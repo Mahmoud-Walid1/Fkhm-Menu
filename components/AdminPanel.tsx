@@ -1130,82 +1130,92 @@ export const AdminPanel: React.FC<{ onClose: () => void }> = ({ onClose }) => {
                                                 <li>انسخ المفتاح والصقه هنا</li>
                                             </ol>
                                         </div>
-                                        <label className="block text-sm font-bold mb-1">مفاتيح Groq API Tokens (يمكنك إضافة أكثر من مفتاح)</label>
+                                        <label className="block text-sm font-bold mb-2">مفاتيح Groq API (يمكنك إضافة 3 مفاتيح للتوزيع)</label>
 
-                                        {/* List of existing keys */}
-                                        <div className="space-y-2 mb-3">
-                                            {(settings.groqApiKey ? settings.groqApiKey.split(',').filter(k => k.trim()) : []).map((key, index) => (
-                                                <div key={index} className="flex gap-2 items-center">
-                                                    <input
-                                                        type="password"
-                                                        value={key}
-                                                        disabled
-                                                        className="flex-1 border p-2 rounded-md font-mono text-sm bg-gray-50 text-gray-500"
-                                                    />
-                                                    <button
-                                                        onClick={() => {
-                                                            const currentKeys = settings.groqApiKey ? settings.groqApiKey.split(',').filter(k => k.trim()) : [];
-                                                            const newKeys = currentKeys.filter((_, i) => i !== index);
-                                                            updateSettings({ ...settings, groqApiKey: newKeys.join(',') });
-                                                        }}
-                                                        className="bg-red-100 text-red-600 p-2 rounded-md hover:bg-red-200"
-                                                        title="حذف المفتاح"
-                                                    >
-                                                        <Trash2 size={18} />
-                                                    </button>
-                                                </div>
-                                            ))}
-                                        </div>
-
-                                        {/* Add new key input */}
-                                        <div className="flex gap-2 items-center">
-                                            <input
-                                                type="text"
-                                                id="new-groq-key"
-                                                placeholder="gsk_... (أضف مفتاح جديد)"
-                                                className="flex-1 border p-2 rounded-md font-mono text-sm"
-                                                onKeyDown={(e) => {
-                                                    if (e.key === 'Enter') {
-                                                        const input = e.currentTarget;
-                                                        const val = input.value.trim();
-                                                        if (val) {
-                                                            const currentKeys = settings.groqApiKey ? settings.groqApiKey.split(',').filter(k => k.trim()) : [];
-                                                            updateSettings({ ...settings, groqApiKey: [...currentKeys, val].join(',') });
-                                                            input.value = '';
-                                                        }
-                                                    }
-                                                }}
-                                            />
-                                            <button
-                                                onClick={() => {
-                                                    const input = document.getElementById('new-groq-key') as HTMLInputElement;
-                                                    const val = input?.value.trim();
-                                                    if (val) {
-                                                        const currentKeys = settings.groqApiKey ? settings.groqApiKey.split(',').filter(k => k.trim()) : [];
-                                                        updateSettings({ ...settings, groqApiKey: [...currentKeys, val].join(',') });
-                                                        input.value = '';
-                                                    }
-                                                }}
-                                                className="bg-green-100 text-green-700 px-4 py-2 rounded-md hover:bg-green-200 font-bold flex items-center gap-2"
-                                            >
-                                                <Plus size={18} /> إضافة
-                                            </button>
+                                        <div className="space-y-3">
+                                            <div>
+                                                <label className="block text-xs text-gray-600 mb-1">المفتاح الأول</label>
+                                                <input
+                                                    type="password"
+                                                    value={tempSettings.groqApiKey || ''}
+                                                    onChange={(e) => { setTempSettings({ ...tempSettings, groqApiKey: e.target.value }); setSettingsModified(true); }}
+                                                    placeholder="gsk_..."
+                                                    className="w-full border p-2 rounded-md font-mono text-sm"
+                                                />
+                                            </div>
+                                            <div>
+                                                <label className="block text-xs text-gray-600 mb-1">المفتاح الثاني (اختياري)</label>
+                                                <input
+                                                    type="password"
+                                                    value={tempSettings.groqApiKey2 || ''}
+                                                    onChange={(e) => { setTempSettings({ ...tempSettings, groqApiKey2: e.target.value }); setSettingsModified(true); }}
+                                                    placeholder="gsk_..."
+                                                    className="w-full border p-2 rounded-md font-mono text-sm"
+                                                />
+                                            </div>
+                                            <div>
+                                                <label className="block text-xs text-gray-600 mb-1">المفتاح الثالث (اختياري)</label>
+                                                <input
+                                                    type="password"
+                                                    value={tempSettings.groqApiKey3 || ''}
+                                                    onChange={(e) => { setTempSettings({ ...tempSettings, groqApiKey3: e.target.value }); setSettingsModified(true); }}
+                                                    placeholder="gsk_..."
+                                                    className="w-full border p-2 rounded-md font-mono text-sm"
+                                                />
+                                            </div>
                                         </div>
                                     </div>
 
                                     <div className="border-t my-4"></div>
 
+
                                     {/* Gemini Section (Backup) */}
-                                    <div className="opacity-75">
-                                        <h3 className="font-bold text-gray-700 mb-2">Google Gemini API (بديل)</h3>
-                                        <label className="block text-sm font-bold mb-1">مفتاح Gemini API</label>
-                                        <input
-                                            type="password"
-                                            value={settings.geminiApiKey || ''}
-                                            onChange={(e) => updateSettings({ ...settings, geminiApiKey: e.target.value })}
-                                            placeholder="AIzaSy..."
-                                            className="w-full border p-2 rounded-md font-mono text-sm"
-                                        />
+                                    <div>
+                                        <h3 className="font-bold text-lg text-blue-700 mb-2 flex items-center gap-2">
+                                            💎 Google Gemini API (بدي ل مجاني) - {settings.geminiApiKey ? <span className="text-green-600 text-sm">مفعل</span> : <span className="text-gray-400 text-sm">غير مفعل</span>}
+                                        </h3>
+                                        <div className="bg-blue-50 border border-blue-200 p-3 rounded-lg mb-4 text-sm">
+                                            <p className="font-bold mb-1">ℹ️ بديل مجاني وسخي:</p>
+                                            <ol className="list-decimal mr-5 space-y-1 text-blue-800">
+                                                <li>انتقل إلى <a href="https://aistudio.google.com/apikey" target="_blank" rel="noopener" className="underline font-bold">Google AI Studio</a></li>
+                                                <li>اضغط "Create API Key"</li>
+                                                <li>انسخ المفتاح والصقه هنا</li>
+                                            </ol>
+                                        </div>
+                                        <label className="block text-sm font-bold mb-2">مفاتيح Gemini API (يمكنك إضافة 3 مفاتيح للتوزيع)</label>
+
+                                        <div className="space-y-3">
+                                            <div>
+                                                <label className="block text-xs text-gray-600 mb-1">المفتاح الأول</label>
+                                                <input
+                                                    type="password"
+                                                    value={tempSettings.geminiApiKey || ''}
+                                                    onChange={(e) => { setTempSettings({ ...tempSettings, geminiApiKey: e.target.value }); setSettingsModified(true); }}
+                                                    placeholder="AIzaSy..."
+                                                    className="w-full border p-2 rounded-md font-mono text-sm"
+                                                />
+                                            </div>
+                                            <div>
+                                                <label className="block text-xs text-gray-600 mb-1">المفتاح الثاني (اختياري)</label>
+                                                <input
+                                                    type="password"
+                                                    value={tempSettings.geminiApiKey2 || ''}
+                                                    onChange={(e) => { setTempSettings({ ...tempSettings, geminiApiKey2: e.target.value }); setSettingsModified(true); }}
+                                                    placeholder="AIzaSy..."
+                                                    className="w-full border p-2 rounded-md font-mono text-sm"
+                                                />
+                                            </div>
+                                            <div>
+                                                <label className="block text-xs text-gray-600 mb-1">المفتاح الثالث (اختياري)</label>
+                                                <input
+                                                    type="password"
+                                                    value={tempSettings.geminiApiKey3 || ''}
+                                                    onChange={(e) => { setTempSettings({ ...tempSettings, geminiApiKey3: e.target.value }); setSettingsModified(true); }}
+                                                    placeholder="AIzaSy..."
+                                                    className="w-full border p-2 rounded-md font-mono text-sm"
+                                                />
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
 

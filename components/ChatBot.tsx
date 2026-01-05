@@ -130,6 +130,62 @@ export const ChatBot: React.FC<{ isCartOpen?: boolean }> = ({ isCartOpen = false
     }).join('\n')}
     `;
 
+
+    // Simple Fallback Logic (No AI) - Used when all APIs fail
+    const getFallbackResponse = (userInput: string): string | null => {
+      const input = userInput.toLowerCase().trim();
+
+      // Greeting patterns
+      if (/^(هلا|السلام|صباح|مساء|مرحبا|هاي|هلو)/.test(input)) {
+        return `أهلاً وسهلاً في ${settings.shopName}! 😊\n\nعندنا قائمة فخمة من القهوة والحلويات، تصفح المنيو واضغط على أي منتج يعجبك!`;
+      }
+
+      // Menu/Categories request
+      if (/منيو|قائمة|أقسام|فئات|عندكم|وش في/.test(input)) {
+        return `تفضل! عندنا هالأقسام:\n\n${categories.map(c => `${c.icon || '📂'} ${c.name}`).join('\n')}\n\nاضغط على أي قسم بالأسفل عشان تشوف المنتجات 👇\n[SHOW_CATEGORIES]`;
+      }
+
+      // Coffee specific
+      if (/قهوة|كوفي|اسبريسو|كابتشينو|لاتيه|كورتادو/.test(input)) {
+        const coffeeCategory = categories.find(c => /قهوة|coffee|espresso/i.test(c.name));
+        if (coffeeCategory) {
+          return `عندنا قهوة فخمة ومحترمة! ☕✨\n\nشوف قسم "${coffeeCategory.name}" بالمنيو، أو اضغط الزر بالأسفل:\n[SHOW_PRODUCTS:${coffeeCategory.name}]`;
+        }
+        return `عندنا قهوة فخمة! ☕ شوف قسم القهوة بالمنيو واختار اللي يناسبك\n[SHOW_CATEGORIES]`;
+      }
+
+      // Desserts
+      if (/حلى|حلا|حلويات|كيك|تشيز|تورته/.test(input)) {
+        const dessertCategory = categories.find(c => /حلى|حلو|dessert|cake/i.test(c.name));
+        if (dessertCategory) {
+          return `حلوياتنا تجنن! 🍰✨\n\nشوف قسم "${dessertCategory.name}":\n[SHOW_PRODUCTS:${dessertCategory.name}]`;
+        }
+        return `عندنا حلويات فاخرة! 🍰 تصفح المنيو\n[SHOW_CATEGORIES]`;
+      }
+
+      // Delivery
+      if (/توصيل|ديليفري|delivery|يوصل/.test(input)) {
+        return `نعم، نوفر خدمة التوصيل! 🚗💨\n\nللطلب، تواصل مع المندوب:\n[SHOW_DELIVERY]`;
+      }
+
+      // Contact/Admin
+      if (/تواصل|اتصال|كلام|موظف|إدارة|شكوى|مشكلة/.test(input)) {
+        return `تقدر تتواصل معنا مباشرة:\n[SHOW_ADMIN]`;
+      }
+
+      // Prices
+      if (/سعر|كم|price/.test(input)) {
+        return `الأسعار موجودة مع كل منتج في المنيو! 💰\n\nتصفح وشوف اللي يناسبك:\n[SHOW_CATEGORIES]`;
+      }
+
+      // Default helpful response
+      if (input.length > 3) {
+        return `أهلاً! للأسف، مساعدي الذكي مشغول حالياً 🤖 لكن تقدر:\n\n🔹 تتصفح المنيو وتختار\n🔹 تسألني عن أقسام معينة (قهوة، حلى، إلخ)\n🔹 أو تواصل معنا مباشرة\n\nوش تحتاج؟ 😊`;
+      }
+
+      return null;
+    };
+
     try {
       let responseText = '';
       let usedFallback = false;
@@ -137,8 +193,13 @@ export const ChatBot: React.FC<{ isCartOpen?: boolean }> = ({ isCartOpen = false
       // PRIORITY 1: Try Groq API (Llama 3)
       if (settings.groqApiKey) {
         try {
-          // Support multiple keys for load balancing (comma separated)
-          const groqKeys = settings.groqApiKey.split(',').map(k => k.trim()).filter(k => k);
+          // Collect all available Groq keys from separate fields
+          const groqKeys = [
+            settings.groqApiKey,
+            settings.groqApiKey2,
+            settings.groqApiKey3
+          ].filter(k => k && k.trim());
+
           const activeGroqKey = groqKeys[Math.floor(Math.random() * groqKeys.length)];
 
           const response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
@@ -161,7 +222,14 @@ export const ChatBot: React.FC<{ isCartOpen?: boolean }> = ({ isCartOpen = false
 
           if (!response.ok) {
             const errorData = await response.json().catch(() => ({ error: { message: response.statusText } }));
-            console.error('Groq API Error Details:', errorData); // Log the full error
+            console.error('Groq API Error Details:', errorData);
+
+            // Check if it's a rate limit error
+            if (errorData?.error?.type === 'rate_limit_exceeded' || response.status === 429) {
+              console.warn('⚠️ Groq rate limit exceeded, switching to Gemini...');
+              throw new Error('RATE_LIMIT'); // Special error to trigger fallback
+            }
+
             throw new Error(`Groq API Error: ${response.status} - ${errorData?.error?.message || response.statusText}`);
           }
 
@@ -179,21 +247,70 @@ export const ChatBot: React.FC<{ isCartOpen?: boolean }> = ({ isCartOpen = false
         usedFallback = true;
       }
 
-      // PRIORITY 2: Fallback to Gemini API (if Groq failed or key missing)
+      // PRIORITY 2: Fallback to Gemini Flash API (Free, Fast, Generous Limits)
       if (usedFallback && settings.geminiApiKey) {
-        const genAI = new GoogleGenAI({ apiKey: settings.geminiApiKey });
-        const response = await genAI.models.generateContent({
-          model: 'gemini-pro',
-          contents: { role: 'user', parts: [{ text: userMessage.text }] } as any, // Adjust content structure if needed for specific SDK version
-          config: {
-            temperature: 0.3,
-            systemInstruction: { parts: [{ text: systemInstruction }] }
-          }
-        } as any);
+        try {
+          // Collect all available Gemini keys from separate fields
+          const geminiKeys = [
+            settings.geminiApiKey,
+            settings.geminiApiKey2,
+            settings.geminiApiKey3
+          ].filter(k => k && k.trim());
 
-        responseText = response.text || 'عذراً، لم أفهم طلبك.';
+          const activeGeminiKey = geminiKeys[Math.floor(Math.random() * geminiKeys.length)];
+
+          const geminiResponse = await fetch(`https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent?key=${activeGeminiKey}`, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+              contents: [
+                {
+                  role: 'user',
+                  parts: [
+                    { text: systemInstruction },
+                    { text: '\n\nالمحادثة السابقة:\n' + messages.map(m => `${m.sender === 'user' ? 'المستخدم' : 'المساعد'}: ${m.text}`).join('\n') },
+                    { text: '\n\nالسؤال الحالي:\n' + userMessage.text }
+                  ]
+                }
+              ],
+              generationConfig: {
+                temperature: 0.3,
+                maxOutputTokens: 500
+              }
+            })
+          });
+
+          if (!geminiResponse.ok) {
+            const errorData = await geminiResponse.json().catch(() => ({ error: { message: geminiResponse.statusText } }));
+            console.error('Gemini API Error:', errorData);
+
+            // Check if it's a rate limit error (Gemini also has limits)
+            if (errorData?.error?.status === 'RESOURCE_EXHAUSTED' || geminiResponse.status === 429) {
+              console.warn('⚠️ Gemini rate limit exceeded, using rule-based fallback...');
+              throw new Error('GEMINI_RATE_LIMIT');
+            }
+
+            throw new Error(`Gemini API Error: ${geminiResponse.status} - ${errorData?.error?.message || geminiResponse.statusText}`);
+          }
+
+          const geminiData = await geminiResponse.json();
+          if (geminiData.candidates && geminiData.candidates.length > 0) {
+            responseText = geminiData.candidates[0].content.parts[0].text;
+          } else {
+            throw new Error('Gemini Empty Response');
+          }
+        } catch (geminiError) {
+          console.error('Gemini API failed, using rule-based fallback...', geminiError);
+          // PRIORITY 3: Use simple pattern matching
+          const fallbackText = getFallbackResponse(userMessage.text);
+          responseText = fallbackText || "أهلاً! حالياً الخدمة الذكية مشغولة، لكن تقدر تتصفح المنيو أو تتواصل معنا مباشرة 😊\n[SHOW_CATEGORIES]";
+        }
       } else if (usedFallback && !settings.geminiApiKey) {
-        responseText = "المعذرة، لم يتم تفعيل خدمة الرد الذكي 🤖. يرجى من المسؤول إضافة مفتاح API في الإعدادات.";
+        // No API key - use rule-based responses
+        const fallbackText = getFallbackResponse(userMessage.text);
+        responseText = fallbackText || "أهلاً! للاستمتاع بالمساعد الذكي، يرجى من المسؤول إضافة مفتاح Gemini API (مجاني!) 🤖\n\nلكن تقدر تتصفح المنيو:\n[SHOW_CATEGORIES]";
       }
 
 
