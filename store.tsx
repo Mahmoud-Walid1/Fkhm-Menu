@@ -179,8 +179,13 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         }
 
 
-      } catch (err) {
-        console.error("Seeding Error:", err);
+      } catch (err: any) {
+        // Ignore permission errors (expected for non-admin users)
+        if (err.code === 'permission-denied') {
+          console.log("Environment: Read-Only Mode (Seeding Skipped)");
+        } else {
+          console.error("Seeding Error:", err);
+        }
       }
     };
 
