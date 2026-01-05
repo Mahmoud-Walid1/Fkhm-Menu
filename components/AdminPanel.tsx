@@ -63,8 +63,8 @@ export const AdminPanel: React.FC<{ onClose: () => void }> = ({ onClose }) => {
             alert('يرجى تحديد السعر');
             return;
         }
-        if (!editingProduct?.categoryId) {
-            alert('يرجى اختيار القسم');
+        if ((!editingProduct?.categoryIds || editingProduct.categoryIds.length === 0) && !editingProduct?.category && !editingProduct?.categoryId) {
+            alert('يرجى اختيار قسم واحد على الأقل');
             return;
         }
 
@@ -243,13 +243,39 @@ export const AdminPanel: React.FC<{ onClose: () => void }> = ({ onClose }) => {
                                             onChange={e => setEditingProduct({ ...editingProduct, price: Number(e.target.value) })}
                                             className="p-2 border rounded-md" required
                                         />
-                                        <select
-                                            value={editingProduct.categoryId || ''}
-                                            onChange={e => setEditingProduct({ ...editingProduct, categoryId: e.target.value })}
-                                            className="p-2 border rounded-md"
-                                        >
-                                            {categories.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
-                                        </select>
+                                        <div className="p-3 border rounded-md bg-white max-h-40 overflow-y-auto">
+                                            <label className="block text-sm font-medium text-gray-700 mb-2">الأقسام (يمكن اختيار أكثر من قسم)</label>
+                                            <div className="space-y-2">
+                                                {categories.map(c => {
+                                                    const isSelected = editingProduct.categoryIds?.includes(c.id) || editingProduct.category === c.id;
+                                                    return (
+                                                        <label key={c.id} className="flex items-center gap-2 cursor-pointer hover:bg-gray-50 p-1 rounded">
+                                                            <input
+                                                                type="checkbox"
+                                                                checked={isSelected}
+                                                                onChange={(e) => {
+                                                                    const currentIds = editingProduct.categoryIds || (editingProduct.category ? [editingProduct.category] : []);
+                                                                    let newIds;
+                                                                    if (e.target.checked) {
+                                                                        newIds = [...currentIds, c.id];
+                                                                    } else {
+                                                                        newIds = currentIds.filter(id => id !== c.id);
+                                                                    }
+                                                                    // Update both for backward compatibility, but prioritize categoryIds
+                                                                    setEditingProduct({
+                                                                        ...editingProduct,
+                                                                        categoryIds: newIds,
+                                                                        category: newIds[0] || '' // Fallback for old systems
+                                                                    });
+                                                                }}
+                                                                className="rounded border-gray-300 text-purple-600 focus:ring-purple-500"
+                                                            />
+                                                            <span className="text-sm">{c.name}</span>
+                                                        </label>
+                                                    );
+                                                })}
+                                            </div>
+                                        </div>
                                         <input
                                             placeholder="وصف المنتج"
                                             value={editingProduct.description || ''}

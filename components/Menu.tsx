@@ -6,14 +6,16 @@ import { Plus, Flame, Snowflake, Star, X, Coffee } from 'lucide-react';
 
 export const Menu: React.FC = () => {
   const { products, categories, addToCart, settings } = useAppStore();
-  const [activeCategory, setActiveCategory] = useState<string>(categories[0]?.id || '1');
+  const [activeCategory, setActiveCategory] = useState<string>('ALL');
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
 
-  const filteredProducts = products.filter(p => {
-    // Support both old 'categoryId' and new 'category' field for backward compatibility
-    const productCategory = (p as any).categoryId || p.category;
-    return productCategory === activeCategory;
-  });
+  // Helper to check if a product belongs to a category
+  const productBelongsToCategory = (product: Product, categoryId: string) => {
+    const ids = product.categoryIds || (product.category ? [product.category] : []) || ((product as any).categoryId ? [(product as any).categoryId] : []);
+    return ids.includes(categoryId);
+  };
+
+  const isAll = activeCategory === 'ALL';
 
   return (
     <section className="py-16 px-4 max-w-7xl mx-auto min-h-screen" id="menu">
@@ -24,10 +26,20 @@ export const Menu: React.FC = () => {
 
       {/* Category Tabs */}
       <div className="flex overflow-x-auto gap-3 mb-12 pb-4 justify-start md:justify-center no-scrollbar px-2">
+        <button
+          onClick={() => setActiveCategory('ALL')}
+          className={`px-6 py-3 rounded-md whitespace-nowrap transition-all duration-300 font-bold text-sm md:text-base border ${activeCategory === 'ALL'
+            ? 'text-white border-transparent shadow-md transform -translate-y-1'
+            : 'bg-white dark:bg-gray-800 text-gray-500 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 border-gray-200 dark:border-gray-700'
+            }`}
+          style={{ backgroundColor: activeCategory === 'ALL' ? settings.primaryColor : undefined }}
+        >
+          الكل
+        </button>
         {categories.map((cat) => (
           <button
             key={cat.id}
-            id={`category-${cat.id}`} // Added ID for ChatBot navigation
+            id={`category-${cat.id}`}
             onClick={() => setActiveCategory(cat.id)}
             className={`px-6 py-3 rounded-md whitespace-nowrap transition-all duration-300 font-bold text-sm md:text-base border ${activeCategory === cat.id
               ? 'text-white border-transparent shadow-md transform -translate-y-1'
@@ -40,31 +52,56 @@ export const Menu: React.FC = () => {
         ))}
       </div>
 
-      {/* Product Grid */}
-      <motion.div
-        layout
-        transition={{ duration: 0.2 }}
-        className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-x-4 gap-y-20 md:gap-x-8 md:gap-y-28 pt-8"
-      >
-        <AnimatePresence mode="wait">
-          {filteredProducts.map((product) => (
-            <ProductCard
-              key={product.id}
-              product={product}
-              onAdd={() => setSelectedProduct(product)}
-              primaryColor={settings.primaryColor}
-            />
-          ))}
-        </AnimatePresence>
-      </motion.div>
+      {/* Product Sections */}
+      <div className="space-y-16">
+        {categories.map((cat) => {
+          if (!isAll && cat.id !== activeCategory) return null;
 
-      {/* No Products Found */}
-      {filteredProducts.length === 0 && (
+          const catProducts = products.filter(p => productBelongsToCategory(p, cat.id));
+
+          if (catProducts.length === 0) return null;
+
+          return (
+            <motion.div
+              layout
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0 }}
+              key={cat.id}
+            >
+              {isAll && (
+                <div className="flex items-center gap-4 mb-8">
+                  <h3 className="text-2xl md:text-3xl font-bold text-gray-800 dark:text-white border-r-4 pr-4 rounded-sm" style={{ borderColor: settings.primaryColor }}>
+                    {cat.name}
+                  </h3>
+                  <div className="h-px bg-gray-200 flex-1"></div>
+                </div>
+              )}
+
+              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-x-4 gap-y-20 md:gap-x-8 md:gap-y-28 pt-8 px-2">
+                <AnimatePresence mode="wait">
+                  {catProducts.map((product) => (
+                    <ProductCard
+                      key={`${cat.id}-${product.id}`} // Unique key for multi-category items
+                      product={product}
+                      onAdd={() => setSelectedProduct(product)}
+                      primaryColor={settings.primaryColor}
+                    />
+                  ))}
+                </AnimatePresence>
+              </div>
+            </motion.div>
+          );
+        })}
+      </div>
+
+      {/* No Products Found Fallback */}
+      {products.length === 0 && (
         <div className="flex flex-col items-center justify-center py-20 text-gray-400">
           <div className="w-20 h-20 bg-gray-100 rounded-full flex items-center justify-center mb-4">
             <span className="text-3xl">☕</span>
           </div>
-          <p className="text-lg">جاري تجهيز المنتجات في هذا القسم...</p>
+          <p className="text-lg">جاري تجهيز المنتجات...</p>
         </div>
       )}
 

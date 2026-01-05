@@ -9,7 +9,8 @@ export interface Product {
   price: number;
   promoPrice?: number;
   isPromo?: boolean;
-  category: string;
+  category?: string; // @deprecated use categoryIds instead
+  categoryIds?: string[]; // New multi-category support
   image: string;
   description: string;
   sizes?: Size[];
