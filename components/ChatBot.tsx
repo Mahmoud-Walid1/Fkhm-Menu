@@ -214,7 +214,7 @@ export const ChatBot: React.FC<{ isCartOpen?: boolean }> = ({ isCartOpen = false
                 ...messages.map(m => ({ role: m.sender === 'user' ? 'user' : 'assistant', content: m.text })),
                 { role: 'user', content: userMessage.text }
               ],
-              model: 'llama3-8b-8192',
+              model: 'llama-3.1-8b-instant',
               temperature: 0.3,
               max_tokens: 300
             })
