@@ -136,61 +136,11 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     };
   }, []);
 
-  // One-time Seeding Logic - DB Check Only
-  useEffect(() => {
-    const seed = async () => {
-      // Removed localStorage check as requested. relying strictly on DB state.
-
-
-      try {
-        const batch = writeBatch(db);
-        let hasUpdates = false;
-
-        // Check if ANY products exist to avoid overwriting user edits to default products
-        const productsSnapshot = await getDoc(doc(db, 'products', '101'));
-        const isDbEmpty = !productsSnapshot.exists();
-
-        if (isDbEmpty) {
-          // Seed Categories
-          DEFAULT_CATEGORIES.forEach(cat => {
-            const ref = doc(db, 'categories', cat.id);
-            batch.set(ref, cat);
-          });
-
-          // Seed Products
-          DEFAULT_PRODUCTS.forEach(prod => {
-            const ref = doc(db, 'products', prod.id);
-            batch.set(ref, prod);
-          });
-          hasUpdates = true;
-        }
-
-        // Seed Settings (Safe check)
-        const settingsRef = doc(db, 'settings', 'config');
-        const settingsSnap = await getDoc(settingsRef);
-        if (!settingsSnap.exists()) {
-          batch.set(settingsRef, DEFAULT_SETTINGS);
-          hasUpdates = true;
-        }
-
-        if (hasUpdates) {
-          await batch.commit();
-          console.log("Firebase Seeded Successfully");
-        }
-
-
-      } catch (err: any) {
-        // Ignore permission errors (expected for non-admin users)
-        if (err.code === 'permission-denied') {
-          console.log("Environment: Read-Only Mode (Seeding Skipped)");
-        } else {
-          console.error("Seeding Error:", err);
-        }
-      }
-    };
-
-    seed();
-  }, []);
+  // One-time Seeding Logic - DISABLED to prevent ghost data
+  // useEffect(() => {
+  //   const seed = async () => { ... }
+  //   seed();
+  // }, []);
 
   // Cart Logic
   const addToCart = (product: Product, size?: Size, temperature?: 'hot' | 'cold') => {
