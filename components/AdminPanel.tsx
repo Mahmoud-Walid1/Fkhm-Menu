@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useAppStore } from '../store';
 import { Product, Category } from '../types';
 import { motion } from 'framer-motion';
-import { Plus, Trash2, Edit2, Save, X, Image as ImageIcon, Loader2, GripVertical, Coffee, Box, CupSoda, LogOut, Palette, Link as LinkIcon, ArrowUp, ArrowDown } from 'lucide-react';
+import { Plus, Trash2, Edit2, Save, X, Image as ImageIcon, Loader2, GripVertical, Coffee, Box, CupSoda, LogOut, Palette, Link as LinkIcon, ArrowUp, ArrowDown, Upload, Share2 } from 'lucide-react';
 import { uploadImageToCloudinary } from '../utils/cloudinaryUpload';
 
 export const AdminPanel: React.FC<{ onClose: () => void }> = ({ onClose }) => {
@@ -537,7 +537,7 @@ export const AdminPanel: React.FC<{ onClose: () => void }> = ({ onClose }) => {
                                                                     }}
                                                                     className="text-red-500 hover:text-red-700"
                                                                 >
-                                                                    <Trash size={14} />
+                                                                    <Trash2 size={14} />
                                                                 </button>
                                                             </div>
                                                         ))}
@@ -555,7 +555,7 @@ export const AdminPanel: React.FC<{ onClose: () => void }> = ({ onClose }) => {
                                             >
                                                 {uploadingImage ? (
                                                     <>
-                                                        <Loader className="animate-spin" size={16} />
+                                                        <Loader2 className="animate-spin" size={16} />
                                                         جاري الرفع...
                                                     </>
                                                 ) : (
@@ -595,8 +595,8 @@ export const AdminPanel: React.FC<{ onClose: () => void }> = ({ onClose }) => {
                                                 <td className="p-3">{p.price}</td>
                                                 <td className="p-3">{p.categoryIds?.map(id => categories.find(c => c.id === id)?.name).join(', ') || categories.find(c => c.id === p.categoryId)?.name}</td>
                                                 <td className="p-3 flex gap-2">
-                                                    <button onClick={() => setEditingProduct(p)} className="p-1 text-blue-600"><Edit size={18} /></button>
-                                                    <button onClick={() => deleteProduct(p.id)} className="p-1 text-red-600"><Trash size={18} /></button>
+                                                    <button onClick={() => setEditingProduct(p)} className="p-1 text-blue-600"><Edit2 size={18} /></button>
+                                                    <button onClick={() => deleteProduct(p.id)} className="p-1 text-red-600"><Trash2 size={18} /></button>
                                                 </td>
                                             </tr>
                                         ))}
@@ -660,7 +660,7 @@ export const AdminPanel: React.FC<{ onClose: () => void }> = ({ onClose }) => {
                                                 className="text-blue-600 hover:text-blue-800 p-1"
                                                 title="تعديل"
                                             >
-                                                <Edit size={16} />
+                                                <Edit2 size={16} />
                                             </button>
                                             <button
                                                 onClick={() => {
@@ -669,7 +669,7 @@ export const AdminPanel: React.FC<{ onClose: () => void }> = ({ onClose }) => {
                                                 className="text-red-600 hover:text-red-800 p-1"
                                                 title="حذف"
                                             >
-                                                <Trash size={16} />
+                                                <Trash2 size={16} />
                                             </button>
                                         </div>
                                     </li>
@@ -718,7 +718,7 @@ export const AdminPanel: React.FC<{ onClose: () => void }> = ({ onClose }) => {
                                                     disabled={!selectedHeroFile && !newHeroImage}
                                                     className="bg-blue-600 text-white px-4 py-3 rounded-lg flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed h-[50px]"
                                                 >
-                                                    {uploadingHero ? <Loader className="animate-spin" size={16} /> : <Plus size={16} />}
+                                                    {uploadingHero ? <Loader2 className="animate-spin" size={16} /> : <Plus size={16} />}
                                                     إضافة
                                                 </button>
                                             </div>
@@ -748,7 +748,7 @@ export const AdminPanel: React.FC<{ onClose: () => void }> = ({ onClose }) => {
                                                     onClick={() => removeHeroImage(idx)}
                                                     className="absolute top-2 right-2 bg-red-500 text-white p-1 rounded-full opacity-0 group-hover:opacity-100 transition-opacity shadow-md"
                                                 >
-                                                    <Trash size={14} />
+                                                    <Trash2 size={14} />
                                                 </button>
                                             </div>
                                         ))}
@@ -781,7 +781,7 @@ export const AdminPanel: React.FC<{ onClose: () => void }> = ({ onClose }) => {
                                                     disabled={!selectedOfferFile && !newOfferImage}
                                                     className="bg-blue-600 text-white px-4 py-3 rounded-lg flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed h-[50px]"
                                                 >
-                                                    {uploadingOffer ? <Loader className="animate-spin" size={16} /> : <Plus size={16} />}
+                                                    {uploadingOffer ? <Loader2 className="animate-spin" size={16} /> : <Plus size={16} />}
                                                     إضافة
                                                 </button>
                                             </div>
@@ -811,7 +811,7 @@ export const AdminPanel: React.FC<{ onClose: () => void }> = ({ onClose }) => {
                                                     onClick={() => removeOfferImage(idx)}
                                                     className="absolute top-2 right-2 bg-red-500 text-white p-1 rounded-full opacity-0 group-hover:opacity-100 transition-opacity shadow-md"
                                                 >
-                                                    <Trash size={14} />
+                                                    <Trash2 size={14} />
                                                 </button>
                                             </div>
                                         ))}
