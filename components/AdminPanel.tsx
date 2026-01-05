@@ -12,17 +12,9 @@ export const AdminPanel: React.FC<{ onClose: () => void }> = ({ onClose }) => {
     // Product Form State
     const [editingProduct, setEditingProduct] = useState<Partial<Product> | null>(null);
 
-    // Image Management State
-    const [newHeroImage, setNewHeroImage] = useState('');
-    const [newOfferImage, setNewOfferImage] = useState('');
-
-    // Category Edit State
-    const [editingCategory, setEditingCategory] = useState<{ id: string; name: string } | null>(null);
-
-    // GitHub Upload State
-    const [selectedImageFile, setSelectedImageFile] = useState<File | null>(null);
-    const [imagePreview, setImagePreview] = useState<string>('');
-    const [uploadingImage, setUploadingImage] = useState(false);
+    // Hero Image Upload State
+    const [selectedHeroFile, setSelectedHeroFile] = useState<File | null>(null);
+    const [uploadingHero, setUploadingHero] = useState(false);
 
     // Offer Image Upload State
     const [selectedOfferFile, setSelectedOfferFile] = useState<File | null>(null);
@@ -118,8 +110,23 @@ export const AdminPanel: React.FC<{ onClose: () => void }> = ({ onClose }) => {
         }
     };
 
-    const addHeroImage = () => {
-        if (newHeroImage) {
+    const addHeroImage = async () => {
+        if (selectedHeroFile && settings.cloudinaryCloudName && settings.cloudinaryUploadPreset) {
+            setUploadingHero(true);
+            const result = await uploadImageToCloudinary(
+                selectedHeroFile,
+                settings.cloudinaryCloudName,
+                settings.cloudinaryUploadPreset
+            );
+            setUploadingHero(false);
+
+            if (result.success && result.url) {
+                updateSettings({ ...settings, heroImages: [...(settings.heroImages || []), result.url] });
+                setSelectedHeroFile(null);
+            } else {
+                alert(`فشل رفع الصورة: ${result.error}`);
+            }
+        } else if (newHeroImage) {
             updateSettings({ ...settings, heroImages: [...(settings.heroImages || []), newHeroImage] });
             setNewHeroImage('');
         }
@@ -481,30 +488,71 @@ export const AdminPanel: React.FC<{ onClose: () => void }> = ({ onClose }) => {
                     {activeTab === 'images' && (
                         <div className="space-y-8">
                             {/* Disclaimer */}
-                            <div className="bg-blue-50 border border-blue-200 text-blue-800 p-4 rounded-lg text-sm">
-                                <strong>تنبيه بخصوص الصور:</strong> الموقع لا يحتوي على سيرفر تخزين خاص (لأنه مجاني).
-                                يرجى رفع الصور على مواقع مثل <a href="https://postimages.org/" target="_blank" className="underline font-bold">PostImages</a> أو <a href="https://imgur.com/upload" target="_blank" className="underline font-bold">Imgur</a>، ثم نسخ "الرابط المباشر" (Direct Link) ولصقه هنا.
-                            </div>
+                            {(!settings.cloudinaryCloudName || !settings.cloudinaryUploadPreset) && (
+                                <div className="bg-blue-50 border border-blue-200 text-blue-800 p-4 rounded-lg text-sm mb-6">
+                                    <strong>تنبيه:</strong> لرفع الصور مباشرة من جهازك، يرجى إعداد Cloudinary في تبويب "الإعدادات".
+                                    <br />
+                                    حالياً يمكنك فقط استخدام روابط مباشرة للصور.
+                                </div>
+                            )}
 
                             {/* Hero Images Section */}
                             <div>
                                 <h2 className="text-xl font-bold mb-4 flex items-center gap-2"><ImageIcon size={20} /> صور الواجهة الرئيسية (Hero)</h2>
-                                <div className="flex gap-2 mb-4">
-                                    <input
-                                        value={newHeroImage}
-                                        onChange={(e) => setNewHeroImage(e.target.value)}
-                                        placeholder="رابط الصورة المباشر (URL)"
-                                        className="flex-1 border p-2 rounded-md"
-                                    />
-                                    <button onClick={addHeroImage} className="bg-blue-600 text-white px-4 rounded-md flex items-center gap-2"><Plus size={16} /> إضافة</button>
+                                <div className="mb-4 space-y-3">
+                                    {settings.cloudinaryCloudName && settings.cloudinaryUploadPreset ? (
+                                        <div className="flex gap-2 items-start">
+                                            <div className="flex-1">
+                                                <label className="flex items-center gap-2 cursor-pointer bg-white border border-dashed border-gray-300 rounded-lg p-3 hover:border-purple-500 transition-colors">
+                                                    <Upload className="text-gray-400" size={20} />
+                                                    <span className="text-sm text-gray-600">
+                                                        {selectedHeroFile ? selectedHeroFile.name : "اضغط لاختيار صورة من جهازك"}
+                                                    </span>
+                                                    <input
+                                                        type="file"
+                                                        accept="image/*"
+                                                        onChange={(e) => {
+                                                            const file = e.target.files?.[0];
+                                                            if (file) setSelectedHeroFile(file);
+                                                        }}
+                                                        className="hidden"
+                                                    />
+                                                </label>
+                                            </div>
+                                            <button
+                                                onClick={addHeroImage}
+                                                disabled={!selectedHeroFile && !newHeroImage}
+                                                className="bg-blue-600 text-white px-4 py-3 rounded-lg flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed h-[50px]"
+                                            >
+                                                {uploadingHero ? <Loader className="animate-spin" size={16} /> : <Plus size={16} />}
+                                                إضافة
+                                            </button>
+                                        </div>
+                                    ) : null}
+
+                                    <div className="flex gap-2 items-center">
+                                        <div className="flex-1 relative">
+                                            <LinkIcon size={16} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400" />
+                                            <input
+                                                value={newHeroImage}
+                                                onChange={(e) => setNewHeroImage(e.target.value)}
+                                                placeholder="أو ضع رابط مباشر للصورة هنا..."
+                                                className="w-full border p-2 pr-9 rounded-md text-sm"
+                                            />
+                                        </div>
+                                        {/* Button only shown here if Cloudinary is NOT active, otherwise the main add button handles both logic */}
+                                        {(!settings.cloudinaryCloudName || !settings.cloudinaryUploadPreset) && (
+                                            <button onClick={addHeroImage} className="bg-blue-600 text-white px-4 py-2 rounded-md flex items-center gap-2"><Plus size={16} /> إضافة</button>
+                                        )}
+                                    </div>
                                 </div>
                                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                                     {(settings.heroImages || []).map((img, idx) => (
-                                        <div key={idx} className="relative group rounded-lg overflow-hidden shadow border h-32">
+                                        <div key={idx} className="relative group rounded-lg overflow-hidden shadow border h-32 bg-gray-100">
                                             <img src={img} className="w-full h-full object-cover" />
                                             <button
                                                 onClick={() => removeHeroImage(idx)}
-                                                className="absolute top-2 right-2 bg-red-500 text-white p-1 rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
+                                                className="absolute top-2 right-2 bg-red-500 text-white p-1 rounded-full opacity-0 group-hover:opacity-100 transition-opacity shadow-md"
                                             >
                                                 <Trash size={14} />
                                             </button>
@@ -515,23 +563,59 @@ export const AdminPanel: React.FC<{ onClose: () => void }> = ({ onClose }) => {
 
                             <div className="border-t pt-8">
                                 <h2 className="text-xl font-bold mb-4 flex items-center gap-2"><ImageIcon size={20} /> صور قسم العروض</h2>
-                                <p className="text-sm text-gray-500 mb-2">يدعم الصور الطولية والعرضية</p>
-                                <div className="flex gap-2 mb-4">
-                                    <input
-                                        value={newOfferImage}
-                                        onChange={(e) => setNewOfferImage(e.target.value)}
-                                        placeholder="رابط صورة العرض (URL)"
-                                        className="flex-1 border p-2 rounded-md"
-                                    />
-                                    <button onClick={addOfferImage} className="bg-blue-600 text-white px-4 rounded-md flex items-center gap-2"><Plus size={16} /> إضافة</button>
+                                <p className="text-sm text-gray-500 mb-4">يفضل استخدام صور عرضية عالية الجودة.</p>
+
+                                <div className="mb-4 space-y-3">
+                                    {settings.cloudinaryCloudName && settings.cloudinaryUploadPreset ? (
+                                        <div className="flex gap-2 items-start">
+                                            <div className="flex-1">
+                                                <label className="flex items-center gap-2 cursor-pointer bg-white border border-dashed border-gray-300 rounded-lg p-3 hover:border-purple-500 transition-colors">
+                                                    <Upload className="text-gray-400" size={20} />
+                                                    <span className="text-sm text-gray-600">
+                                                        {selectedOfferFile ? selectedOfferFile.name : "اضغط لاختيار صورة من جهازك"}
+                                                    </span>
+                                                    <input
+                                                        type="file"
+                                                        accept="image/*"
+                                                        onChange={handleOfferImageFileSelect}
+                                                        className="hidden"
+                                                    />
+                                                </label>
+                                            </div>
+                                            <button
+                                                onClick={addOfferImage}
+                                                disabled={!selectedOfferFile && !newOfferImage}
+                                                className="bg-blue-600 text-white px-4 py-3 rounded-lg flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed h-[50px]"
+                                            >
+                                                {uploadingOffer ? <Loader className="animate-spin" size={16} /> : <Plus size={16} />}
+                                                إضافة
+                                            </button>
+                                        </div>
+                                    ) : null}
+
+                                    <div className="flex gap-2 items-center">
+                                        <div className="flex-1 relative">
+                                            <LinkIcon size={16} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400" />
+                                            <input
+                                                value={newOfferImage}
+                                                onChange={(e) => setNewOfferImage(e.target.value)}
+                                                placeholder="أو ضع رابط مباشر للصورة هنا..."
+                                                className="w-full border p-2 pr-9 rounded-md text-sm"
+                                            />
+                                        </div>
+                                        {(!settings.cloudinaryCloudName || !settings.cloudinaryUploadPreset) && (
+                                            <button onClick={addOfferImage} className="bg-blue-600 text-white px-4 py-2 rounded-md flex items-center gap-2"><Plus size={16} /> إضافة</button>
+                                        )}
+                                    </div>
                                 </div>
+
                                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                                     {(settings.offerImages || []).map((img, idx) => (
-                                        <div key={idx} className="relative group rounded-lg overflow-hidden shadow border h-32">
+                                        <div key={idx} className="relative group rounded-lg overflow-hidden shadow border h-32 bg-gray-100">
                                             <img src={img} className="w-full h-full object-cover" />
                                             <button
                                                 onClick={() => removeOfferImage(idx)}
-                                                className="absolute top-2 right-2 bg-red-500 text-white p-1 rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
+                                                className="absolute top-2 right-2 bg-red-500 text-white p-1 rounded-full opacity-0 group-hover:opacity-100 transition-opacity shadow-md"
                                             >
                                                 <Trash size={14} />
                                             </button>
@@ -554,6 +638,7 @@ export const AdminPanel: React.FC<{ onClose: () => void }> = ({ onClose }) => {
                                         className="w-full border p-2 rounded-md"
                                     />
                                 </div>
+                                {/* ... existing fields ... */}
                                 <div>
                                     <label className="block text-sm font-bold mb-1">جملة الترحيب</label>
                                     <input
@@ -729,7 +814,31 @@ export const AdminPanel: React.FC<{ onClose: () => void }> = ({ onClose }) => {
                                                 />
                                             </div>
                                             <div>
-                                                <label className="block text-sm font-bold mb-1">صورة البوب أب (URL)</label>
+                                                <label className="block text-sm font-bold mb-1 flex items-center gap-2">
+                                                    صورة البوب أب (URL)
+                                                    {settings.cloudinaryCloudName && (
+                                                        <label className="cursor-pointer text-blue-600 hover:text-blue-800 text-xs flex items-center gap-1">
+                                                            <Upload size={12} /> رفع
+                                                            <input
+                                                                type="file"
+                                                                accept="image/*"
+                                                                onChange={async (e) => {
+                                                                    const file = e.target.files?.[0];
+                                                                    if (file && settings.cloudinaryCloudName && settings.cloudinaryUploadPreset) {
+                                                                        const result = await uploadImageToCloudinary(file, settings.cloudinaryCloudName, settings.cloudinaryUploadPreset);
+                                                                        if (result.success && result.url) {
+                                                                            updateSettings({ ...settings, popupImage: result.url });
+                                                                            alert('تم رفع صورة البوب أب بنجاح ✅');
+                                                                        } else {
+                                                                            alert('فشل رفع الصورة: ' + result.error);
+                                                                        }
+                                                                    }
+                                                                }}
+                                                                className="hidden"
+                                                            />
+                                                        </label>
+                                                    )}
+                                                </label>
                                                 <input
                                                     value={settings.popupImage || ''}
                                                     onChange={(e) => updateSettings({ ...settings, popupImage: e.target.value })}
