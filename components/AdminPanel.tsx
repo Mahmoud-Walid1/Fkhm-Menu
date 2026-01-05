@@ -257,7 +257,13 @@ export const AdminPanel: React.FC<{ onClose: () => void }> = ({ onClose }) => {
                                         {isReorderProducts ? 'إنهاء الترتيب' : 'ترتيب المنتجات'}
                                     </button>
                                     <button
-                                        onClick={() => setEditingProduct({ categoryIds: [], category: categories[0]?.id })}
+                                        onClick={() => {
+                                            const defaultCatId = categories[0]?.id;
+                                            setEditingProduct({
+                                                categoryIds: defaultCatId ? [defaultCatId] : [],
+                                                category: defaultCatId
+                                            });
+                                        }}
                                         className="bg-green-500 text-white px-4 py-2 rounded-md flex items-center gap-2 hover:bg-green-600"
                                     >
                                         <Plus size={18} /> منتج جديد
