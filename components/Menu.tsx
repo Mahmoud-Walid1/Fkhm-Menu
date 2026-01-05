@@ -96,38 +96,38 @@ const ProductCard: React.FC<{ product: Product; onAdd: () => void; primaryColor:
   return (
     <div
       data-product-id={product.id}
-      className="bg-white rounded-[2rem] shadow-xl border border-purple-100 flex flex-col h-full overflow-visible transform transition-all duration-200 hover:shadow-2xl hover:-translate-y-1 relative mt-12 pt-12"
+      className="bg-white rounded-[2rem] shadow-xl border border-purple-100 flex flex-col h-full overflow-visible transform transition-all duration-200 hover:shadow-2xl hover:-translate-y-2 relative mt-16 pt-16 group"
     >
       {/* Popped Out Image Container */}
-      <div className="absolute -top-16 left-0 right-0 flex justify-center z-10 w-full pointer-events-none">
-        <div className="relative w-40 h-40 md:w-48 md:h-48 transition-transform duration-500 ease-out group-hover:scale-110 group-hover:-rotate-6 group-hover:-translate-y-2">
+      <div className="absolute -top-20 left-0 right-0 flex justify-center z-10 w-full pointer-events-none">
+        <div className="relative w-44 h-44 md:w-52 md:h-52 transition-transform duration-500 ease-out group-hover:scale-110 group-hover:-rotate-6 group-hover:-translate-y-3">
           {/* Glow Effect */}
-          <div className="absolute inset-0 bg-purple-500/20 rounded-full blur-xl group-hover:bg-purple-500/30 transition-all duration-500"></div>
+          <div className="absolute inset-0 bg-purple-500/20 rounded-full blur-2xl group-hover:bg-purple-500/30 transition-all duration-500 transform translate-y-4"></div>
           <img
             src={product.image}
             alt={product.name}
-            className="w-full h-full object-contain filter drop-shadow-[0_10px_20px_rgba(0,0,0,0.15)] group-hover:drop-shadow-[0_20px_30px_rgba(0,0,0,0.25)] transition-all duration-500 pointer-events-auto"
+            className="w-full h-full object-contain filter drop-shadow-[0_15px_25px_rgba(0,0,0,0.15)] group-hover:drop-shadow-[0_25px_35px_rgba(0,0,0,0.25)] transition-all duration-500 pointer-events-auto"
             loading="lazy"
           />
         </div>
 
         {/* Promo Badge */}
         {product.isPromo && (
-          <div className="absolute top-4 right-10 bg-red-600 text-white text-xs font-bold px-3 py-1 rounded-full shadow-lg z-20 animate-pulse">
+          <div className="absolute top-6 right-8 bg-red-600 text-white text-xs font-bold px-3 py-1 rounded-full shadow-lg z-20 animate-pulse">
             خصم
           </div>
         )}
 
         {/* Icons */}
-        <div className="absolute top-4 left-10 flex flex-col gap-2 z-20">
-          {product.isHot && <span className="w-8 h-8 flex items-center justify-center bg-white/90 text-red-500 rounded-full shadow-md backdrop-blur-sm"><Flame size={16} /></span>}
-          {product.isCold && <span className="w-8 h-8 flex items-center justify-center bg-white/90 text-blue-500 rounded-full shadow-md backdrop-blur-sm"><Snowflake size={16} /></span>}
+        <div className="absolute top-6 left-8 flex flex-col gap-2 z-20">
+          {product.isHot && <span className="w-9 h-9 flex items-center justify-center bg-white/95 text-red-500 rounded-full shadow-lg backdrop-blur-sm"><Flame size={18} /></span>}
+          {product.isCold && <span className="w-9 h-9 flex items-center justify-center bg-white/95 text-blue-500 rounded-full shadow-lg backdrop-blur-sm"><Snowflake size={18} /></span>}
         </div>
       </div>
 
       {/* Card Content */}
-      <div className="p-5 flex flex-col flex-1 relative bg-white rounded-[2rem] z-0">
-        <div className="flex flex-col items-center mb-3 mt-4">
+      <div className="p-6 flex flex-col flex-1 relative bg-white rounded-[2rem] z-0">
+        <div className="flex flex-col items-center mb-4 mt-6">
           <h3 className="font-extrabold text-gray-900 text-xl md:text-2xl text-center leading-tight mb-2">
             {product.name}
           </h3>
