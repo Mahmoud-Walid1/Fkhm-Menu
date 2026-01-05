@@ -82,7 +82,7 @@ export const Menu: React.FC = () => {
                     style={{
                       borderColor: !cat.headerBackgroundColor ? settings.primaryColor : undefined,
                       backgroundColor: cat.headerBackgroundColor ?? undefined,
-                      color: cat.textColor || (cat.headerBackgroundColor ? 'white' : (settings.theme === 'dark' ? 'white' : '#1f2937')) // Default to white text if background is set, else default
+                      color: cat.textColor || (settings.theme === 'dark' ? 'white' : '#1f2937')
                     }}
                   >
                     {cat.name}
@@ -312,6 +312,7 @@ const ProductModal: React.FC<{
       !product.isHot && product.isCold ? 'cold' : undefined
   );
   const [tempError, setTempError] = useState(false);
+  const showTempSelection = product.isHot && product.isCold;
 
   return (
     <motion.div
