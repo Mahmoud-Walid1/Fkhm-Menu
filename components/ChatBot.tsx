@@ -192,55 +192,68 @@ export const ChatBot: React.FC<{ isCartOpen?: boolean }> = ({ isCartOpen = false
 
       // PRIORITY 1: Try Groq API (Llama 3)
       if (settings.groqApiKey) {
-        try {
-          // Collect all available Groq keys from separate fields
-          const groqKeys = [
-            settings.groqApiKey,
-            settings.groqApiKey2,
-            settings.groqApiKey3
-          ].filter(k => k && k.trim());
+        // Collect all available Groq keys from separate fields
+        const groqKeys = [
+          settings.groqApiKey,
+          settings.groqApiKey2,
+          settings.groqApiKey3
+        ].filter(k => k && k.trim());
 
-          const activeGroqKey = groqKeys[Math.floor(Math.random() * groqKeys.length)];
+        console.log(`🔑 Groq: Found ${groqKeys.length} API key(s)`);
 
-          const response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
-            method: 'POST',
-            headers: {
-              'Authorization': `Bearer ${activeGroqKey}`,
-              'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({
-              messages: [
-                { role: 'system', content: systemInstruction },
-                ...messages.map(m => ({ role: m.sender === 'user' ? 'user' : 'assistant', content: m.text })),
-                { role: 'user', content: userMessage.text }
-              ],
-              model: 'llama-3.1-8b-instant',
-              temperature: 0.3,
-              max_tokens: 300
-            })
-          });
+        // Try each Groq key sequentially until one succeeds
+        let groqSuccess = false;
+        for (let i = 0; i < groqKeys.length && !groqSuccess; i++) {
+          const activeGroqKey = groqKeys[i];
+          console.log(`🎯 Trying Groq key ${i + 1}/${groqKeys.length} ending in: ...${activeGroqKey?.slice(-8)}`);
 
-          if (!response.ok) {
-            const errorData = await response.json().catch(() => ({ error: { message: response.statusText } }));
-            console.error('Groq API Error Details:', errorData);
+          try {
+            const response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+              method: 'POST',
+              headers: {
+                'Authorization': `Bearer ${activeGroqKey}`,
+                'Content-Type': 'application/json'
+              },
+              body: JSON.stringify({
+                messages: [
+                  { role: 'system', content: systemInstruction },
+                  ...messages.map(m => ({ role: m.sender === 'user' ? 'user' : 'assistant', content: m.text })),
+                  { role: 'user', content: userMessage.text }
+                ],
+                model: 'llama-3.1-8b-instant',
+                temperature: 0.3,
+                max_tokens: 300
+              })
+            });
 
-            // Check if it's a rate limit error
-            if (errorData?.error?.type === 'rate_limit_exceeded' || response.status === 429) {
-              console.warn('⚠️ Groq rate limit exceeded, switching to Gemini...');
-              throw new Error('RATE_LIMIT'); // Special error to trigger fallback
+            const data = await response.json();
+
+            if (!response.ok) {
+              console.error(`Groq API Error (key ${i + 1}):`, data);
+              // If rate limit, try next key
+              if (data?.error?.type === 'rate_limit_exceeded' || response.status === 429) {
+                console.warn(`⚠️ Groq key ${i + 1} hit rate limit, trying next key...`);
+                continue;
+              }
+              throw new Error(`Groq API Error: ${response.status} - ${data?.error?.message || response.statusText}`);
             }
 
-            throw new Error(`Groq API Error: ${response.status} - ${errorData?.error?.message || response.statusText}`);
+            if (data.choices && data.choices.length > 0) {
+              responseText = data.choices[0].message.content;
+              groqSuccess = true;
+              console.log(`✅ Groq key ${i + 1} succeeded!`);
+            } else {
+              throw new Error('Groq Empty Response');
+            }
+          } catch (err) {
+            console.error(`❌ Groq key ${i + 1} failed:`, err);
+            // Continue to next key
           }
+        }
 
-          const data = await response.json();
-          if (data.choices && data.choices.length > 0) {
-            responseText = data.choices[0].message.content;
-          } else {
-            throw new Error('Groq Empty Response');
-          }
-        } catch (groqError) {
-          console.warn('Groq API failed, attempting fallback to Gemini if available...', groqError);
+        // If all Groq keys failed, fallback to Gemini
+        if (!groqSuccess) {
+          console.warn('⚠️ All Groq keys failed, falling back to Gemini...');
           usedFallback = true;
         }
       } else {
@@ -249,66 +262,72 @@ export const ChatBot: React.FC<{ isCartOpen?: boolean }> = ({ isCartOpen = false
 
       // PRIORITY 2: Fallback to Gemini Flash API (Free, Fast, Generous Limits)
       if (usedFallback && settings.geminiApiKey) {
-        try {
-          // Collect all available Gemini keys from separate fields
-          const geminiKeys = [
-            settings.geminiApiKey,
-            settings.geminiApiKey2,
-            settings.geminiApiKey3
-          ].filter(k => k && k.trim());
+        // Collect all available Gemini keys from separate fields
+        const geminiKeys = [
+          settings.geminiApiKey,
+          settings.geminiApiKey2,
+          settings.geminiApiKey3
+        ].filter(k => k && k.trim());
 
-          console.log(`🔑 Gemini: Found ${geminiKeys.length} API key(s)`);
-          const activeGeminiKey = geminiKeys[Math.floor(Math.random() * geminiKeys.length)];
-          console.log(`🎯 Using Gemini key ending in: ...${activeGeminiKey?.slice(-8)}`);
+        console.log(`🔑 Gemini: Found ${geminiKeys.length} API key(s)`);
 
-          const geminiResponse = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-exp:generateContent`, {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-              'x-goog-api-key': activeGeminiKey
-            },
-            body: JSON.stringify({
-              contents: [
-                {
-                  role: 'user',
-                  parts: [
-                    { text: systemInstruction },
-                    { text: '\n\nالمحادثة السابقة:\n' + messages.map(m => `${m.sender === 'user' ? 'المستخدم' : 'المساعد'}: ${m.text}`).join('\n') },
-                    { text: '\n\nالسؤال الحالي:\n' + userMessage.text }
-                  ]
+        // Try each Gemini key sequentially until one succeeds
+        let geminiSuccess = false;
+        for (let i = 0; i < geminiKeys.length && !geminiSuccess; i++) {
+          const activeGeminiKey = geminiKeys[i];
+          console.log(`🎯 Trying Gemini key ${i + 1}/${geminiKeys.length} ending in: ...${activeGeminiKey?.slice(-8)}`);
+
+          try {
+            const geminiResponse = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-exp:generateContent`, {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+                'x-goog-api-key': activeGeminiKey
+              },
+              body: JSON.stringify({
+                contents: [
+                  {
+                    role: 'user',
+                    parts: [
+                      { text: systemInstruction },
+                      { text: '\n\nالمحادثة السابقة:\n' + messages.map(m => `${m.sender === 'user' ? 'المستخدم' : 'المساعد'}: ${m.text}`).join('\n') },
+                      { text: '\n\nالسؤال الحالي:\n' + userMessage.text }
+                    ]
+                  }
+                ],
+                generationConfig: {
+                  temperature: 0.3,
+                  maxOutputTokens: 500
                 }
-              ],
-              generationConfig: {
-                temperature: 0.3,
-                maxOutputTokens: 500
+              })
+            });
+
+            const geminiData = await geminiResponse.json();
+
+            if (!geminiResponse.ok) {
+              console.error(`Gemini API Error (key ${i + 1}):`, geminiData);
+              // If rate limit, try next key
+              if (geminiData.error?.code === 429 || geminiData.error?.status === 'RESOURCE_EXHAUSTED') {
+                console.warn(`⚠️ Gemini key ${i + 1} hit rate limit, trying next key...`);
+                continue;
               }
-            })
-          });
-
-          if (!geminiResponse.ok) {
-            const errorData = await geminiResponse.json().catch(() => ({ error: { message: geminiResponse.statusText } }));
-            console.error('Gemini API Error:', errorData);
-
-            // Check if it's a rate limit error (Gemini also has limits)
-            if (errorData?.error?.status === 'RESOURCE_EXHAUSTED' || geminiResponse.status === 429) {
-              console.warn('⚠️ Gemini rate limit exceeded, using rule-based fallback...');
-              throw new Error('GEMINI_RATE_LIMIT');
+              throw new Error(`Gemini API Error: ${geminiData.error?.code} - ${geminiData.error?.message}`);
             }
 
-            throw new Error(`Gemini API Error: ${geminiResponse.status} - ${errorData?.error?.message || geminiResponse.statusText}`);
+            responseText = geminiData.candidates?.[0]?.content?.parts?.[0]?.text || 'عذراً، لم أتمكن من فهم الطلب.';
+            geminiSuccess = true;
+            console.log(`✅ Gemini key ${i + 1} succeeded!`);
+          } catch (err) {
+            console.error(`❌ Gemini key ${i + 1} failed:`, err);
+            // Continue to next key
           }
+        }
 
-          const geminiData = await geminiResponse.json();
-          if (geminiData.candidates && geminiData.candidates.length > 0) {
-            responseText = geminiData.candidates[0].content.parts[0].text;
-          } else {
-            throw new Error('Gemini Empty Response');
-          }
-        } catch (geminiError) {
-          console.error('Gemini API failed, using rule-based fallback...', geminiError);
-          // PRIORITY 3: Use simple pattern matching
+        // If all Gemini keys failed, use rule-based fallback
+        if (!geminiSuccess) {
+          console.warn('⚠️ All Gemini keys failed, using rule-based fallback...');
           const fallbackText = getFallbackResponse(userMessage.text);
-          responseText = fallbackText || "أهلاً! حالياً الخدمة الذكية مشغولة، لكن تقدر تتصفح المنيو أو تتواصل معنا مباشرة 😊\n[SHOW_CATEGORIES]";
+          responseText = fallbackText || `عذراً، النظام مشغول حالياً 🤖\n\nلكن يمكنك:\n🔹 تصفح المنيو مباشرة\n🔹 التواصل معنا عبر واتساب: ${settings.whatsappNumber}\n\nنسعد بخدمتك! 😊`;
         }
       } else if (usedFallback && !settings.geminiApiKey) {
         // No API key - use rule-based responses
