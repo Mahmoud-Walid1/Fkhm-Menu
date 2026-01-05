@@ -44,7 +44,7 @@ export const Menu: React.FC = () => {
       <motion.div
         layout
         transition={{ duration: 0.2 }}
-        className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-x-6 gap-y-24 md:gap-x-10 md:gap-y-32 pt-10"
+        className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-x-4 gap-y-20 md:gap-x-8 md:gap-y-28 pt-8"
       >
         <AnimatePresence mode="wait">
           {filteredProducts.map((product) => (
@@ -96,13 +96,13 @@ const ProductCard: React.FC<{ product: Product; onAdd: () => void; primaryColor:
   return (
     <div
       data-product-id={product.id}
-      className="bg-white rounded-[2rem] shadow-xl border border-purple-100 flex flex-col h-full overflow-visible transform transition-all duration-200 hover:shadow-2xl hover:-translate-y-2 relative mt-16 pt-16 group"
+      className="bg-white rounded-[1.5rem] md:rounded-[2rem] shadow-xl border border-purple-100 flex flex-col h-full overflow-visible transform transition-all duration-200 hover:shadow-2xl hover:-translate-y-2 relative mt-12 pt-10 md:mt-16 md:pt-16 group"
     >
       {/* Popped Out Image Container */}
-      <div className="absolute -top-20 left-0 right-0 flex justify-center z-10 w-full pointer-events-none">
-        <div className="relative w-44 h-44 md:w-52 md:h-52 transition-transform duration-500 ease-out group-hover:scale-110 group-hover:-rotate-6 group-hover:-translate-y-3">
+      <div className="absolute -top-16 md:-top-20 left-0 right-0 flex justify-center z-10 w-full pointer-events-none">
+        <div className="relative w-36 h-36 md:w-52 md:h-52 transition-transform duration-500 ease-out group-hover:scale-110 group-hover:-rotate-6 group-hover:-translate-y-3">
           {/* Realistic Ground Shadow */}
-          <div className="absolute bottom-2 left-1/2 -translate-x-1/2 w-32 h-4 bg-black/20 blur-md rounded-[100%] transition-all duration-500 group-hover:w-24 group-hover:bg-black/10 group-hover:blur-lg"></div>
+          <div className="absolute bottom-2 left-1/2 -translate-x-1/2 w-24 h-3 md:w-32 md:h-4 bg-black/20 blur-md rounded-[100%] transition-all duration-500 group-hover:w-20 group-hover:bg-black/10 group-hover:blur-lg"></div>
 
           {/* Glow Effect */}
           <div className="absolute inset-0 bg-purple-500/0 rounded-full blur-2xl group-hover:bg-purple-500/20 transition-all duration-500 transform translate-y-4"></div>
@@ -110,32 +110,32 @@ const ProductCard: React.FC<{ product: Product; onAdd: () => void; primaryColor:
           <img
             src={product.image}
             alt={product.name}
-            className="w-full h-full object-contain filter drop-shadow-[0_10px_10px_rgba(0,0,0,0.2)] group-hover:drop-shadow-[0_25px_25px_rgba(0,0,0,0.3)] transition-all duration-500 pointer-events-auto"
+            className="w-full h-full object-contain filter drop-shadow-[0_8px_8px_rgba(0,0,0,0.15)] group-hover:drop-shadow-[0_25px_25px_rgba(0,0,0,0.3)] transition-all duration-500 pointer-events-auto"
             loading="lazy"
           />
         </div>
 
         {/* Promo Badge */}
         {product.isPromo && (
-          <div className="absolute top-6 right-8 bg-red-600 text-white text-xs font-bold px-3 py-1 rounded-full shadow-lg z-20 animate-pulse">
+          <div className="absolute top-4 right-4 md:top-6 md:right-8 bg-red-600 text-white text-[10px] md:text-xs font-bold px-2 py-0.5 md:px-3 md:py-1 rounded-full shadow-lg z-20 animate-pulse">
             خصم
           </div>
         )}
 
         {/* Icons */}
-        <div className="absolute top-6 left-8 flex flex-col gap-2 z-20">
-          {product.isHot && <span className="w-9 h-9 flex items-center justify-center bg-white/95 text-red-500 rounded-full shadow-lg backdrop-blur-sm"><Flame size={18} /></span>}
-          {product.isCold && <span className="w-9 h-9 flex items-center justify-center bg-white/95 text-blue-500 rounded-full shadow-lg backdrop-blur-sm"><Snowflake size={18} /></span>}
+        <div className="absolute top-4 left-4 md:top-6 md:left-8 flex flex-col gap-1.5 md:gap-2 z-20">
+          {product.isHot && <span className="w-7 h-7 md:w-9 md:h-9 flex items-center justify-center bg-white/95 text-red-500 rounded-full shadow-lg backdrop-blur-sm"><Flame size={14} className="md:w-[18px] md:h-[18px]" /></span>}
+          {product.isCold && <span className="w-7 h-7 md:w-9 md:h-9 flex items-center justify-center bg-white/95 text-blue-500 rounded-full shadow-lg backdrop-blur-sm"><Snowflake size={14} className="md:w-[18px] md:h-[18px]" /></span>}
         </div>
       </div>
 
       {/* Card Content */}
-      <div className="p-6 flex flex-col flex-1 relative bg-gradient-to-b from-white to-gray-50 rounded-[2rem] z-0">
+      <div className="p-4 md:p-6 flex flex-col flex-1 relative bg-gradient-to-b from-white to-gray-50 rounded-[1.5rem] md:rounded-[2rem] z-0">
         {/* Subtle Background Pattern */}
-        <div className="absolute inset-0 opacity-[0.03] pointer-events-none" style={{ backgroundImage: 'radial-gradient(circle at 2px 2px, black 1px, transparent 0)', backgroundSize: '24px 24px' }}></div>
+        <div className="absolute inset-0 opacity-[0.03] pointer-events-none" style={{ backgroundImage: 'radial-gradient(circle at 2px 2px, black 1px, transparent 0)', backgroundSize: '16px 16px' }}></div>
 
-        <div className="flex flex-col items-center mb-4 mt-6 z-10">
-          <h3 className="font-extrabold text-gray-900 text-xl md:text-2xl text-center leading-tight mb-2">
+        <div className="flex flex-col items-center mb-2 md:mb-4 mt-4 md:mt-6 z-10">
+          <h3 className="font-extrabold text-gray-900 text-lg md:text-2xl text-center leading-tight mb-1">
             {product.name}
           </h3>
 
