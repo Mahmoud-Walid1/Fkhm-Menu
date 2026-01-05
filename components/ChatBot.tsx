@@ -272,10 +272,10 @@ export const ChatBot: React.FC<{ isCartOpen?: boolean }> = ({ isCartOpen = false
 
         // Multiple Gemini models to try (ordered by preference)
         const geminiModels = [
-          'gemini-2.0-flash-exp',      // Primary: Latest experimental
-          'gemini-1.5-flash',           // Backup 1: Stable flash
-          'gemini-1.5-flash-8b',        // Backup 2: Smaller, faster
-          'gemini-1.5-pro'              // Backup 3: More capable
+          'gemini-2.0-flash-exp',           // Primary: Latest experimental (working!)
+          'gemini-1.5-flash-latest',        // Backup 1: Stable flash
+          'gemini-1.5-pro-latest',          // Backup 2: More capable
+          'gemini-exp-1206'                 // Backup 3: Experimental Dec 2024
         ];
 
         console.log(`🔑 Gemini: Found ${geminiKeys.length} key(s), ${geminiModels.length} model(s)`);
