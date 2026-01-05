@@ -1,6 +1,7 @@
+
 import React from 'react';
 import { motion } from 'framer-motion';
-import { X, Trash2, ShoppingBag, Send } from 'lucide-react';
+import { X, Trash2, ShoppingBag, Send, Coffee, Box } from 'lucide-react';
 import { useAppStore } from '../store';
 
 interface CartProps {
@@ -16,13 +17,13 @@ export const Cart: React.FC<CartProps> = ({ isOpen, onClose }) => {
   const handleCheckout = () => {
     if (cart.length === 0) return;
 
-    let message = `مرحباً، أود طلب التالي من *${settings.shopName}*:\n\n`;
+    let message = `مرحباً، أود طلب التالي من * ${settings.shopName}*: \n\n`;
     cart.forEach(item => {
       const sizeText = item.selectedSize ? `(${item.selectedSize.name})` : '';
       const tempText = item.selectedTemperature ? ` (${item.selectedTemperature === 'hot' ? 'حار' : 'بارد'})` : '';
       message += `▪️ ${item.quantity}x ${item.name} ${sizeText}${tempText} - ${item.finalPrice * item.quantity} ر.س\n`;
     });
-    message += `\n*المجموع: ${subtotal} ر.س*`;
+    message += `\n * المجموع: ${subtotal} ر.س * `;
     message += `\n\nأرجو تأكيد الطلب والتوصيل.`;
 
     const url = `https://wa.me/${settings.whatsappNumber}?text=${encodeURIComponent(message)}`;
@@ -77,7 +78,13 @@ export const Cart: React.FC<CartProps> = ({ isOpen, onClose }) => {
                 <div className="flex-1 flex flex-col justify-between">
                   <div>
                     <h3 className="font-bold text-gray-800">{item.name}</h3>
-                    {item.selectedSize && <p className="text-xs text-gray-500">الحجم: {item.selectedSize.name}</p>}
+                    {item.selectedSize && (
+                      <div className="flex items-center gap-1 text-xs text-gray-500">
+                        <span>الحجم:</span>
+                        {item.selectedSize.icon === 'box' ? <Box size={14} className="text-blue-600" /> : <Coffee size={14} className="text-orange-600" />}
+                        <span>{item.selectedSize.name}</span>
+                      </div>
+                    )}
                     {item.selectedTemperature && (
                       <p className="text-xs text-gray-500">
                         التقديم: {item.selectedTemperature === 'hot' ? 'حار 🔥' : 'بارد ❄️'}
