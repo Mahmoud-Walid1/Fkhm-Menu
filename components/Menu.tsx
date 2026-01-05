@@ -44,7 +44,7 @@ export const Menu: React.FC = () => {
       <motion.div
         layout
         transition={{ duration: 0.2 }}
-        className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5 md:gap-8"
+        className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-x-6 gap-y-24 md:gap-x-10 md:gap-y-32 pt-10"
       >
         <AnimatePresence mode="wait">
           {filteredProducts.map((product) => (
@@ -126,8 +126,11 @@ const ProductCard: React.FC<{ product: Product; onAdd: () => void; primaryColor:
       </div>
 
       {/* Card Content */}
-      <div className="p-6 flex flex-col flex-1 relative bg-white rounded-[2rem] z-0">
-        <div className="flex flex-col items-center mb-4 mt-6">
+      <div className="p-6 flex flex-col flex-1 relative bg-gradient-to-b from-white to-gray-50 rounded-[2rem] z-0">
+        {/* Subtle Background Pattern */}
+        <div className="absolute inset-0 opacity-[0.03] pointer-events-none" style={{ backgroundImage: 'radial-gradient(circle at 2px 2px, black 1px, transparent 0)', backgroundSize: '24px 24px' }}></div>
+
+        <div className="flex flex-col items-center mb-4 mt-6 z-10">
           <h3 className="font-extrabold text-gray-900 text-xl md:text-2xl text-center leading-tight mb-2">
             {product.name}
           </h3>
