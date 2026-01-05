@@ -179,7 +179,7 @@ export const ChatBot: React.FC<{ isCartOpen?: boolean }> = ({ isCartOpen = false
       if (usedFallback && settings.geminiApiKey) {
         const genAI = new GoogleGenAI({ apiKey: settings.geminiApiKey });
         const response = await genAI.models.generateContent({
-          model: 'gemini-1.5-flash-001',
+          model: 'gemini-pro',
           contents: { role: 'user', parts: [{ text: userMessage.text }] } as any, // Adjust content structure if needed for specific SDK version
           config: {
             temperature: 0.3,
