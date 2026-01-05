@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useAppStore } from '../store';
 import { Product, Category } from '../types';
 import { motion } from 'framer-motion';
-import { Plus, Trash, Edit, Save, X, Image as ImageIcon, Upload, Loader, Coffee, Box, Share2, LogOut, Palette, Link as LinkIcon, ArrowUp, ArrowDown } from 'lucide-react';
+import { Plus, Trash2, Edit2, Save, X, Image as ImageIcon, Loader2, GripVertical, Coffee, Box, CupSoda, LogOut, Palette, Link as LinkIcon, ArrowUp, ArrowDown } from 'lucide-react';
 import { uploadImageToCloudinary } from '../utils/cloudinaryUpload';
 
 export const AdminPanel: React.FC<{ onClose: () => void }> = ({ onClose }) => {
@@ -16,7 +16,7 @@ export const AdminPanel: React.FC<{ onClose: () => void }> = ({ onClose }) => {
     const [editingCategory, setEditingCategory] = useState<{ id: string; name: string } | null>(null);
 
     // Size Icon Selection State
-    const [newSizeIcon, setNewSizeIcon] = useState<'cup' | 'box'>('cup');
+    const [newSizeIcon, setNewSizeIcon] = useState<'cup' | 'box' | 'cup_soda'>('cup');
 
     // Image Management State (Text Inputs)
     const [newHeroImage, setNewHeroImage] = useState('');
@@ -445,7 +445,7 @@ export const AdminPanel: React.FC<{ onClose: () => void }> = ({ onClose }) => {
                                                             />
                                                             <Coffee size={18} />
                                                         </label>
-                                                        <label className={`cursor-pointer p-1 rounded transition-colors ${newSizeIcon === 'box' ? 'bg-white text-blue-600 shadow-sm' : 'text-gray-500 hover:bg-white hover:text-blue-600'}`}>
+                                                        <label className={`cursor-pointer p-1 rounded transition-colors ${newSizeIcon === 'box' ? 'bg-white text-purple-600 shadow-sm' : 'text-gray-500 hover:bg-white hover:text-purple-600'}`}>
                                                             <input
                                                                 type="radio"
                                                                 name="sizeIcon"
@@ -455,6 +455,17 @@ export const AdminPanel: React.FC<{ onClose: () => void }> = ({ onClose }) => {
                                                                 onChange={() => setNewSizeIcon('box')}
                                                             />
                                                             <Box size={18} />
+                                                        </label>
+                                                        <label className={`cursor-pointer p-1 rounded transition-colors ${newSizeIcon === 'cup_soda' ? 'bg-white text-blue-500 shadow-sm' : 'text-gray-500 hover:bg-white hover:text-blue-500'}`}>
+                                                            <input
+                                                                type="radio"
+                                                                name="sizeIcon"
+                                                                value="cup_soda"
+                                                                className="hidden"
+                                                                checked={newSizeIcon === 'cup_soda'}
+                                                                onChange={() => setNewSizeIcon('cup_soda')}
+                                                            />
+                                                            <CupSoda size={18} />
                                                         </label>
                                                     </div>
                                                     <button
@@ -492,16 +503,29 @@ export const AdminPanel: React.FC<{ onClose: () => void }> = ({ onClose }) => {
                                                                         type="button"
                                                                         onClick={() => {
                                                                             const updatedSizes = [...(editingProduct.sizes || [])];
+                                                                            const currentIcon = updatedSizes[idx].icon;
+                                                                            let nextIcon: 'cup' | 'box' | 'cup_soda' = 'cup';
+
+                                                                            if (currentIcon === 'cup') nextIcon = 'cup_soda';
+                                                                            else if (currentIcon === 'cup_soda') nextIcon = 'box';
+                                                                            else nextIcon = 'cup'; // box -> cup
+
                                                                             updatedSizes[idx] = {
                                                                                 ...updatedSizes[idx],
-                                                                                icon: updatedSizes[idx].icon === 'box' ? 'cup' : 'box'
+                                                                                icon: nextIcon
                                                                             };
                                                                             setEditingProduct({ ...editingProduct, sizes: updatedSizes });
                                                                         }}
                                                                         className="hover:scale-110 transition-transform"
-                                                                        title="اضغط لتغيير الأيقونة"
+                                                                        title="اضغط لتغيير الأيقونة (حار -> بارد -> بوكس)"
                                                                     >
-                                                                        {size.icon === 'box' ? <Box size={14} className="text-blue-600" /> : <Coffee size={14} className="text-orange-600" />}
+                                                                        {size.icon === 'box' ? (
+                                                                            <Box size={14} className="text-purple-600" />
+                                                                        ) : size.icon === 'cup_soda' ? (
+                                                                            <CupSoda size={14} className="text-blue-500" />
+                                                                        ) : (
+                                                                            <Coffee size={14} className="text-orange-600" />
+                                                                        )}
                                                                     </button>
                                                                     {size.name} ({size.priceModifier > 0 ? '+' : ''}{size.priceModifier} ريال)
                                                                 </span>

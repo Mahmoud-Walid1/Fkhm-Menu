@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { motion } from 'framer-motion';
-import { X, Trash2, ShoppingBag, Send, Coffee, Box } from 'lucide-react';
+import { X, Trash2, ShoppingBag, Send, Coffee, Box, CupSoda } from 'lucide-react';
 import { useAppStore } from '../store';
 
 interface CartProps {
@@ -81,7 +81,13 @@ export const Cart: React.FC<CartProps> = ({ isOpen, onClose }) => {
                     {item.selectedSize && (
                       <div className="flex items-center gap-1 text-xs text-gray-500">
                         <span>الحجم:</span>
-                        {item.selectedSize.icon === 'box' ? <Box size={14} className="text-blue-600" /> : <Coffee size={14} className="text-orange-600" />}
+                        {item.selectedSize.icon === 'box' ? (
+                          <Box size={14} className="text-purple-600" />
+                        ) : item.selectedSize.icon === 'cup_soda' ? (
+                          <CupSoda size={14} className="text-blue-500" />
+                        ) : (
+                          <Coffee size={14} className="text-orange-600" />
+                        )}
                         <span>{item.selectedSize.name}</span>
                       </div>
                     )}

@@ -215,20 +215,18 @@ const ProductCard: React.FC<{ product: Product; onAdd: () => void; primaryColor:
                         strokeWidth={selectedSize?.name === size.name ? 2.5 : 2}
                         className={`md:w-[24px] md:h-[24px] w-[20px] h-[20px] mb-1 ${selectedSize?.name === size.name ? 'text-purple-600' : 'text-gray-400'}`}
                       />
+                    ) : size.icon === 'cup_soda' ? (
+                      <CupSoda
+                        size={selectedSize?.name === size.name ? 24 : 18}
+                        strokeWidth={selectedSize?.name === size.name ? 2.5 : 2}
+                        className={`md:w-[24px] md:h-[24px] w-[20px] h-[20px] mb-1 ${selectedSize?.name === size.name ? 'text-purple-600' : 'text-gray-400'}`}
+                      />
                     ) : size.icon === 'cup' ? (
-                      product.isCold ? (
-                        <CupSoda
-                          size={selectedSize?.name === size.name ? 24 : 18}
-                          strokeWidth={selectedSize?.name === size.name ? 2.5 : 2}
-                          className={`md:w-[24px] md:h-[24px] w-[20px] h-[20px] mb-1 ${selectedSize?.name === size.name ? 'text-purple-600' : 'text-gray-400'}`}
-                        />
-                      ) : (
-                        <Coffee
-                          size={selectedSize?.name === size.name ? 24 : 18}
-                          strokeWidth={selectedSize?.name === size.name ? 2.5 : 2}
-                          className={`md:w-[24px] md:h-[24px] w-[20px] h-[20px] mb-1 ${selectedSize?.name === size.name ? 'text-purple-600' : 'text-gray-400'}`}
-                        />
-                      )
+                      <Coffee
+                        size={selectedSize?.name === size.name ? 24 : 18}
+                        strokeWidth={selectedSize?.name === size.name ? 2.5 : 2}
+                        className={`md:w-[24px] md:h-[24px] w-[20px] h-[20px] mb-1 ${selectedSize?.name === size.name ? 'text-purple-600' : 'text-gray-400'}`}
+                      />
                     ) : (
                       <SizeIcon
                         size={selectedSize?.name === size.name ? 24 : 18}
@@ -385,7 +383,7 @@ const ProductModal: React.FC<{
                     }}
                   >
                     <div className="flex items-center gap-2">
-                      {size.icon === 'box' ? <Box size={18} /> : (size.icon === 'cup' ? <Coffee size={18} /> : null)}
+                      {size.icon === 'box' ? <Box size={18} /> : size.icon === 'cup_soda' ? <CupSoda size={18} /> : (size.icon === 'cup' ? <Coffee size={18} /> : null)}
                       <span className="font-bold">{size.name}</span>
                     </div>
                     {size.priceModifier > 0 && <span className={`text-xs px-2 py-1 rounded ${selectedSize?.name === size.name ? 'bg-white/20' : 'bg-gray-100'}`}>+{size.priceModifier} ر.س</span>}
