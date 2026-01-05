@@ -309,9 +309,7 @@ const ProductModal: React.FC<{
   const [selectedTemp, setSelectedTemp] = useState<'hot' | 'cold' | undefined>(
     product.isHot && !product.isCold ? 'hot' :
       !product.isHot && product.isCold ? 'cold' : undefined
-  );
-
-  const showTempSelection = product.isHot && product.isCold;
+  const [tempError, setTempError] = useState(false);
 
   return (
     <motion.div
@@ -343,14 +341,15 @@ const ProductModal: React.FC<{
 
           {/* Temperature Selection (Only if both are available) */}
           {showTempSelection && (
-            <div className="mb-6">
-              <h3 className="font-bold text-gray-800 mb-3 flex items-center gap-2">
-                <span className="w-1 h-5 rounded" style={{ backgroundColor: primaryColor }}></span>
+            <div className={`mb-6 p-4 rounded-lg transition-colors ${tempError ? 'bg-red-50 border border-red-200 animate-pulse' : ''}`}>
+              <h3 className={`font-bold mb-3 flex items-center gap-2 ${tempError ? 'text-red-700' : 'text-gray-800'}`}>
+                <span className="w-1 h-5 rounded" style={{ backgroundColor: tempError ? '#ef4444' : primaryColor }}></span>
                 طريقة التقديم:
+                {tempError && <span className="text-xs font-normal text-red-500 mr-2">(مطلوب)</span>}
               </h3>
               <div className="flex gap-3">
                 <button
-                  onClick={() => setSelectedTemp('hot')}
+                  onClick={() => { setSelectedTemp('hot'); setTempError(false); }}
                   className={`flex-1 py-2 px-4 rounded border transition-all flex items-center justify-center gap-2 ${selectedTemp === 'hot'
                     ? 'bg-red-500 text-white border-transparent'
                     : 'bg-white text-gray-600 border-gray-200 hover:bg-gray-50'
@@ -360,7 +359,7 @@ const ProductModal: React.FC<{
                   <span>حار</span>
                 </button>
                 <button
-                  onClick={() => setSelectedTemp('cold')}
+                  onClick={() => { setSelectedTemp('cold'); setTempError(false); }}
                   className={`flex-1 py-2 px-4 rounded border transition-all flex items-center justify-center gap-2 ${selectedTemp === 'cold'
                     ? 'bg-blue-500 text-white border-transparent'
                     : 'bg-white text-gray-600 border-gray-200 hover:bg-gray-50'
@@ -370,6 +369,7 @@ const ProductModal: React.FC<{
                   <span>بارد</span>
                 </button>
               </div>
+              {tempError && <p className="text-red-600 text-sm mt-2 font-bold">يرجى اختيار حار أو بارد للمتابعة</p>}
             </div>
           )}
 
@@ -414,7 +414,7 @@ const ProductModal: React.FC<{
             <button
               onClick={() => {
                 if (showTempSelection && !selectedTemp) {
-                  alert('الرجاء اختيار طريقة التقديم (حار/بارد)');
+                  setTempError(true);
                   return;
                 }
                 onConfirm(selectedSize, selectedTemp);
