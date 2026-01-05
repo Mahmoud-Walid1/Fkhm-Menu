@@ -159,7 +159,11 @@ export const ChatBot: React.FC<{ isCartOpen?: boolean }> = ({ isCartOpen = false
             })
           });
 
-          if (!response.ok) throw new Error('Groq API Error');
+          if (!response.ok) {
+            const errorData = await response.json().catch(() => ({ error: { message: response.statusText } }));
+            console.error('Groq API Error Details:', errorData); // Log the full error
+            throw new Error(`Groq API Error: ${response.status} - ${errorData?.error?.message || response.statusText}`);
+          }
 
           const data = await response.json();
           if (data.choices && data.choices.length > 0) {
@@ -179,7 +183,7 @@ export const ChatBot: React.FC<{ isCartOpen?: boolean }> = ({ isCartOpen = false
       if (usedFallback && settings.geminiApiKey) {
         const genAI = new GoogleGenAI({ apiKey: settings.geminiApiKey });
         const response = await genAI.models.generateContent({
-          model: 'gemini-1.5-flash',
+          model: 'gemini-pro',
           contents: { role: 'user', parts: [{ text: userMessage.text }] } as any, // Adjust content structure if needed for specific SDK version
           config: {
             temperature: 0.3,
