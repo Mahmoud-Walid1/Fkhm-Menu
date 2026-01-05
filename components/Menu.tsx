@@ -101,12 +101,16 @@ const ProductCard: React.FC<{ product: Product; onAdd: () => void; primaryColor:
       {/* Popped Out Image Container */}
       <div className="absolute -top-20 left-0 right-0 flex justify-center z-10 w-full pointer-events-none">
         <div className="relative w-44 h-44 md:w-52 md:h-52 transition-transform duration-500 ease-out group-hover:scale-110 group-hover:-rotate-6 group-hover:-translate-y-3">
+          {/* Realistic Ground Shadow */}
+          <div className="absolute bottom-2 left-1/2 -translate-x-1/2 w-32 h-4 bg-black/20 blur-md rounded-[100%] transition-all duration-500 group-hover:w-24 group-hover:bg-black/10 group-hover:blur-lg"></div>
+
           {/* Glow Effect */}
-          <div className="absolute inset-0 bg-purple-500/20 rounded-full blur-2xl group-hover:bg-purple-500/30 transition-all duration-500 transform translate-y-4"></div>
+          <div className="absolute inset-0 bg-purple-500/0 rounded-full blur-2xl group-hover:bg-purple-500/20 transition-all duration-500 transform translate-y-4"></div>
+
           <img
             src={product.image}
             alt={product.name}
-            className="w-full h-full object-contain filter drop-shadow-[0_15px_25px_rgba(0,0,0,0.15)] group-hover:drop-shadow-[0_25px_35px_rgba(0,0,0,0.25)] transition-all duration-500 pointer-events-auto"
+            className="w-full h-full object-contain filter drop-shadow-[0_10px_10px_rgba(0,0,0,0.2)] group-hover:drop-shadow-[0_25px_25px_rgba(0,0,0,0.3)] transition-all duration-500 pointer-events-auto"
             loading="lazy"
           />
         </div>
