@@ -137,10 +137,14 @@ export const ChatBot: React.FC<{ isCartOpen?: boolean }> = ({ isCartOpen = false
       // PRIORITY 1: Try Groq API (Llama 3)
       if (settings.groqApiKey) {
         try {
+          // Support multiple keys for load balancing (comma separated)
+          const groqKeys = settings.groqApiKey.split(',').map(k => k.trim()).filter(k => k);
+          const activeGroqKey = groqKeys[Math.floor(Math.random() * groqKeys.length)];
+
           const response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
             method: 'POST',
             headers: {
-              'Authorization': `Bearer ${settings.groqApiKey}`,
+              'Authorization': `Bearer ${activeGroqKey}`,
               'Content-Type': 'application/json'
             },
             body: JSON.stringify({
@@ -175,13 +179,11 @@ export const ChatBot: React.FC<{ isCartOpen?: boolean }> = ({ isCartOpen = false
       if (usedFallback && settings.geminiApiKey) {
         const genAI = new GoogleGenAI({ apiKey: settings.geminiApiKey });
         const response = await genAI.models.generateContent({
-          model: 'gemini-1.5-flash',
-          contents: userMessage.text,
-          generationConfig: {
-            temperature: 0.3
-          },
+          model: 'gemini-1.5-flash-001',
+          contents: { role: 'user', parts: [{ text: userMessage.text }] } as any, // Adjust content structure if needed for specific SDK version
           config: {
-            systemInstruction: systemInstruction,
+            temperature: 0.3,
+            systemInstruction: { parts: [{ text: systemInstruction }] }
           }
         } as any);
 
