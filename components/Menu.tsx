@@ -72,7 +72,7 @@ export const Menu: React.FC = () => {
               exit={{ opacity: 0 }}
               transition={{ duration: 0.3 }}
               key={cat.id}
-              className={`${cat.backgroundColor ? 'p-6 rounded-[2rem] shadow-sm mb-12' : ''}`}
+              className={`${cat.backgroundColor ? 'p-6 pb-24 rounded-[2rem] shadow-sm mb-12' : ''}`}
               style={{ backgroundColor: cat.backgroundColor ?? undefined }}
             >
               {isAll && (
@@ -310,6 +310,7 @@ const ProductModal: React.FC<{
   const [selectedTemp, setSelectedTemp] = useState<'hot' | 'cold' | undefined>(
     product.isHot && !product.isCold ? 'hot' :
       !product.isHot && product.isCold ? 'cold' : undefined
+  );
   const [tempError, setTempError] = useState(false);
 
   return (
