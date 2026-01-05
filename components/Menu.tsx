@@ -208,11 +208,27 @@ const ProductCard: React.FC<{ product: Product; onAdd: () => void; primaryColor:
                     }`}
                   title={size.name}
                 >
-                  <SizeIcon
-                    size={selectedSize?.name === size.name ? 24 : 18}
-                    strokeWidth={selectedSize?.name === size.name ? 2.5 : 2}
-                    className="md:w-[24px] md:h-[24px] w-[20px] h-[20px] mb-1"
-                  />
+                  <div className="flex flex-col items-center">
+                    {size.icon === 'box' ? (
+                      <Box
+                        size={selectedSize?.name === size.name ? 24 : 18}
+                        strokeWidth={selectedSize?.name === size.name ? 2.5 : 2}
+                        className="md:w-[24px] md:h-[24px] w-[20px] h-[20px] mb-1 text-blue-600"
+                      />
+                    ) : size.icon === 'cup' ? (
+                      <Coffee
+                        size={selectedSize?.name === size.name ? 24 : 18}
+                        strokeWidth={selectedSize?.name === size.name ? 2.5 : 2}
+                        className="md:w-[24px] md:h-[24px] w-[20px] h-[20px] mb-1 text-orange-600"
+                      />
+                    ) : (
+                      <SizeIcon
+                        size={selectedSize?.name === size.name ? 24 : 18}
+                        strokeWidth={selectedSize?.name === size.name ? 2.5 : 2}
+                        className="md:w-[24px] md:h-[24px] w-[20px] h-[20px] mb-1"
+                      />
+                    )}
+                  </div>
                   {/* Label - Positioned Above to avoid covering description */}
                   <span className={`text-[10px] font-bold whitespace-nowrap transition-all duration-300 ${selectedSize?.name === size.name
                     ? 'opacity-100 translate-y-0 text-purple-700'
