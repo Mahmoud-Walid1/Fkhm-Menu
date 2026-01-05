@@ -8,6 +8,34 @@ export const Menu: React.FC = () => {
   const { products, categories, addToCart, settings } = useAppStore();
   const [activeCategory, setActiveCategory] = useState<string>('ALL');
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
+  const [scrollProgress, setScrollProgress] = useState(0);
+  const categoryScrollRef = React.useRef<HTMLDivElement>(null);
+
+  const handleScroll = () => {
+    const el = categoryScrollRef.current;
+    if (el) {
+      const totalScroll = el.scrollWidth - el.clientWidth;
+      if (totalScroll > 0) {
+        // In RTL, scrollLeft can be negative or decreasing from 0. 
+        // We use Math.abs to get magnitude, but orientation depends on browser.
+        // Simplest verified cross-browser way for RTL scroll progress:
+        // (scrollLeft / (scrollWidth - clientWidth))
+        // But in RTL, standard is 0 on right, negative on left OR positive on right.. it varies.
+        // Let's assume standard behavior index and normalize.
+        // Actually, just checking ratio of scrolled distance.
+        const scrollLeft = Math.abs(el.scrollLeft);
+        const progress = (scrollLeft / totalScroll) * 100;
+        setScrollProgress(progress);
+      }
+    }
+  };
+
+  useEffect(() => {
+    // Initial check for scroll progress (e.g. if starting not at 0)
+    handleScroll();
+    window.addEventListener('resize', handleScroll);
+    return () => window.removeEventListener('resize', handleScroll);
+  }, [categories]);
 
   // Helper to check if a product belongs to a category
   const productBelongsToCategory = (product: Product, categoryId: string) => {
@@ -29,31 +57,49 @@ export const Menu: React.FC = () => {
       </div>
 
       {/* Category Tabs */}
-      <div className="flex overflow-x-auto gap-3 mb-12 pb-4 justify-start md:justify-center no-scrollbar px-2">
-        <button
-          onClick={() => setActiveCategory('ALL')}
-          className={`px-6 py-3 rounded-md whitespace-nowrap transition-all duration-300 font-bold text-sm md:text-base border ${activeCategory === 'ALL'
-            ? 'text-white border-transparent shadow-md transform -translate-y-1'
-            : 'bg-white dark:bg-gray-800 text-gray-500 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 border-gray-200 dark:border-gray-700'
-            }`}
-          style={{ backgroundColor: activeCategory === 'ALL' ? settings.primaryColor : undefined }}
+      <div className="relative mb-12">
+        <div
+          ref={categoryScrollRef}
+          onScroll={handleScroll}
+          className="flex overflow-x-auto gap-3 pb-4 justify-start md:justify-center no-scrollbar px-2 scroll-smooth"
         >
-          الكل
-        </button>
-        {categories.map((cat) => (
           <button
-            key={cat.id}
-            id={`category-${cat.id}`}
-            onClick={() => setActiveCategory(cat.id)}
-            className={`px-6 py-3 rounded-md whitespace-nowrap transition-all duration-300 font-bold text-sm md:text-base border ${activeCategory === cat.id
+            onClick={() => setActiveCategory('ALL')}
+            className={`px-6 py-3 rounded-md whitespace-nowrap transition-all duration-300 font-bold text-sm md:text-base border ${activeCategory === 'ALL'
               ? 'text-white border-transparent shadow-md transform -translate-y-1'
               : 'bg-white dark:bg-gray-800 text-gray-500 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 border-gray-200 dark:border-gray-700'
               }`}
-            style={{ backgroundColor: activeCategory === cat.id ? settings.primaryColor : undefined }}
+            style={{ backgroundColor: activeCategory === 'ALL' ? settings.primaryColor : undefined }}
           >
-            {cat.name}
+            الكل
           </button>
-        ))}
+          {categories.map((cat) => (
+            <button
+              key={cat.id}
+              id={`category-${cat.id}`}
+              onClick={() => setActiveCategory(cat.id)}
+              className={`px-6 py-3 rounded-md whitespace-nowrap transition-all duration-300 font-bold text-sm md:text-base border ${activeCategory === cat.id
+                ? 'text-white border-transparent shadow-md transform -translate-y-1'
+                : 'bg-white dark:bg-gray-800 text-gray-500 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 border-gray-200 dark:border-gray-700'
+                }`}
+              style={{ backgroundColor: activeCategory === cat.id ? settings.primaryColor : undefined }}
+            >
+              {cat.name}
+            </button>
+          ))}
+        </div>
+
+        {/* Scroll Progress Indicator */}
+        <div className="mx-auto w-32 md:w-48 h-1 bg-gray-200 rounded-full mt-4 overflow-hidden relative" dir="ltr">
+          <div
+            className="absolute top-0 bottom-0 rounded-full transition-all duration-100 ease-out"
+            style={{
+              width: '30%', // Fixed thumb size for simplicity or calculated
+              backgroundColor: settings.primaryColor,
+              left: `${scrollProgress * 0.7}%`, // Multiply by 0.7 because width is 30% (so max left is 70%)
+            }}
+          ></div>
+        </div>
       </div>
 
       {/* Product Sections */}
