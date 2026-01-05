@@ -12,6 +12,18 @@ export const AdminPanel: React.FC<{ onClose: () => void }> = ({ onClose }) => {
     // Product Form State
     const [editingProduct, setEditingProduct] = useState<Partial<Product> | null>(null);
 
+    // Category Edit State
+    const [editingCategory, setEditingCategory] = useState<{ id: string; name: string } | null>(null);
+
+    // Image Management State (Text Inputs)
+    const [newHeroImage, setNewHeroImage] = useState('');
+    const [newOfferImage, setNewOfferImage] = useState('');
+
+    // Product Image Upload State
+    const [selectedImageFile, setSelectedImageFile] = useState<File | null>(null);
+    const [imagePreview, setImagePreview] = useState<string>('');
+    const [uploadingImage, setUploadingImage] = useState(false);
+
     // Hero Image Upload State
     const [selectedHeroFile, setSelectedHeroFile] = useState<File | null>(null);
     const [uploadingHero, setUploadingHero] = useState(false);
