@@ -3,7 +3,7 @@ import { useAppStore } from '../store';
 import { Product, Category } from '../types';
 import { motion } from 'framer-motion';
 import { Settings, Plus, Edit, Trash, X, Save, Palette, Image as ImageIcon, Link as LinkIcon, Share2, Upload, Loader } from 'lucide-react';
-import { uploadImageToGitHub } from '../utils/githubUpload';
+import { uploadImageToCloudinary } from '../utils/cloudinaryUpload';
 
 export const AdminPanel: React.FC<{ onClose: () => void }> = ({ onClose }) => {
     const { products, categories, settings, addProduct, updateProduct, deleteProduct, addCategory, updateCategory, deleteCategory, updateSettings } = useAppStore();
@@ -66,18 +66,13 @@ export const AdminPanel: React.FC<{ onClose: () => void }> = ({ onClose }) => {
 
         let imageUrl = editingProduct.image || `https://picsum.photos/400/400?random=${Date.now()}`;
 
-        // Upload image to GitHub if file is selected
-        if (selectedImageFile && settings.githubToken) {
+        // Upload image to Cloudinary if file is selected
+        if (selectedImageFile && settings.cloudinaryCloudName && settings.cloudinaryUploadPreset) {
             setUploadingImage(true);
-            const result = await uploadImageToGitHub(
+            const result = await uploadImageToCloudinary(
                 selectedImageFile,
-                {
-                    token: settings.githubToken,
-                    owner: settings.githubOwner || 'Mahmoud-Walid1',
-                    repo: settings.githubRepo || 'Fkhm-Menu',
-                    branch: settings.githubBranch || 'main'
-                },
-                'images/products'
+                settings.cloudinaryCloudName,
+                settings.cloudinaryUploadPreset
             );
 
             setUploadingImage(false);
@@ -136,17 +131,12 @@ export const AdminPanel: React.FC<{ onClose: () => void }> = ({ onClose }) => {
     };
 
     const addOfferImage = async () => {
-        if (selectedOfferFile && settings.githubToken) {
+        if (selectedOfferFile && settings.cloudinaryCloudName && settings.cloudinaryUploadPreset) {
             setUploadingOffer(true);
-            const result = await uploadImageToGitHub(
+            const result = await uploadImageToCloudinary(
                 selectedOfferFile,
-                {
-                    token: settings.githubToken,
-                    owner: settings.githubOwner || 'Mahmoud-Walid1',
-                    repo: settings.githubRepo || 'Fkhm-Menu',
-                    branch: settings.githubBranch || 'main'
-                },
-                'images/offers'
+                settings.cloudinaryCloudName,
+                settings.cloudinaryUploadPreset
             );
             setUploadingOffer(false);
 
@@ -253,7 +243,7 @@ export const AdminPanel: React.FC<{ onClose: () => void }> = ({ onClose }) => {
                                                 <ImageIcon size={16} /> صورة المنتج
                                             </h4>
 
-                                            {settings.githubToken ? (
+                                            {settings.cloudinaryCloudName && settings.cloudinaryUploadPreset ? (
                                                 <div>
                                                     <label className="block text-sm mb-2 font-medium">اختر صورة من جهازك</label>
                                                     <div className="flex gap-3 items-start">
@@ -261,7 +251,7 @@ export const AdminPanel: React.FC<{ onClose: () => void }> = ({ onClose }) => {
                                                             <div className="border-2 border-dashed border-gray-300 rounded-lg p-4 hover:border-blue-500 transition-colors text-center">
                                                                 <Upload className="mx-auto mb-2 text-gray-400" size={32} />
                                                                 <p className="text-sm text-gray-600">اختر صورة للرفع</p>
-                                                                <p className="text-xs text-gray-400 mt-1">JPG, PNG - حد أقصى 1MB</p>
+                                                                <p className="text-xs text-gray-400 mt-1">JPG, PNG - حد أقصى 5MB</p>
                                                             </div>
                                                             <input
                                                                 type="file"
@@ -292,7 +282,7 @@ export const AdminPanel: React.FC<{ onClose: () => void }> = ({ onClose }) => {
                                                 </div>
                                             ) : (
                                                 <div className="bg-yellow-50 border border-yellow-200 p-3 rounded-lg">
-                                                    <p className="text-sm text-yellow-800 mb-2">⚠️ لرفع الصور تلقائياً على GitHub، يرجى إضافة رمز GitHub في تبويب "الإعدادات"</p>
+                                                    <p className="text-sm text-yellow-800 mb-2">⚠️ لرفع الصور تلقائياً، يرجى إعداد Cloudinary في تبويب "الإعدادات"</p>
                                                 </div>
                                             )}
 
@@ -625,67 +615,41 @@ export const AdminPanel: React.FC<{ onClose: () => void }> = ({ onClose }) => {
                                 </div>
 
                                 <div className="col-span-2 border-t pt-6 mt-4">
-                                    <h2 className="text-xl font-bold mb-4 flex items-center gap-2"><Upload /> إعدادات GitHub (رفع الصور)</h2>
-                                    <div className="bg-yellow-50 border border-yellow-200 p-3 rounded-lg mb-4 text-sm">
-                                        <p className="font-bold text-yellow-800 mb-1">⚠️ هام جداً:</p>
-                                        <p className="text-yellow-800">
-                                            لكي تظهر الصور في الموقع، يجب أن يكون المستودع (Repository) <strong>عام (Public)</strong> وليس خاص (Private).
-                                            <br />
-                                            الصور المرفوعة على مستودع خاص لن تظهر للزوار.
-                                        </p>
-                                    </div>
+                                    <h2 className="text-xl font-bold mb-4 flex items-center gap-2"><Upload /> إعدادات رفع الصور (Cloudinary)</h2>
                                     <div className="bg-blue-50 border border-blue-200 p-3 rounded-lg mb-4 text-sm">
-                                        <p className="font-bold mb-1">ℹ️ كيفية الحصول على رمز GitHub:</p>
+                                        <p className="font-bold mb-1">ℹ️ كيفية الإعداد:</p>
                                         <ol className="list-decimal mr-5 space-y-1 text-blue-800">
-                                            <li>انتقل إلى GitHub → Settings → Developer settings</li>
-                                            <li>اختر Personal access tokens → Tokens (classic)</li>
-                                            <li>اضغط "Generate new token" واختر صلاحية <code className="bg-blue-100 px-1 rounded">repo</code></li>
-                                            <li>انسخ الرمز والصقه أدناه</li>
+                                            <li>انشئ حساب مجاني على <a href="https://cloudinary.com" target="_blank" className="underline font-bold">Cloudinary</a></li>
+                                            <li>من لوحة التحكم انسخ <strong>Cloud Name</strong></li>
+                                            <li>اذهب إلى Settings → Upload → Upload presets</li>
+                                            <li>أضف Preset جديد واجعله <strong>Unsigned</strong>، ثم انسخ اسمه</li>
                                         </ol>
                                     </div>
-                                    <div className="space-y-3">
+                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                         <div>
-                                            <label className="block text-sm font-bold mb-1">رمز GitHub (Token)</label>
+                                            <label className="block text-sm font-bold mb-1">Cloud Name</label>
                                             <input
-                                                type="password"
-                                                value={tempSettings.githubToken || ''}
-                                                onChange={(e) => { setTempSettings({ ...tempSettings, githubToken: e.target.value }); setSettingsModified(true); }}
-                                                placeholder="ghp_xxxxxxxxxxxxx"
+                                                value={tempSettings.cloudinaryCloudName || ''}
+                                                onChange={(e) => { setTempSettings({ ...tempSettings, cloudinaryCloudName: e.target.value }); setSettingsModified(true); }}
+                                                placeholder="مثال: dx8..."
                                                 className="w-full border p-2 rounded-md font-mono text-sm"
                                             />
                                         </div>
-                                        <div className="grid grid-cols-3 gap-3">
-                                            <div>
-                                                <label className="block text-sm font-bold mb-1">Owner</label>
-                                                <input
-                                                    value={tempSettings.githubOwner || 'Mahmoud-Walid1'}
-                                                    onChange={(e) => { setTempSettings({ ...tempSettings, githubOwner: e.target.value }); setSettingsModified(true); }}
-                                                    className="w-full border p-2 rounded-md text-sm"
-                                                />
-                                            </div>
-                                            <div>
-                                                <label className="block text-sm font-bold mb-1">Repository</label>
-                                                <input
-                                                    value={tempSettings.githubRepo || 'Fkhm-Menu'}
-                                                    onChange={(e) => { setTempSettings({ ...tempSettings, githubRepo: e.target.value }); setSettingsModified(true); }}
-                                                    className="w-full border p-2 rounded-md text-sm"
-                                                />
-                                            </div>
-                                            <div>
-                                                <label className="block text-sm font-bold mb-1">Branch</label>
-                                                <input
-                                                    value={tempSettings.githubBranch || 'main'}
-                                                    onChange={(e) => { setTempSettings({ ...tempSettings, githubBranch: e.target.value }); setSettingsModified(true); }}
-                                                    className="w-full border p-2 rounded-md text-sm"
-                                                />
-                                            </div>
+                                        <div>
+                                            <label className="block text-sm font-bold mb-1">Upload Preset (Unsigned)</label>
+                                            <input
+                                                value={tempSettings.cloudinaryUploadPreset || ''}
+                                                onChange={(e) => { setTempSettings({ ...tempSettings, cloudinaryUploadPreset: e.target.value }); setSettingsModified(true); }}
+                                                placeholder="مثال: ml_default"
+                                                className="w-full border p-2 rounded-md font-mono text-sm"
+                                            />
                                         </div>
-                                        {settings.githubToken && (
-                                            <div className="bg-green-50 border border-green-200 p-2 rounded text-sm text-green-800">
-                                                ✓ تم حفظ رمز GitHub. يمكنك الآن رفع الصور مباشرة عند إضافة المنتجات.
-                                            </div>
-                                        )}
                                     </div>
+                                    {settings.cloudinaryCloudName && settings.cloudinaryUploadPreset && (
+                                        <div className="mt-3 bg-green-50 border border-green-200 p-2 rounded text-sm text-green-800">
+                                            ✓ تم تفعيل Cloudinary. يمكنك الآن رفع الصور مباشرة.
+                                        </div>
+                                    )}
                                 </div>
                                 <div className="col-span-2 mt-6 pt-4 border-t flex justify-end">
                                     <button

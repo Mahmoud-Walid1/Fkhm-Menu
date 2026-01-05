@@ -43,10 +43,9 @@ export interface SiteSettings {
   snapchatUrl?: string;
   tiktokUrl?: string;
   // GitHub Integration (for image uploads)
-  githubToken?: string;
-  githubOwner?: string;
-  githubRepo?: string;
-  githubBranch?: string;
+  // Cloudinary Integration (for image uploads)
+  cloudinaryCloudName?: string;
+  cloudinaryUploadPreset?: string;
   // Gemini AI (for ChatBot)
   geminiApiKey?: string;
   // Groq AI (Llama 3)
