@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useAppStore } from '../store';
 import { Product, Category } from '../types';
 import { motion } from 'framer-motion';
-import { Settings, Plus, Edit, Trash, X, Save, Palette, Image as ImageIcon, Link as LinkIcon, Share2, Upload, Loader, ArrowUp, ArrowDown } from 'lucide-react';
+import { Plus, Trash, Edit, Save, X, Image as ImageIcon, Upload, Loader, Coffee, Box, Share2, LogOut, Palette, Link as LinkIcon, ArrowUp, ArrowDown } from 'lucide-react';
 import { uploadImageToCloudinary } from '../utils/cloudinaryUpload';
 
 export const AdminPanel: React.FC<{ onClose: () => void }> = ({ onClose }) => {
@@ -428,15 +428,35 @@ export const AdminPanel: React.FC<{ onClose: () => void }> = ({ onClose }) => {
                                                         placeholder="السعر (+/-)"
                                                         className="w-24 border p-2 rounded-md text-sm"
                                                     />
+
+                                                    {/* Icon Selection */}
+                                                    <div className="flex items-center gap-2 bg-gray-50 p-1 rounded border">
+                                                        <label className="cursor-pointer p-1 rounded hover:bg-white text-gray-500 hover:text-orange-600 transition-colors has-[:checked]:bg-white has-[:checked]:text-orange-600 has-[:checked]:shadow-sm">
+                                                            <input type="radio" name="sizeIcon" value="cup" className="hidden" defaultChecked />
+                                                            <Coffee size={18} />
+                                                        </label>
+                                                        <label className="cursor-pointer p-1 rounded hover:bg-white text-gray-500 hover:text-blue-600 transition-colors has-[:checked]:bg-white has-[:checked]:text-blue-600 has-[:checked]:shadow-sm">
+                                                            <input type="radio" name="sizeIcon" value="box" className="hidden" />
+                                                            <Box size={18} />
+                                                        </label>
+                                                    </div>
                                                     <button
                                                         type="button"
                                                         onClick={() => {
                                                             const nameInput = document.getElementById('newSizeName') as HTMLInputElement;
                                                             const priceInput = document.getElementById('newSizePrice') as HTMLInputElement;
+                                                            const iconInputs = document.getElementsByName('sizeIcon') as NodeListOf<HTMLInputElement>;
+                                                            let selectedIcon: 'cup' | 'box' | undefined = 'cup'; // Default
+
+                                                            iconInputs.forEach(input => {
+                                                                if (input.checked) selectedIcon = input.value as 'cup' | 'box';
+                                                            });
+
                                                             if (nameInput.value) {
-                                                                const newSize = {
+                                                                const newSize: any = {
                                                                     name: nameInput.value,
-                                                                    priceModifier: Number(priceInput.value) || 0
+                                                                    priceModifier: Number(priceInput.value) || 0,
+                                                                    icon: selectedIcon
                                                                 };
                                                                 setEditingProduct({
                                                                     ...editingProduct,
@@ -456,7 +476,10 @@ export const AdminPanel: React.FC<{ onClose: () => void }> = ({ onClose }) => {
                                                     <div className="bg-gray-50 rounded-lg p-2 space-y-2">
                                                         {editingProduct.sizes.map((size, idx) => (
                                                             <div key={idx} className="flex justify-between items-center bg-white p-2 rounded border text-sm">
-                                                                <span>{size.name} ({size.priceModifier > 0 ? '+' : ''}{size.priceModifier} ريال)</span>
+                                                                <span className="flex items-center gap-2">
+                                                                    {size.icon === 'box' ? <Box size={14} className="text-blue-600" /> : <Coffee size={14} className="text-orange-600" />}
+                                                                    {size.name} ({size.priceModifier > 0 ? '+' : ''}{size.priceModifier} ريال)
+                                                                </span>
                                                                 <button
                                                                     type="button"
                                                                     onClick={() => {

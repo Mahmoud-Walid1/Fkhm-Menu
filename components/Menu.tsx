@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useAppStore } from '../store';
 import { Product } from '../types';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Plus, Flame, Snowflake, Star, X, Coffee, Package, Utensils, CupSoda, Cake } from 'lucide-react';
+import { Plus, Flame, Snowflake, Star, X, Coffee, Package, Utensils, CupSoda, Cake, Box } from 'lucide-react';
 
 export const Menu: React.FC = () => {
   const { products, categories, addToCart, settings } = useAppStore();
@@ -360,7 +360,10 @@ const ProductModal: React.FC<{
                       backgroundColor: selectedSize?.name === size.name ? primaryColor : undefined,
                     }}
                   >
-                    <span className="font-bold">{size.name}</span>
+                    <div className="flex items-center gap-2">
+                      {size.icon === 'box' ? <Box size={18} /> : (size.icon === 'cup' ? <Coffee size={18} /> : null)}
+                      <span className="font-bold">{size.name}</span>
+                    </div>
                     {size.priceModifier > 0 && <span className={`text-xs px-2 py-1 rounded ${selectedSize?.name === size.name ? 'bg-white/20' : 'bg-gray-100'}`}>+{size.priceModifier} ر.س</span>}
                   </button>
                 ))}

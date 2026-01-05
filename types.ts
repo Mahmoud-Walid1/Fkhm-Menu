@@ -1,6 +1,7 @@
 export interface Size {
   name: string;
   priceModifier: number;
+  icon?: 'cup' | 'box';
 }
 
 export interface Product {
