@@ -111,11 +111,15 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   useEffect(() => {
     const unsubProducts = onSnapshot(collection(db, 'products'), (snap) => {
       const items = snap.docs.map(doc => ({ id: doc.id, ...doc.data() } as Product));
+      // Sort by order if available
+      items.sort((a, b) => (a.order || 0) - (b.order || 0));
       setProducts(items);
     });
 
     const unsubCategories = onSnapshot(collection(db, 'categories'), (snap) => {
       const items = snap.docs.map(doc => ({ id: doc.id, ...doc.data() } as Category));
+      // Sort by order if available, otherwise by name
+      items.sort((a, b) => (a.order || 0) - (b.order || 0));
       setCategories(items);
     });
 
@@ -232,6 +236,42 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     await deleteDoc(doc(db, 'categories', id));
   };
 
+  const reorderCategories = async (newOrder: Category[]) => {
+    // Optimistic update
+    setCategories(newOrder);
+
+    const batch = writeBatch(db);
+    newOrder.forEach((cat, index) => {
+      const ref = doc(db, 'categories', cat.id);
+      batch.update(ref, { order: index });
+    });
+
+    try {
+      await batch.commit();
+    } catch (error) {
+      console.error("Error reordering categories:", error);
+      alert("فشل حفظ ترتيب الأقسام");
+    }
+  };
+
+  const reorderProducts = async (newOrder: Product[]) => {
+    // Optimistic update
+    setProducts(newOrder);
+
+    const batch = writeBatch(db);
+    newOrder.forEach((prod, index) => {
+      const ref = doc(db, 'products', prod.id);
+      batch.update(ref, { order: index });
+    });
+
+    try {
+      await batch.commit();
+    } catch (error) {
+      console.error("Error reordering products:", error);
+      alert("فشل حفظ ترتيب المنتجات");
+    }
+  };
+
   const toggleChat = () => setIsChatOpen(prev => !prev);
 
 
@@ -257,6 +297,8 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       addCategory,
       updateCategory,
       deleteCategory,
+      reorderCategories,
+      reorderProducts,
       isChatOpen,
       toggleChat
     }}>

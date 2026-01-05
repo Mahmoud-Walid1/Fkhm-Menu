@@ -11,6 +11,7 @@ export interface Product {
   isPromo?: boolean;
   category?: string; // @deprecated use categoryIds instead
   categoryIds?: string[]; // New multi-category support
+  order?: number;
   image: string;
   description: string;
   sizes?: Size[];
@@ -21,6 +22,7 @@ export interface Product {
 export interface Category {
   id: string;
   name: string;
+  order?: number;
 }
 
 export interface CartItem extends Product {
@@ -78,6 +80,8 @@ export interface AppContextType {
   addCategory: (name: string) => void;
   updateCategory: (id: string, name: string) => void;
   deleteCategory: (id: string) => void;
+  reorderCategories: (newOrder: Category[]) => void;
+  reorderProducts: (newOrder: Product[]) => void;
   isChatOpen: boolean;
   toggleChat: () => void;
   toggleTheme: () => void;
