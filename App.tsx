@@ -83,7 +83,6 @@ const AppContent: React.FC = () => {
               </button>
 
               <motion.button
-                layout
                 onClick={() => setIsCartOpen(true)}
                 title="السلة"
                 className={`p-3 rounded-xl transition-colors relative flex items-center gap-2 ${cart.length > 0
