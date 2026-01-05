@@ -112,11 +112,14 @@ export const ChatBot: React.FC<{ isCartOpen?: boolean }> = ({ isCartOpen = false
          - "احلي مسا" -> "يا هلا ومسهلا! مساء الأنوار 🌹"
          - "سلام عليكم" -> "وعليكم السلام ورحمة الله وبركاته، حياك الله! 👋"
       4. **رقم التوصيل:** ⛔ لا تذكر رقم التوصيل ولا تعرضه أبداً إلا إذا سأل العميل صراحة "كيف أطلب؟" أو "عندكم توصيل؟".
-      5. **المنيو:** القائمة الموجودة في الأسفل هي القائمة الشاملة والوحيدة.
-         - **البحث الذكي:** إذا طلب العميل منتج بصفة معينة (مثلاً "كابتشينو فاجر" أو "شي يصحصح")، ابحث في **أسماء ووصف** المنتجات.
+      5. **المنيو (ذكاء بلس):**
+         - **البحث الذكي (Fuzzy Matching):** افهم قصد العميل حتى لو غلط في الكتابة أو الجمع.
+           - "قهوات اليومي" = يقصد "قهوة اليوم".
+           - "سبانش" = يقصد "سبانيش لاتيه".
+           - "حلا" أو "حلويات" = اعرض عليه قسم الحلى.
+         - **البحث في الوصف:** ابحث في **أسماء ووصف** المنتجات.
          - إذا المنتج موجود: تكلم عنه بحماس وواقعية.
          - إذا المنتج غير موجود: اعتذر بلطف وقول "حالياً مو متوفر" واقترح بديل من القائمة.
-         - **لا تتألف منتجات من خيالك.**
 
       **الأوامر والتحكم (Tags):**
       استخدم هذه الأكواد للتحكم في واجهة المستخدم (لن تظهر للمستخدم):
@@ -138,8 +141,8 @@ export const ChatBot: React.FC<{ isCartOpen?: boolean }> = ({ isCartOpen = false
       - عميل: "احلي مسا عليك"
       - أنت: "مسا الورد والياسمين! 🌹 قهوتك علينا اليوم؟"
       
-      - عميل: "ابي قهوة"
-      - أنت: "أبشر! عندنا أفضل قهوة. جرب السجنتشر لاتيه، طعمه يعدل المزاج! [SUGGEST_PRODUCT:101]" (بدون رقم توصيل)
+      - عميل: "ابي قهوات اليومي" (قصد العميل قهوة اليوم)
+      - أنت: "أبشر! عندنا قهوة اليوم طازجة ومقطرة على كيف كيفك! ☕👌 [SUGGEST_PRODUCT:ID_OF_COFFEE_OF_THE_DAY]"
       
       - عميل: "ابي كابتشينو فاجر"
       - أنت: "يا سلام عليك! طلبك عندنا.. أفخم كابتشينو ممكن تذوقه! ☕🔥 [SUGGEST_PRODUCT:ID_OF_CAPPUCCINO]"
@@ -150,37 +153,47 @@ export const ChatBot: React.FC<{ isCartOpen?: boolean }> = ({ isCartOpen = false
 
     try {
       let responseText = '';
+      let usedFallback = false;
 
-      // PRIORITY 1: Check for Groq API (Llama 3)
+      // PRIORITY 1: Try Groq API (Llama 3)
       if (settings.groqApiKey) {
-        const response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
-          method: 'POST',
-          headers: {
-            'Authorization': `Bearer ${settings.groqApiKey}`,
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify({
-            messages: [
-              { role: 'system', content: systemInstruction },
-              ...messages.map(m => ({ role: m.sender === 'user' ? 'user' : 'assistant', content: m.text })),
-              { role: 'user', content: userMessage.text }
-            ],
-            model: 'llama-3.3-70b-versatile',
-            temperature: 0.3,
-            max_tokens: 300
-          })
-        });
+        try {
+          const response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+            method: 'POST',
+            headers: {
+              'Authorization': `Bearer ${settings.groqApiKey}`,
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+              messages: [
+                { role: 'system', content: systemInstruction },
+                ...messages.map(m => ({ role: m.sender === 'user' ? 'user' : 'assistant', content: m.text })),
+                { role: 'user', content: userMessage.text }
+              ],
+              model: 'llama-3.3-70b-versatile',
+              temperature: 0.3,
+              max_tokens: 300
+            })
+          });
 
-        const data = await response.json();
-        if (data.choices && data.choices.length > 0) {
-          responseText = data.choices[0].message.content;
-        } else {
-          throw new Error(data.error?.message || 'Groq API Error');
+          if (!response.ok) throw new Error('Groq API Error');
+
+          const data = await response.json();
+          if (data.choices && data.choices.length > 0) {
+            responseText = data.choices[0].message.content;
+          } else {
+            throw new Error('Groq Empty Response');
+          }
+        } catch (groqError) {
+          console.warn('Groq API failed, attempting fallback to Gemini if available...', groqError);
+          usedFallback = true;
         }
-
+      } else {
+        usedFallback = true;
       }
-      // PRIORITY 2: Fallback to Gemini API
-      else if (settings.geminiApiKey) {
+
+      // PRIORITY 2: Fallback to Gemini API (if Groq failed or key missing)
+      if (usedFallback && settings.geminiApiKey) {
         const genAI = new GoogleGenAI({ apiKey: settings.geminiApiKey });
         const response = await genAI.models.generateContent({
           model: 'gemini-1.5-flash',
@@ -194,9 +207,10 @@ export const ChatBot: React.FC<{ isCartOpen?: boolean }> = ({ isCartOpen = false
         } as any);
 
         responseText = response.text || 'عذراً، لم أفهم طلبك.';
-      } else {
+      } else if (usedFallback && !settings.geminiApiKey) {
         responseText = "المعذرة، لم يتم تفعيل خدمة الرد الذكي 🤖. يرجى من المسؤول إضافة مفتاح API في الإعدادات.";
       }
+
 
       // Detect if response contains contact numbers and add action buttons
       const actions: MessageAction[] = [];
