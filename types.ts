@@ -28,6 +28,7 @@ export interface Category {
   backgroundColor?: string;
   textColor?: string;
   cardBackgroundColor?: string;
+  headerBackgroundColor?: string;
 }
 
 export interface CartItem extends Product {
