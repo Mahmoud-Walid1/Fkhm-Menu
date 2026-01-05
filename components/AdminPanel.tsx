@@ -15,6 +15,9 @@ export const AdminPanel: React.FC<{ onClose: () => void }> = ({ onClose }) => {
     // Category Edit State
     const [editingCategory, setEditingCategory] = useState<{ id: string; name: string } | null>(null);
 
+    // Size Icon Selection State
+    const [newSizeIcon, setNewSizeIcon] = useState<'cup' | 'box'>('cup');
+
     // Image Management State (Text Inputs)
     const [newHeroImage, setNewHeroImage] = useState('');
     const [newOfferImage, setNewOfferImage] = useState('');
@@ -431,12 +434,26 @@ export const AdminPanel: React.FC<{ onClose: () => void }> = ({ onClose }) => {
 
                                                     {/* Icon Selection */}
                                                     <div className="flex items-center gap-2 bg-gray-50 p-1 rounded border">
-                                                        <label className="cursor-pointer p-1 rounded hover:bg-white text-gray-500 hover:text-orange-600 transition-colors has-[:checked]:bg-white has-[:checked]:text-orange-600 has-[:checked]:shadow-sm">
-                                                            <input type="radio" name="sizeIcon" value="cup" className="hidden" defaultChecked />
+                                                        <label className={`cursor-pointer p-1 rounded transition-colors ${newSizeIcon === 'cup' ? 'bg-white text-orange-600 shadow-sm' : 'text-gray-500 hover:bg-white hover:text-orange-600'}`}>
+                                                            <input
+                                                                type="radio"
+                                                                name="sizeIcon"
+                                                                value="cup"
+                                                                className="hidden"
+                                                                checked={newSizeIcon === 'cup'}
+                                                                onChange={() => setNewSizeIcon('cup')}
+                                                            />
                                                             <Coffee size={18} />
                                                         </label>
-                                                        <label className="cursor-pointer p-1 rounded hover:bg-white text-gray-500 hover:text-blue-600 transition-colors has-[:checked]:bg-white has-[:checked]:text-blue-600 has-[:checked]:shadow-sm">
-                                                            <input type="radio" name="sizeIcon" value="box" className="hidden" />
+                                                        <label className={`cursor-pointer p-1 rounded transition-colors ${newSizeIcon === 'box' ? 'bg-white text-blue-600 shadow-sm' : 'text-gray-500 hover:bg-white hover:text-blue-600'}`}>
+                                                            <input
+                                                                type="radio"
+                                                                name="sizeIcon"
+                                                                value="box"
+                                                                className="hidden"
+                                                                checked={newSizeIcon === 'box'}
+                                                                onChange={() => setNewSizeIcon('box')}
+                                                            />
                                                             <Box size={18} />
                                                         </label>
                                                     </div>
@@ -445,18 +462,12 @@ export const AdminPanel: React.FC<{ onClose: () => void }> = ({ onClose }) => {
                                                         onClick={() => {
                                                             const nameInput = document.getElementById('newSizeName') as HTMLInputElement;
                                                             const priceInput = document.getElementById('newSizePrice') as HTMLInputElement;
-                                                            const iconInputs = document.getElementsByName('sizeIcon') as NodeListOf<HTMLInputElement>;
-                                                            let selectedIcon: 'cup' | 'box' | undefined = 'cup'; // Default
-
-                                                            iconInputs.forEach(input => {
-                                                                if (input.checked) selectedIcon = input.value as 'cup' | 'box';
-                                                            });
 
                                                             if (nameInput.value) {
                                                                 const newSize: any = {
                                                                     name: nameInput.value,
                                                                     priceModifier: Number(priceInput.value) || 0,
-                                                                    icon: selectedIcon
+                                                                    icon: newSizeIcon
                                                                 };
                                                                 setEditingProduct({
                                                                     ...editingProduct,
