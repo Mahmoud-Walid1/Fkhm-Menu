@@ -1001,3 +1001,5 @@ export const AdminPanel: React.FC<{ onClose: () => void }> = ({ onClose }) => {
         </div >
     );
 };
+
+export default AdminPanel;
