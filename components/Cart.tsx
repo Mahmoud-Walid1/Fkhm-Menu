@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { motion } from 'framer-motion';
-import { X, Trash2, ShoppingBag, Send, Coffee, Box, CupSoda } from 'lucide-react';
+import { X, Trash2, ShoppingBag, Send, Coffee, Box, CupSoda, Phone } from 'lucide-react';
 import { useAppStore } from '../store';
 
 interface CartProps {
@@ -130,21 +130,31 @@ export const Cart: React.FC<CartProps> = ({ isOpen, onClose }) => {
               <span className="text-2xl font-bold" style={{ color: settings.primaryColor }}>{subtotal} ر.س</span>
             </div>
 
-            <div className="flex gap-3">
-              <button
-                onClick={clearCart}
-                className="px-4 py-3 rounded-xl border border-red-200 text-red-500 hover:bg-red-50 transition-colors"
+            <div className="flex flex-col gap-3">
+              <div className="flex gap-3">
+                <button
+                  onClick={clearCart}
+                  className="px-4 py-3 rounded-xl border border-red-200 text-red-500 hover:bg-red-50 transition-colors"
+                >
+                  <Trash2 size={20} />
+                </button>
+                <button
+                  onClick={handleCheckout}
+                  className="flex-1 py-3 rounded-xl text-white font-bold text-lg shadow-lg hover:opacity-90 transition-opacity flex items-center justify-center gap-2"
+                  style={{ backgroundColor: '#25D366' }} // Whatsapp Color
+                >
+                  <Send size={20} />
+                  إتمام الطلب واتساب
+                </button>
+              </div>
+
+              <a
+                href={`tel:${settings.adminNumber}`}
+                className="w-full py-3 rounded-xl border-2 border-gray-200 text-gray-700 font-bold text-lg hover:bg-gray-50 transition-colors flex items-center justify-center gap-2"
               >
-                <Trash2 size={20} />
-              </button>
-              <button
-                onClick={handleCheckout}
-                className="flex-1 py-3 rounded-xl text-white font-bold text-lg shadow-lg hover:opacity-90 transition-opacity flex items-center justify-center gap-2"
-                style={{ backgroundColor: '#25D366' }} // Whatsapp Color
-              >
-                <Send size={20} />
-                إتمام الطلب واتساب
-              </button>
+                <Phone size={20} />
+                اتصال للاستلام من الفرع
+              </a>
             </div>
           </div>
         )}

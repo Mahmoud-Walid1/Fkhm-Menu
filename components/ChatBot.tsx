@@ -120,7 +120,8 @@ export const ChatBot: React.FC<{ isCartOpen?: boolean }> = ({ isCartOpen = false
        2. [SHOW_PRODUCTS:جزء_من_اسم_القسم]: لعرض منتجات قسم معين.
        3. [SUGGEST_PRODUCT:ID]: لاقتراح منتج معين ليقوم العميل بإضافته للسلة. (مثال: طلب كورتادو -> ردك يحتوي [SUGGEST_PRODUCT:101]).
        4. [SHOW_DELIVERY]: إذا سأل عن التوصيل.
-       5. [SHOW_ADMIN]: إذا طلب محادثة موظف، إدارة، أو شكوى.
+       5. [SHOW_PICKUP]: إذا طلب الاستلام من الفرع أو لا يريد توصيل.
+       6. [SHOW_ADMIN]: إذا طلب محادثة موظف، إدارة، أو شكوى.
        
        **التعامل مع الأحجام:**
        - إذا كان المنتج له أحجام متعددة (مثل: صغير، وسط، كبير)، اذكر جميع الأحجام المتاحة مع أسعارها.
@@ -177,6 +178,11 @@ export const ChatBot: React.FC<{ isCartOpen?: boolean }> = ({ isCartOpen = false
       // Delivery
       if (/توصيل|ديليفري|delivery|يوصل/.test(input)) {
         return `نعم، نوفر خدمة التوصيل! 🚗💨\n\nللطلب، تواصل مع المندوب:\n[SHOW_DELIVERY]`;
+      }
+
+      // Pickup
+      if (/استلام|فرع|محل|جي|جاي|بنفسي|pickup|receive|branch/.test(input)) {
+        return `حياك الله في المحل! 🏪✨\n\nتقدر تتصل علينا عشان نجهز طلبك قبل ما توصل:\n[SHOW_PICKUP]`;
       }
 
       // Contact/Admin
@@ -481,6 +487,16 @@ export const ChatBot: React.FC<{ isCartOpen?: boolean }> = ({ isCartOpen = false
         actions.push({
           label: `📞 تواصل واتساب للتوصيل`,
           url: `https://wa.me/${settings.deliveryNumber.replace(/\D/g, '')}`,
+          type: 'primary'
+        });
+      }
+
+      // SHOW_PICKUP Logic
+      if (responseText.includes('[SHOW_PICKUP]')) {
+        responseText = responseText.replace('[SHOW_PICKUP]', '').trim();
+        actions.push({
+          label: `📞 اتصل بالكوفي`,
+          url: `tel:${settings.adminNumber.replace(/\D/g, '')}`,
           type: 'primary'
         });
       }
