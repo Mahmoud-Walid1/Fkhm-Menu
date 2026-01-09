@@ -2,13 +2,13 @@ import React, { useState } from 'react';
 import { useAppStore } from '../store';
 import { Product, Category, Admin } from '../types';
 import { motion } from 'framer-motion';
-import { Plus, Trash2, Edit2, Save, X, Image as ImageIcon, Loader2, GripVertical, Coffee, Box, CupSoda, LogOut, Palette, Link as LinkIcon, ArrowUp, ArrowDown, Upload, Share2, Shield, UserPlus, Power, User } from 'lucide-react';
+import { Plus, Trash2, Edit2, Save, X, Image as ImageIcon, Loader2, GripVertical, Coffee, Box, CupSoda, LogOut, Palette, Link as LinkIcon, ArrowUp, ArrowDown, Upload, Share2 } from 'lucide-react';
 import { auth } from '../firebase';
 import { uploadImageToCloudinary } from '../utils/cloudinaryUpload';
 
 export const AdminPanel: React.FC<{ onClose: () => void }> = ({ onClose }) => {
-    const { products, categories, admins, settings, addProduct, updateProduct, deleteProduct, addCategory, updateCategory, deleteCategory, updateSettings, reorderCategories, reorderProducts, refreshData, addAdmin, toggleAdminStatus, deleteAdmin } = useAppStore();
-    const [activeTab, setActiveTab] = useState<'products' | 'categories' | 'settings' | 'images' | 'admins'>('products');
+    const { products, categories, settings, addProduct, updateProduct, deleteProduct, addCategory, updateCategory, deleteCategory, updateSettings, reorderCategories, reorderProducts, refreshData } = useAppStore();
+    const [activeTab, setActiveTab] = useState<'products' | 'categories' | 'settings' | 'images'>('products');
 
     // Product Form State
     const [editingProduct, setEditingProduct] = useState<Partial<Product> | null>(null);
@@ -42,8 +42,7 @@ export const AdminPanel: React.FC<{ onClose: () => void }> = ({ onClose }) => {
 
     const [settingsModified, setSettingsModified] = useState(false);
 
-    // Admin Management State
-    const [newAdmin, setNewAdmin] = useState<{ id: string; name: string; role: 'admin' | 'super_admin' }>({ id: '', name: '', role: 'admin' });
+
 
     // Reorder Mode State
     const [isReorderCategories, setIsReorderCategories] = useState(false);
@@ -240,13 +239,13 @@ export const AdminPanel: React.FC<{ onClose: () => void }> = ({ onClose }) => {
                 </div>
 
                 <div className="flex gap-2 md:gap-4 mb-8 bg-white p-2 rounded-lg shadow-sm overflow-x-auto">
-                    {['products', 'categories', 'images', 'settings', 'admins'].map((tab) => (
+                    {['products', 'categories', 'images', 'settings'].map((tab) => (
                         <button
                             key={tab}
                             onClick={() => setActiveTab(tab as any)}
                             className={`flex-1 min-w-[100px] py-2 rounded-md font-bold transition-colors ${activeTab === tab ? 'bg-gray-800 text-white' : 'text-gray-500 hover:bg-gray-50'}`}
                         >
-                            {tab === 'products' ? 'المنتجات' : tab === 'categories' ? 'الأقسام' : tab === 'images' ? 'الصور' : tab === 'settings' ? 'الإعدادات' : 'المسؤولين'}
+                            {tab === 'products' ? 'المنتجات' : tab === 'categories' ? 'الأقسام' : tab === 'images' ? 'الصور' : 'الإعدادات'}
                         </button>
                     ))}
                 </div>
@@ -1349,131 +1348,7 @@ export const AdminPanel: React.FC<{ onClose: () => void }> = ({ onClose }) => {
                         )
                     }
 
-                    {
-                        activeTab === 'admins' && (
-                            <div className="space-y-8">
-                                <div className="bg-purple-50 border border-purple-200 p-6 rounded-xl">
-                                    <h2 className="text-xl font-bold mb-4 flex items-center gap-2 text-purple-900">
-                                        <Shield className="text-purple-600" /> إدارة المسؤولين
-                                    </h2>
-                                    <p className="text-sm text-gray-600 mb-6">
-                                        يمكنك هنا إضافة مسؤولين جدد للوحة التحكم. يجب أن يكون لدى المسؤول حساب <strong>Firebase Auth</strong> بالفعل (أو قم بنسخ الـ UID الخاص به).
-                                        <br />
-                                        <strong>ملاحظة هامة:</strong> الـ UID الخاص بك هو: <code className="bg-white px-2 py-1 rounded border font-mono select-allDir">{auth.currentUser?.uid}</code>
-                                    </p>
 
-                                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
-                                        <div>
-                                            <label className="block text-sm font-bold mb-1">اسم المسؤول</label>
-                                            <input
-                                                value={newAdmin.name}
-                                                onChange={(e) => setNewAdmin({ ...newAdmin, name: e.target.value })}
-                                                placeholder="مثال: أحمد محمد"
-                                                className="w-full border p-2 rounded-md"
-                                            />
-                                        </div>
-                                        <div>
-                                            <label className="block text-sm font-bold mb-1">UID (معرف المستخدم)</label>
-                                            <input
-                                                value={newAdmin.id}
-                                                onChange={(e) => setNewAdmin({ ...newAdmin, id: e.target.value })}
-                                                placeholder="أدخل الـ UID الخاص بالمستخدم من Firebase"
-                                                className="w-full border p-2 rounded-md font-mono text-sm"
-                                            />
-                                        </div>
-                                        <div>
-                                            <label className="block text-sm font-bold mb-1">الصلاحية</label>
-                                            <select
-                                                value={newAdmin.role}
-                                                onChange={(e) => setNewAdmin({ ...newAdmin, role: e.target.value as any })}
-                                                className="w-full border p-2 rounded-md bg-white"
-                                            >
-                                                <option value="admin">مسؤول (Admin)</option>
-                                                <option value="super_admin">مدير عام (Super Admin)</option>
-                                            </select>
-                                        </div>
-                                        <div className="md:col-span-3 flex justify-end">
-                                            <button
-                                                onClick={() => {
-                                                    if (!newAdmin.id || !newAdmin.name) return alert('الرجاء ملء جميع الحقول');
-                                                    addAdmin({ ...newAdmin, isActive: true });
-                                                    setNewAdmin({ id: '', name: '', role: 'admin' });
-                                                }}
-                                                className="bg-purple-600 text-white px-6 py-2 rounded-lg flex items-center gap-2 hover:bg-purple-700 transition-colors"
-                                            >
-                                                <UserPlus size={18} /> إضافة مسؤول
-                                            </button>
-                                        </div>
-                                    </div>
-
-                                    <div className="bg-white rounded-xl shadow-sm border overflow-hidden">
-                                        <table className="w-full text-right">
-                                            <thead className="bg-gray-50 text-gray-500 text-sm">
-                                                <tr>
-                                                    <th className="p-4 font-medium">الاسم</th>
-                                                    <th className="p-4 font-medium">UID</th>
-                                                    <th className="p-4 font-medium">الصلاحية</th>
-                                                    <th className="p-4 font-medium">الحالة</th>
-                                                    <th className="p-4 font-medium">إجراءات</th>
-                                                </tr>
-                                            </thead>
-                                            <tbody className="divide-y divide-gray-100">
-                                                {admins.map((admin) => (
-                                                    <tr key={admin.id} className="hover:bg-gray-50 transition-colors group">
-                                                        <td className="p-4 font-bold text-gray-800 flex items-center gap-2">
-                                                            <div className="w-8 h-8 rounded-full bg-purple-100 flex items-center justify-center text-purple-600">
-                                                                <User size={16} />
-                                                            </div>
-                                                            {admin.name} {auth.currentUser?.uid === admin.id && <span className="text-xs bg-blue-100 text-blue-800 px-2 py-0.5 rounded-full mr-2">أنت</span>}
-                                                        </td>
-                                                        <td className="p-4 font-mono text-xs text-gray-500">{admin.id}</td>
-                                                        <td className="p-4">
-                                                            <span className={`px-2 py-1 rounded text-xs font-bold ${admin.role === 'super_admin' ? 'bg-indigo-100 text-indigo-700' : 'bg-gray-100 text-gray-700'}`}>
-                                                                {admin.role === 'super_admin' ? 'مدير عام' : 'مسؤول'}
-                                                            </span>
-                                                        </td>
-                                                        <td className="p-4">
-                                                            <span className={`flex items-center gap-1 text-xs font-bold ${admin.isActive ? 'text-green-600' : 'text-red-500'}`}>
-                                                                <span className={`w-2 h-2 rounded-full ${admin.isActive ? 'bg-green-500' : 'bg-red-500'}`}></span>
-                                                                {admin.isActive ? 'نشط' : 'موقف'}
-                                                            </span>
-                                                        </td>
-                                                        <td className="p-4 flex items-center gap-2 opacity-100 md:opacity-0 group-hover:opacity-100 transition-opacity">
-                                                            <button
-                                                                onClick={() => toggleAdminStatus(admin.id, admin.isActive)}
-                                                                className={`p-1.5 rounded-md transition-colors ${admin.isActive ? 'bg-red-50 text-red-600 hover:bg-red-100' : 'bg-green-50 text-green-600 hover:bg-green-100'}`}
-                                                                title={admin.isActive ? 'إيقاف الحساب' : 'تنشيط الحساب'}
-                                                            >
-                                                                <Power size={16} />
-                                                            </button>
-                                                            <button
-                                                                onClick={() => {
-                                                                    if (confirm('هل أنت متأكد من حذف هذا المسؤول نهائياً؟')) {
-                                                                        deleteAdmin(admin.id);
-                                                                    }
-                                                                }}
-                                                                className="p-1.5 bg-gray-100 text-gray-600 hover:bg-red-100 hover:text-red-600 rounded-md transition-colors"
-                                                                title="حذف المسؤول"
-                                                            >
-                                                                <Trash2 size={16} />
-                                                            </button>
-                                                        </td>
-                                                    </tr>
-                                                ))}
-                                                {admins.length === 0 && (
-                                                    <tr>
-                                                        <td colSpan={5} className="p-8 text-center text-gray-400">
-                                                            لا يوجد مسؤولين مضافين (غيرك).
-                                                        </td>
-                                                    </tr>
-                                                )}
-                                            </tbody>
-                                        </table>
-                                    </div>
-                                </div>
-                            </div>
-                        )
-                    }
                 </div >
             </div >
         </div >

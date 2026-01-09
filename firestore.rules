@@ -2,49 +2,10 @@ rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
     
-    // Helper function to check if user is admin
-    function isAdmin() {
-      return request.auth != null && 
-        exists(/databases/$(database)/documents/admins/$(request.auth.uid)) &&
-        get(/databases/$(database)/documents/admins/$(request.auth.uid)).data.isActive == true;
-    }
-    
-    // Helper function to check if user is super admin
-    function isSuperAdmin() {
-      return isAdmin() && 
-        get(/databases/$(database)/documents/admins/$(request.auth.uid)).data.role == 'super_admin';
-    }
-    
-    // Categories - public read, admin write
-    match /categories/{categoryId} {
+    // Allow read/write for any authenticated user
+    match /{document=**} {
       allow read: if true;
-      allow write: if isAdmin();
-    }
-    
-    // Products - public read, admin write
-    match /products/{productId} {
-      allow read: if true;
-      allow write: if isAdmin();
-    }
-    
-    // Announcements - public read, admin write
-    match /announcements/{announcementId} {
-      allow read: if true;
-      allow write: if isAdmin();
-    }
-    
-    // Settings - public read, admin write
-    match /settings/{settingId} {
-      allow read: if true;
-      allow write: if isAdmin();
-    }
-    
-    // Admins - only super admin can manage
-    match /admins/{adminId} {
-      allow read: if isAdmin();
-      allow create: if isSuperAdmin();
-      allow update: if isSuperAdmin() || request.auth.uid == adminId;
-      allow delete: if isSuperAdmin();
+      allow write: if request.auth != null;
     }
   }
 }
