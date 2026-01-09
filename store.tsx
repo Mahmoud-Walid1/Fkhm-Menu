@@ -184,11 +184,25 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   };
 
   const addCategory = async (name: string) => {
-    await addDoc(collection(db, 'categories'), { name });
+    try {
+      await addDoc(collection(db, 'categories'), { name });
+    } catch (error: any) {
+      console.error("Error adding category:", error);
+      alert("فشل إضافة القسم: " + (error.message || "خطأ غير معروف"));
+    }
   };
 
   const updateCategory = async (id: string, updates: Partial<Category>) => {
-    await updateDoc(doc(db, 'categories', id), updates as any);
+    try {
+      // Remove undefined fields to prevent Firestore errors
+      const cleanUpdates = Object.fromEntries(
+        Object.entries(updates).filter(([_, v]) => v !== undefined)
+      );
+      await updateDoc(doc(db, 'categories', id), cleanUpdates as any);
+    } catch (error: any) {
+      console.error("Error updating category:", error);
+      alert("فشل تحديث القسم: " + (error.message || "خطأ غير معروف"));
+    }
   };
 
   const deleteCategory = async (id: string) => {
