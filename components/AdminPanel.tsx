@@ -13,7 +13,7 @@ export const AdminPanel: React.FC<{ onClose: () => void }> = ({ onClose }) => {
     const [editingProduct, setEditingProduct] = useState<Partial<Product> | null>(null);
 
     // Category Edit State
-    const [editingCategory, setEditingCategory] = useState<{ id: string; name: string; backgroundColor?: string; textColor?: string; cardBackgroundColor?: string; headerBackgroundColor?: string; } | null>(null);
+    const [editingCategory, setEditingCategory] = useState<{ id: string; name: string; backgroundColor?: string; textColor?: string; cardBackgroundColor?: string; headerBackgroundColor?: string; productNameColor?: string; productDescriptionColor?: string; } | null>(null);
 
     // Size Icon Selection State
     const [newSizeIcon, setNewSizeIcon] = useState<'cup' | 'box' | 'cup_soda'>('cup');
@@ -660,7 +660,9 @@ export const AdminPanel: React.FC<{ onClose: () => void }> = ({ onClose }) => {
                                                         backgroundColor: c.backgroundColor,
                                                         textColor: c.textColor,
                                                         cardBackgroundColor: c.cardBackgroundColor,
-                                                        headerBackgroundColor: c.headerBackgroundColor
+                                                        headerBackgroundColor: c.headerBackgroundColor,
+                                                        productNameColor: c.productNameColor,
+                                                        productDescriptionColor: c.productDescriptionColor
                                                     });
                                                 }}
                                                 className="text-blue-600 hover:text-blue-800 p-1"
@@ -796,6 +798,54 @@ export const AdminPanel: React.FC<{ onClose: () => void }> = ({ onClose }) => {
                                             )}
                                         </div>
                                         <p className="text-xs text-gray-400 mt-1">يضع عنوان القسم داخل مستطيل بهذا اللون (في عرض الكل).</p>
+                                    </div>
+
+                                    {/* Product Name Color */}
+                                    <div>
+                                        <label className="block text-sm font-bold mb-1">لون اسم المنتج (اختياري)</label>
+                                        <div className="flex gap-2">
+                                            <input
+                                                type="color"
+                                                value={editingCategory.productNameColor || '#000000'}
+                                                onChange={(e) => setEditingCategory({ ...editingCategory, productNameColor: e.target.value })}
+                                                className="h-10 w-20 p-1 rounded cursor-pointer border"
+                                            />
+                                            <input
+                                                type="text"
+                                                value={editingCategory.productNameColor || ''}
+                                                onChange={(e) => setEditingCategory({ ...editingCategory, productNameColor: e.target.value })}
+                                                placeholder="مثال: #000000"
+                                                className="flex-1 border p-2 rounded-md text-sm ltr"
+                                                dir="ltr"
+                                            />
+                                            {editingCategory.productNameColor && (
+                                                <button onClick={() => setEditingCategory({ ...editingCategory, productNameColor: undefined })} className="text-red-500 text-xs px-2 hover:bg-red-50 rounded">إلغاء</button>
+                                            )}
+                                        </div>
+                                    </div>
+
+                                    {/* Product Description Color */}
+                                    <div>
+                                        <label className="block text-sm font-bold mb-1">لون وصف المنتج (اختياري)</label>
+                                        <div className="flex gap-2">
+                                            <input
+                                                type="color"
+                                                value={editingCategory.productDescriptionColor || '#6b7280'}
+                                                onChange={(e) => setEditingCategory({ ...editingCategory, productDescriptionColor: e.target.value })}
+                                                className="h-10 w-20 p-1 rounded cursor-pointer border"
+                                            />
+                                            <input
+                                                type="text"
+                                                value={editingCategory.productDescriptionColor || ''}
+                                                onChange={(e) => setEditingCategory({ ...editingCategory, productDescriptionColor: e.target.value })}
+                                                placeholder="مثال: #6b7280"
+                                                className="flex-1 border p-2 rounded-md text-sm ltr"
+                                                dir="ltr"
+                                            />
+                                            {editingCategory.productDescriptionColor && (
+                                                <button onClick={() => setEditingCategory({ ...editingCategory, productDescriptionColor: undefined })} className="text-red-500 text-xs px-2 hover:bg-red-50 rounded">إلغاء</button>
+                                            )}
+                                        </div>
                                     </div>
                                 </div>
 

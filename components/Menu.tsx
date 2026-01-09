@@ -146,6 +146,8 @@ export const Menu: React.FC = () => {
                       onAdd={() => setSelectedProduct(product)}
                       primaryColor={settings.primaryColor}
                       cardBackgroundColor={cat.cardBackgroundColor}
+                      productNameColor={cat.productNameColor}
+                      productDescriptionColor={cat.productDescriptionColor}
                     />
                   ))}
                 </AnimatePresence>
@@ -191,7 +193,16 @@ const getSizeIcon = (categoryName: string, isCold: boolean) => {
   return Coffee;
 };
 
-const ProductCard: React.FC<{ product: Product; onAdd: () => void; primaryColor: string; cardBackgroundColor?: string }> = ({ product, onAdd, primaryColor, cardBackgroundColor }) => {
+interface ProductCardProps {
+  product: Product;
+  onAdd: () => void; // This will trigger the modal, not directly add to cart
+  primaryColor: string;
+  cardBackgroundColor?: string;
+  productNameColor?: string;
+  productDescriptionColor?: string;
+}
+
+const ProductCard: React.FC<ProductCardProps> = ({ product, onAdd, primaryColor, cardBackgroundColor, productNameColor, productDescriptionColor }) => {
   const [selectedSize, setSelectedSize] = useState(product.sizes?.[0]);
   const SizeIcon = getSizeIcon(product.category || '', product.isCold || false);
 
@@ -242,7 +253,7 @@ const ProductCard: React.FC<{ product: Product; onAdd: () => void; primaryColor:
         <div className="absolute inset-0 opacity-[0.03] pointer-events-none" style={{ backgroundImage: 'radial-gradient(circle at 2px 2px, black 1px, transparent 0)', backgroundSize: '16px 16px' }}></div>
 
         <div className="flex flex-col items-center mb-2 md:mb-4 mt-4 md:mt-6 z-10">
-          <h3 className="font-extrabold text-gray-900 text-lg md:text-2xl text-center leading-tight mb-1">
+          <h3 className="font-extrabold text-lg md:text-2xl text-center leading-tight mb-1" style={{ color: productNameColor || 'inherit' }}>
             {product.name}
           </h3>
 
@@ -314,7 +325,7 @@ const ProductCard: React.FC<{ product: Product; onAdd: () => void; primaryColor:
 
         </div>
 
-        <p className="text-gray-500 text-xs md:text-sm text-center mb-4 md:mb-6 line-clamp-3 px-1 md:px-2 font-medium leading-relaxed h-[4.5em] md:h-[3em]">
+        <p className="text-xs md:text-sm text-center mb-4 md:mb-6 line-clamp-3 px-1 md:px-2 font-medium leading-relaxed h-[4.5em] md:h-[3em]" style={{ color: productDescriptionColor || 'inherit' }}>
           {product.description || 'وصف المنتج غير متوفر حالياً، لكن الطعم أكيد هيعجبك! 😋'}
         </p>
 
