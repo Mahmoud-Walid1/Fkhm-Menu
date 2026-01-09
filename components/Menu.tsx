@@ -103,7 +103,7 @@ export const Menu: React.FC = () => {
       </div>
 
       {/* Product Sections */}
-      <div className="space-y-16">
+      <div className="space-y-32">
         {categories.map((cat) => {
           if (!isAll && cat.id !== activeCategory) return null;
 
@@ -323,7 +323,7 @@ const ProductCard: React.FC<{ product: Product; onAdd: () => void; primaryColor:
             {product.isPromo && product.promoPrice ? (
               <div className="flex flex-col items-start leading-none">
                 <span className="font-black text-xl md:text-2xl text-red-600">{displayPrice}<span className="text-[10px] font-bold text-gray-500 mr-1">ر.س</span></span>
-                <span className="text-[10px] text-gray-400 line-through decoration-red-500 mt-1">{product.price + (selectedSize?.priceModifier || 0)}</span>
+                <span className="text-sm font-bold text-gray-500 line-through decoration-red-600 decoration-2 mt-1">{product.price + (selectedSize?.priceModifier || 0)}</span>
               </div>
             ) : (
               <span className="font-black text-xl md:text-2xl text-gray-900">{displayPrice}<span className="text-[10px] font-bold text-gray-500 mr-1">ر.س</span></span>
