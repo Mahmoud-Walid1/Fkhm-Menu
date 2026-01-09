@@ -76,6 +76,15 @@ export interface SiteSettings {
   scrollingBannerText?: string;
 }
 
+export interface Admin {
+  id: string; // This will be the Auth UID
+  email?: string; // Optional (for display if manually added)
+  name: string;
+  role: 'admin' | 'super_admin';
+  isActive: boolean;
+  addedAt?: any;
+}
+
 export interface AppContextType {
   products: Product[];
   categories: Category[];
@@ -97,7 +106,12 @@ export interface AppContextType {
   refreshData: () => void;
   isChatOpen: boolean;
   toggleChat: () => void;
+  isAdmin?: boolean;
   toggleTheme: () => void;
+  admins: Admin[];
+  addAdmin: (admin: Admin) => void;
+  toggleAdminStatus: (id: string, currentStatus: boolean) => void;
+  deleteAdmin: (id: string) => void;
 }
 
 export interface MessageAction {

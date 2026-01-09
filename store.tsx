@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import { AppContextType, Product, Category, SiteSettings, CartItem, Message, Size } from './types';
+import { AppContextType, Product, Category, SiteSettings, CartItem, Message, Size, Admin } from './types';
 import { db } from './firebase';
 import {
   collection,
@@ -54,6 +54,7 @@ const AppContext = createContext<AppContextType | undefined>(undefined);
 export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [products, setProducts] = useState<Product[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
+  const [admins, setAdmins] = useState<Admin[]>([]);
   const [settings, setSettings] = useState<SiteSettings>(DEFAULT_SETTINGS);
 
   // Cart remains local (Session Only)
@@ -79,6 +80,14 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       setCategories(items);
     });
 
+    const unsubAdmins = onSnapshot(collection(db, 'admins'), (snap) => {
+      const items = snap.docs.map(doc => ({ id: doc.id, ...doc.data() } as Admin));
+      setAdmins(items);
+    }, (error) => {
+      console.error("Error fetching admins:", error);
+      // Don't alert here to avoid spamming if user is not admin yet
+    });
+
     const unsubSettings = onSnapshot(doc(db, 'settings', 'config'), (docSnap) => {
       if (docSnap.exists()) {
         const data = docSnap.data() as SiteSettings;
@@ -92,6 +101,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     return () => {
       unsubProducts();
       unsubCategories();
+      unsubAdmins();
       unsubSettings();
     };
   }, []);
@@ -251,6 +261,37 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     }
   };
 
+  const addAdmin = async (admin: Admin) => {
+    try {
+      // Use setDoc with the UID as the document ID
+      await setDoc(doc(db, 'admins', admin.id), {
+        ...admin,
+        addedAt: new Date()
+      });
+    } catch (error: any) {
+      console.error("Error adding admin:", error);
+      alert("فشل إضافة المسؤول: " + (error.message || "خطأ غير معروف (تأكد أنك Super Admin)"));
+    }
+  };
+
+  const toggleAdminStatus = async (id: string, currentStatus: boolean) => {
+    try {
+      await updateDoc(doc(db, 'admins', id), { isActive: !currentStatus });
+    } catch (error: any) {
+      console.error("Error toggling admin status:", error);
+      alert("فشل تغيير حالة المسؤول");
+    }
+  };
+
+  const deleteAdmin = async (id: string) => {
+    try {
+      await deleteDoc(doc(db, 'admins', id));
+    } catch (error: any) {
+      console.error("Error deleting admin:", error);
+      alert("فشل حذف المسؤول");
+    }
+  };
+
   const toggleChat = () => setIsChatOpen(prev => !prev);
 
 
@@ -263,6 +304,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     <AppContext.Provider value={{
       products,
       categories,
+      admins,
       cart,
       settings, // Use global settings directly
       addToCart,
@@ -278,9 +320,13 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       deleteCategory,
       reorderCategories,
       reorderProducts,
+      addAdmin,
+      toggleAdminStatus,
+      deleteAdmin,
       refreshData,
       isChatOpen,
-      toggleChat
+      toggleChat,
+      toggleTheme: () => { } // Placeholder as theme is in settings
     }}>
       {children}
     </AppContext.Provider>
