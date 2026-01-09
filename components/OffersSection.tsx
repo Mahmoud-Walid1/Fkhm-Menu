@@ -43,8 +43,8 @@ export const OffersSection: React.FC = () => {
           </div>
         </div>
 
-        {/* Container designed to handle both Portrait and Landscape images gracefully */}
-        <div className="relative w-full h-[450px] md:h-[500px] rounded-2xl overflow-hidden shadow-lg bg-gray-200 group border border-gray-100">
+        {/* Container designed to handle both Portrait and Landscape images gracefully - Now Vertical/Portrait Focus */}
+        <div className="relative w-full max-w-sm md:max-w-md mx-auto h-[500px] md:h-[600px] rounded-2xl overflow-hidden shadow-lg bg-gray-200 group border border-gray-100">
           <AnimatePresence mode="wait">
             <motion.div
               key={index}
@@ -64,7 +64,7 @@ export const OffersSection: React.FC = () => {
               {/* Main Image (Contained to show full image without cropping) */}
               <img
                 src={settings.offerImages[index]}
-                className="relative z-10 w-full h-full object-contain"
+                className="relative z-10 w-full h-full object-cover"
                 alt={`Offer ${index + 1}`}
               />
             </motion.div>
